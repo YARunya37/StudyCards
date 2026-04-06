@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
+#include <QSplitter>
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -19,5 +19,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    // Метод для создания разделителя между основными виджетами
+    void SetUpSPlitter(QWidget* parent);
 };
 #endif // MAINWINDOW_H
