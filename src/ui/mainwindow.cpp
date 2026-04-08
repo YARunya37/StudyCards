@@ -27,4 +27,8 @@ void MainWindow::SetUpSPlitter(QWidget* parent)
     splitter->addWidget(ui->sourceTree);
     splitter->addWidget(ui->sourceTextWidget);
     splitter->addWidget(ui->tabWidget);
+    // Виджет с билетами можно убрать разделителем
+    splitter->setCollapsible(splitter->indexOf(ui->tabWidget), true);
+    // Убираем расстояние между окнами
+    splitter->setHandleWidth(0);
 }
