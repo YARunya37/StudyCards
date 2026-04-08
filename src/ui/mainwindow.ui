@@ -134,6 +134,9 @@
           <height>0</height>
          </size>
         </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
         <property name="html">
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -142,19 +145,7 @@ hr { height: 1px; border-width: 0; }
 li.unchecked::marker { content: &quot;\2610&quot;; }
 li.checked::marker { content: &quot;\2612&quot;; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis pellentesque interdum tempor. Nam interdum mauris et ultricies maximus. Vivamus dui sem, iaculis eget justo in, blandit scelerisque nunc. Nullam blandit turpis sit amet dolor feugiat dapibus. Sed consectetur tincidunt mollis. Proin id nulla nec risus blandit facilisis. Nulla nisl ipsum, varius vel felis a, pharetra sollicitudin magna. Integer erat dolor, egestas congue ultricies eget, eleifend et magna. Ut faucibus maximus tellus, eget faucibus ligula maximus a. Vivamus vulputate id ex auctor hendrerit. Integer dui diam, consequat a tortor eu, hendrerit aliquam velit. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Aenean convallis molestie mollis. Integer facilisis quam augue, vitae consequat dolor suscipit vitae. Morbi consectetur eros sit amet ipsum vulputate interdum. Praesent quis laoreet ligula. Morbi et hendrerit libero. Curabitur non laoreet nulla, ut commodo nibh. In vehicula metus ipsum, non finibus eros consectetur vel. Aliquam rutrum eu odio a dictum. Ut at euismod nunc, bibendum pharetra libero. Sed rutrum convallis nisl, non auctor augue cursus at. Aliquam ultricies bibendum nunc, id lobortis ante laoreet sed. Donec ac molestie neque. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;In molestie, lectus ut vestibulum sagittis, metus justo ullamcorper leo, et rutrum eros quam vel eros. Maecenas vehicula ex sapien, id pharetra quam feugiat at. Curabitur hendrerit dictum risus, at eleifend mauris rutrum et. Nulla consequat molestie leo, nec venenatis velit luctus eget. Nulla lacinia libero eget risus accumsan scelerisque. Ut scelerisque et nisl ut venenatis. Ut fermentum nisi nulla, sit amet volutpat augue elementum eu. Duis eget tincidunt nunc. Aenean lacus orci, faucibus vel leo suscipit, commodo faucibus enim. Nulla facilisi. In hac habitasse platea dictumst. Curabitur bibendum sem ac dolor ullamcorper, in vulputate orci imperdiet. Integer quis risus et enim mattis auctor. Fusce euismod a nibh ut mattis. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Sed non ante ipsum. In vel aliquet velit. Etiam vel venenatis neque. Mauris aliquam dolor ac nibh ultrices rhoncus. Sed ornare nec dolor sed fringilla. Etiam ut fringilla nunc. Proin non consequat est. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Pellentesque massa nibh, commodo id ex id, accumsan vestibulum est. Morbi faucibus turpis tellus, sit amet aliquet arcu finibus et. Morbi pellentesque augue quis rhoncus facilisis. Pellentesque nec turpis non nulla feugiat tincidunt at ut massa. Quisque sit amet pretium eros. Aenean ipsum libero, tincidunt vitae massa ac, posuere rutrum dolor. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce dui magna, placerat nec massa quis, consequat auctor odio. Nulla eget scelerisque sapien, at malesuada eros. Ut eu orci sollicitudin, vehicula nisl vel, consectetur erat. Donec ac ipsum ultrices, facilisis sapien a, tincidunt sem. Integer pretium id ipsum vitae vehicula. Donec egestas euismod lorem ac consectetur. Vivamus massa dolor, fermentum rhoncus facilisis et, malesuada ut leo. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Nullam eros nisl, lacinia non urna ac, posuere ultrices enim. Duis leo urna, gravida luctus gravida at, sodales et magna. In at metus vitae tortor imperdiet pulvinar ac eget est. Phasellus vel ligula eget dui vulputate viverra at in augue. Cras vitae ornare erat. Aenean eget mauris turpis. Praesent at odio nibh. Fusce varius fringilla lectus, eu pulvinar urna eleifend eget. Maecenas eu tempor velit. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Curabitur semper, lacus eget consequat tristique, erat sapien porttitor odio, sit amet maximus leo enim eu arcu. Nam ultrices id quam porttitor imperdiet. In convallis malesuada tempus. Nam tincidunt id felis vel feugiat. Pellentesque a aliquam metus. Nullam bibendum, mi ac aliquet auctor, tortor mauris imperdiet mauris, viverra fringilla nisl lectus at erat. Aliquam eget pulvinar leo. Vivamus fringilla aliquam risus quis ultrices. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed venenatis justo eros, vulputate bibendum est maximus quis. Morbi luctus velit turpis. Sed aliquet luctus tellus dictum tristique. Nunc egestas augue nec nulla ornare, a egestas elit molestie. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;In lectus metus, rhoncus sit amet velit ut, tempus tempus dolor. Aenean aliquam, risus eu ultricies pellentesque, libero libero commodo odio, vel ultrices nibh odio et sem. Sed tempus pharetra elit mattis aliquet. Cras quis scelerisque velit. Quisque hendrerit id felis commodo porttitor. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Ut dignissim risus at elit tempus, id aliquam est viverra. Nunc tempus vulputate congue. Etiam non neque sit amet ante suscipit dapibus in quis nisl. Maecenas tempus eget libero gravida iaculis. Vestibulum non dapibus orci. Sed sit amet nisi vel augue mattis fringilla a vitae risus. Integer sit amet venenatis dui, cursus fermentum justo. Pellentesque eu vestibulum ex. Donec turpis diam, pharetra vitae tincidunt in, convallis malesuada diam. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Etiam commodo iaculis porttitor. Mauris nec interdum lorem. Etiam turpis massa, rutrum rhoncus nisl id, rutrum convallis purus. Sed tempor ac purus eu commodo. Morbi dictum felis in est luctus iaculis. Aliquam vel ligula eu nisl aliquam porttitor at sed diam. Quisque ut tincidunt velit, vitae auctor tellus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum tincidunt varius est, a ullamcorper lectus. Suspendisse et fermentum mi. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Nulla sollicitudin sagittis risus, non porta sapien sollicitudin eget. Aenean ut bibendum metus, eget facilisis nulla. Aliquam accumsan consequat nisi et lobortis. Nullam eleifend, ex nec elementum molestie, justo est mattis risus, id facilisis risus arcu vitae dolor. Maecenas in auctor nisi. Vestibulum eleifend molestie purus sit amet cursus. Pellentesque ut lectus rutrum, euismod elit in, vulputate lacus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec bibendum consequat malesuada. Quisque dictum lobortis placerat. Morbi finibus cursus eros sit amet blandit. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Aliquam mollis augue dolor, quis pretium erat dictum ac. Nam nec quam turpis. Maecenas id placerat odio. Donec sed varius dui, eu consequat lacus. Integer diam ante, sodales sit amet lacinia in, efficitur nec dolor. Nam tortor tortor, iaculis eu lacinia et, consequat ut erat. Pellentesque nec velit lacus. Praesent lobortis, nulla eu lacinia pulvinar, risus diam dictum ipsum, eu venenatis magna dolor non libero. Aliquam erat volutpat. In pharetra, tortor quis ultricies consequat, felis dui consequat arcu, non ornare mi tellus quis mi. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Fusce et mattis justo. Nulla finibus justo sed dictum lobortis. Sed mi lacus, sodales et erat eget, blandit cursus eros. Praesent interdum sed ligula ac dapibus. Maecenas at mauris maximus, maximus enim eget, tempor purus. Morbi mi est, iaculis id rhoncus faucibus, lacinia sed augue. &lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Добавьте файл с помощью кнопки в панели&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
@@ -205,7 +196,7 @@ hr { height: 1px; border-width: 0; }
 li.unchecked::marker { content: &quot;\2610&quot;; }
 li.checked::marker { content: &quot;\2612&quot;; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Здесь будет наш билет&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Группа пока пуста&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -237,7 +228,24 @@ li.checked::marker { content: &quot;\2612&quot;; }
     </property>
     <addaction name="action_2"/>
    </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>Билеты</string>
+    </property>
+    <addaction name="action_3"/>
+    <addaction name="action_4"/>
+    <addaction name="action_7"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>Тест</string>
+    </property>
+    <addaction name="action_5"/>
+    <addaction name="action_6"/>
+   </widget>
    <addaction name="menu"/>
+   <addaction name="menu_2"/>
+   <addaction name="menu_3"/>
   </widget>
   <action name="action">
    <property name="text">
@@ -247,6 +255,31 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <action name="action_2">
    <property name="text">
     <string>Добавить файл</string>
+   </property>
+  </action>
+  <action name="action_3">
+   <property name="text">
+    <string>Создать группу</string>
+   </property>
+  </action>
+  <action name="action_4">
+   <property name="text">
+    <string>Открыть группу</string>
+   </property>
+  </action>
+  <action name="action_5">
+   <property name="text">
+    <string>Запустить с текущей колодой</string>
+   </property>
+  </action>
+  <action name="action_6">
+   <property name="text">
+    <string>Посмотреть результаты</string>
+   </property>
+  </action>
+  <action name="action_7">
+   <property name="text">
+    <string>Открыть группу в окне</string>
    </property>
   </action>
  </widget>
