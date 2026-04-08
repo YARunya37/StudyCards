@@ -226,7 +226,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <property name="title">
      <string>Файл</string>
     </property>
-    <addaction name="action_2"/>
+    <addaction name="add_file"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -252,7 +252,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <string>Файлы</string>
    </property>
   </action>
-  <action name="action_2">
+  <action name="add_file">
    <property name="text">
     <string>Добавить файл</string>
    </property>

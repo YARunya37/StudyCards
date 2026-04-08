@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
+#include <QDebug>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -9,11 +9,27 @@ MainWindow::MainWindow(QWidget *parent)
     // Создаём разделитель
     SetUpSPlitter(parent);
 
+    // Подключаем реализацию функции добавления файла к кнопке
+    connect(ui->add_file, &QAction::triggered, this, &MainWindow::AddFile);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::AddFile()
+{
+    QStringList files = QFileDialog::getOpenFileNames(
+        this,
+        "Выбрать файлы",
+        "",
+        "Текстовые документы (*.docx *.md *.pdf)"
+    );
+    foreach (auto file, files) {
+        qInfo() << file << "\n";
+    }
+
 }
 
 void MainWindow::SetUpSPlitter(QWidget* parent)

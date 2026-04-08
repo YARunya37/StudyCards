@@ -3,6 +3,10 @@
 
 #include <QMainWindow>
 #include <QSplitter>
+#include <QString>
+#include <QStringList>
+#include <QFileDialog>
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -16,6 +20,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+private slots:
+    void AddFile();
 
 private:
     Ui::MainWindow *ui;
