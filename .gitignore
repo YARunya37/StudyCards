@@ -61,6 +61,29 @@ CMakeLists.txt.user*
 *.vcxproj
 *vcxproj.*
 
+# Visual Studio
+.vs/
+
+# Build directories
+out/
+build/
+Debug/
+Release/
+x64/
+x86/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# IDE files
+*.suo
+*.user
+*.opensdf
+*.sdf
+
 # MinGW generated files
 *.Debug
 *.Release
