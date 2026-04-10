@@ -7,6 +7,7 @@ add_library(main_ui_module STATIC
     mainwindow.h
     mainwindow.cpp
     mainwindow.ui
+    filetreewidget.h filetreewidget.cpp
 )
 
 # Подключаем Qt к модулю

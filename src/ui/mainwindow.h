@@ -21,12 +21,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
-    void AddFile();
-
 private:
     Ui::MainWindow *ui;
     // Метод для создания разделителя между основными виджетами
-    void SetUpSPlitter(QWidget* parent);
+    void SetUpSPlitter();
 };
 #endif // MAINWINDOW_H
