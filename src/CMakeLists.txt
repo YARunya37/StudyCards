@@ -8,6 +8,7 @@ add_subdirectory(utils)
 qt_add_executable(StudyCards
     WIN32 MACOSX_BUNDLE
     main.cpp
+    # core/Main.cpp
 )
 
 # Подключаем все необходимые компоненты для РАБОТЫ ПРОГРАММЫ(что включили, то и будет работать)
@@ -15,6 +16,7 @@ target_link_libraries(StudyCards
 PRIVATE
 Qt::Core
 main_ui_module
+core_module
 )
 
 
