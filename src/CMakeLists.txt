@@ -17,6 +17,20 @@ Qt::Core
 main_ui_module
 )
 
+# Добавление папки resources с копированием всего её содержимого
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/resources
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources
+)
+
+# Очистка папки userfiles от .gitkeep
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E rm -rf
+    "$<TARGET_FILE_DIR:${PROJECT_NAME}>/resources/userfiles/.gitkeep"
+)
 
 
 # Хз, что тут. QT сам создал это, я не трогал
