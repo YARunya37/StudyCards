@@ -14,3 +14,13 @@ include(GNUInstallDirs)
 
 # Подключение подкаталогов
 add_subdirectory(src)
+
+# Копирование Pandoc при сборке
+if(WIN32)
+    add_custom_command(TARGET StudyCards POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:StudyCards>/utils/pandoc
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/utils/pandoc/pandoc.exe"
+            $<TARGET_FILE_DIR:StudyCards>/utils/pandoc/
+    )
+endif()
