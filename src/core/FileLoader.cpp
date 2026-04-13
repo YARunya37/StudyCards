@@ -50,8 +50,7 @@ string getFileExtension(const string& FilePath)
 bool isSupportedFormat(const string& FilePath)
 {
 	string ext = getFileExtension(FilePath);
-	if (ext == "pdf" ||
-		ext == "docx" || ext == "doc" ||
+	if (ext == "docx" || ext == "doc" ||
 		ext == "md" || ext == "markdown")
 	{
 		return true;
