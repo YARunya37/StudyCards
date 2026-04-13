@@ -2,9 +2,13 @@
 #include "FileLoader.h"
 #include <direct.h>
 
-string GetPandocPath()
+string getPandocPath()
 {
-	return "..\\utils\\pandoc\\pandoc.exe";
+	char currentDir[260];
+	_getcwd(currentDir, 260);  // Получаем текущую папку
+
+	// Строим полный путь
+	return string(currentDir) + "\\utils\\pandoc\\pandoc.exe";
 }
 string getOutputHtmlPath(const string& inputPath)
 {
