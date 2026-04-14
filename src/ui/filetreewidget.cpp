@@ -4,7 +4,8 @@
 #include <QDir>
 #include <QDebug>
 #include <QCoreApplication>
-
+#include <QDropEvent>
+#include <QDragMoveEvent>
 FileTreeWidget::FileTreeWidget(QWidget* parent) :
     QTreeWidget(parent)
 {
@@ -44,6 +45,7 @@ void FileTreeWidget::AddFiles()
     }
 }
 
+
 void FileTreeWidget::setUpTree()
 {
     // Визуальная часть
@@ -55,6 +57,16 @@ void FileTreeWidget::setUpTree()
 
     // Восстанавливаем состояние на основе уже добавленных файлов
     restoreState();
+
+    // Включаем возможность перемещать элементы внутри виджета
+    this->setDragEnabled(true);
+    setDragDropMode(QAbstractItemView::InternalMove);
+    setDefaultDropAction(Qt::MoveAction);
+    setAcceptDrops(true);
+
+    // test
+    QTreeWidgetItem* new_item = new QTreeWidgetItem(this);
+    new_item->setText(0, "PAPKA");
 }
 
 QString FileTreeWidget::GetName(QString file)
@@ -92,5 +104,37 @@ void FileTreeWidget::restoreState()
         QTreeWidgetItem* new_item = new QTreeWidgetItem(this);
         new_item->setText(0, name);
     }
+}
+
+void FileTreeWidget::dropEvent(QDropEvent *event)
+{
+    // Элемент над которым сейчас находится курсор
+    auto targetItem = itemAt(event->position().toPoint());
+
+    // Если бросаем элемент в пустое место, то вызываем стандартную реализацию
+    if(!targetItem){
+        QTreeWidget::dropEvent(event);
+        return;
+    }
+
+    // Если просаем на предмет, пытаемся сделать его родителем
+    if(dropIndicatorPosition() == QAbstractItemView::OnItem){
+
+        // Если элемент, на который бросаем - файл, то игнорируем
+        if(localFiles.contains(targetItem->text(0))){
+            event->ignore();
+            qInfo() << "Запрещено";
+            return;
+        }
+        // Делаем файл дочерним к папке
+        else{
+            QTreeWidget::dropEvent(event);
+            qInfo() << "Разрешено действие";
+            return;
+        }
+    }
+    // Вызов стандартной реализации на необработанные случаи
+    QTreeWidget::dropEvent(event);
+
 }
 
