@@ -6,10 +6,15 @@
 #include <QCoreApplication>
 #include <QDropEvent>
 #include <QDragMoveEvent>
+#include <QMenu>
 FileTreeWidget::FileTreeWidget(QWidget* parent) :
     QTreeWidget(parent)
 {
     setUpTree();
+
+    // Для вызова кастомного контекстного меню
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, &QTreeWidget::customContextMenuRequested, this, &FileTreeWidget::showContextMenu);
 }
 
 void FileTreeWidget::AddFiles()
@@ -46,6 +51,7 @@ void FileTreeWidget::AddFiles()
 }
 
 
+
 void FileTreeWidget::setUpTree()
 {
     // Визуальная часть
@@ -63,10 +69,6 @@ void FileTreeWidget::setUpTree()
     setDragDropMode(QAbstractItemView::InternalMove);
     setDefaultDropAction(Qt::MoveAction);
     setAcceptDrops(true);
-
-    // test
-    QTreeWidgetItem* new_item = new QTreeWidgetItem(this);
-    new_item->setText(0, "PAPKA");
 }
 
 QString FileTreeWidget::GetName(QString file)
@@ -141,3 +143,70 @@ void FileTreeWidget::dropEvent(QDropEvent *event)
 
 }
 
+void FileTreeWidget::showContextMenu(const QPoint &pos)
+{
+    QTreeWidgetItem* item = itemAt(pos);
+
+    QMenu menu(this);
+    // Если item nullptr, то это пустая область
+    if(!item){
+        // Создаём действие создания папки и подключаем его к реализации
+        QAction* createAct = new QAction(QString("Создать папку"), this);
+        connect(createAct, &QAction::triggered, this, &FileTreeWidget::createFolder);
+        menu.addAction(createAct);
+    }
+    // Контекстное меню для элемента
+    else{
+        // Создаём действие удаления и подключаем его к реализации
+        QAction* deleteAct = new QAction(QString("Удалить"), this);
+        connect(deleteAct, &QAction::triggered, this, &FileTreeWidget::deleteItem);
+        menu.addAction(deleteAct);
+    }
+    // Отображаем контекстное меню
+    menu.exec(viewport()->mapToGlobal(pos));
+}
+
+void FileTreeWidget::createFolder()
+{
+    // Создаём item-папку
+    QTreeWidgetItem* folder = new QTreeWidgetItem(this);
+    folder->setText(0, QString("Новая папка"));
+    addTopLevelItem(folder);
+}
+
+void FileTreeWidget::deleteItem()
+{
+    // Перебираем все выбранные элементы на удаление
+    foreach(auto item, selectedItems()){
+        // Удаляем детей
+        deleteChildren(item);
+        // Удаляем сам элемент
+        // Если файл, нужно удалить его по пути и из map
+        if(localFiles.contains(item->text(0))){
+            QFile::remove(localFiles.value(item->text(0)));
+            localFiles.remove(item->text(0));
+        }
+        delete item;
+    }
+}
+
+void FileTreeWidget::deleteChildren(QTreeWidgetItem *folder)
+{
+    // Идём справа налево, чтобы при уменьшении списка дочерних элемента, не потерять никого
+    //(иначе нужен отступ назад при удалении, т.к. индексы сместятся на один влево после удалённого)
+    for(int i = folder->childCount()-1; i >= 0; i--) {
+        auto currChild = folder->child(i);
+        // Если дочерний элемент - папка, то удаляем все файлы уже в ней
+        if(!localFiles.contains(currChild->text(0))){
+            deleteChildren(currChild);
+            delete currChild;
+        }
+        // Удалаяем файл из проекта, массива, дерева
+        else{
+            qInfo() << "Удаляем файл по пути:" << localFiles.value(currChild->text(0));
+            QFile::remove(localFiles.value(currChild->text(0)));
+            localFiles.remove(currChild->text(0));
+            delete currChild;
+        }
+    }
+}

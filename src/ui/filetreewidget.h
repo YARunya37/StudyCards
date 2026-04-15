@@ -14,6 +14,13 @@ public:
 public slots:
     // Вызывает диалоговое окно для добавления выбранных файлов в виджет файловой системы
     void AddFiles();
+private slots:
+    // Слот для вызова кастомного контекстного меню
+    void showContextMenu(const QPoint& pos);
+    // Слот для создания папки в виджете
+    void createFolder();
+    // Слот для удаления любого(файла, папки) элемента в виджете
+    void deleteItem();
 protected:
     // Переопределение метода перетягивания элементов
     void dropEvent(QDropEvent* event) override;
@@ -27,6 +34,8 @@ private:
     QString GetName(QString filePath);
     // Отображает уже сохранённые пользователем файлы
     void restoreState();
+    // Метод для удаления дочерних элементов(файлов и папок) папки
+    void deleteChildren(QTreeWidgetItem* folder);
 };
 
 #endif // FILETREEWIDGET_H
