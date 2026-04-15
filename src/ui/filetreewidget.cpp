@@ -117,8 +117,11 @@ void FileTreeWidget::dropEvent(QDropEvent *event)
         return;
     }
 
+    auto drop = dropIndicatorPosition();
     // Если просаем на предмет, пытаемся сделать его родителем
-    if(dropIndicatorPosition() == QAbstractItemView::OnItem){
+    if(drop == QAbstractItemView::OnItem ||
+        drop == QAbstractItemView::AboveItem ||
+        drop == QAbstractItemView::BelowItem){
 
         // Если элемент, на который бросаем - файл, то игнорируем
         if(localFiles.contains(targetItem->text(0))){
