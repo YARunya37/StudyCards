@@ -160,16 +160,21 @@ void FileTreeWidget::showContextMenu(const QPoint &pos)
     }
     // Контекстное меню для элемента
     else{
-        // Создаём действие удаления и подключаем его к реализации
-        QAction* deleteAct = new QAction(QString("Удалить"), this);
-        connect(deleteAct, &QAction::triggered, this, &FileTreeWidget::deleteItem);
-        menu.addAction(deleteAct);
-        // Если нажали по одной папке, то добавляем действие переименования
+        // Если нажали по одной папке, то добавляем действие переименования и создания папки
         if(!localFiles.contains(item->text(0)) && selectedItems().size() == 1){
+
+            QAction* createAct = new QAction(QString("Создать папку"), this);
+            connect(createAct, &QAction::triggered, this, &FileTreeWidget::createFolder);
+            menu.addAction(createAct);
+
             QAction* renameAct = new QAction(QString("Переименовать"), this);
             connect(renameAct, &QAction::triggered, this, &FileTreeWidget::renameItem);
             menu.addAction(renameAct);
         }
+        // Создаём действие удаления и подключаем его к реализации
+        QAction* deleteAct = new QAction(QString("Удалить"), this);
+        connect(deleteAct, &QAction::triggered, this, &FileTreeWidget::deleteItem);
+        menu.addAction(deleteAct);
     }
     // Отображаем контекстное меню
     menu.exec(viewport()->mapToGlobal(pos));
@@ -177,12 +182,24 @@ void FileTreeWidget::showContextMenu(const QPoint &pos)
 
 void FileTreeWidget::createFolder()
 {
-    // Создаём item-папку
-    QTreeWidgetItem* folder = new QTreeWidgetItem(this);
-    folder->setText(0, QString("Новая папка"));
-    // Деём возможность менять название папки
-    folder->setFlags(folder->flags() | Qt::ItemIsEditable);
-    addTopLevelItem(folder);
+    auto selected = selectedItems();
+    // Если создаём в папке
+    if(selected.size() == 1 && !localFiles.contains(selected.value(0)->text(0))){
+        // Создаём item-папку под выбранной папкой
+        QTreeWidgetItem* folder = new QTreeWidgetItem(selected.value(0));
+        folder->setText(0, QString("Новая папка"));
+        // Деём возможность менять название папки
+        folder->setFlags(folder->flags() | Qt::ItemIsEditable);
+        addTopLevelItem(folder);
+    }
+    else{
+        // Создаём item-папку в корне дерева
+        QTreeWidgetItem* folder = new QTreeWidgetItem(this);
+        folder->setText(0, QString("Новая папка"));
+        // Деём возможность менять название папки
+        folder->setFlags(folder->flags() | Qt::ItemIsEditable);
+        addTopLevelItem(folder);
+    }
 
 }
 
