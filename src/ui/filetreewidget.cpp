@@ -191,6 +191,8 @@ void FileTreeWidget::createFolder()
         // Деём возможность менять название папки
         folder->setFlags(folder->flags() | Qt::ItemIsEditable);
         addTopLevelItem(folder);
+        // Предлагаем сразу изменить название папки
+        editItem(folder);
     }
     else{
         // Создаём item-папку в корне дерева
@@ -199,8 +201,9 @@ void FileTreeWidget::createFolder()
         // Деём возможность менять название папки
         folder->setFlags(folder->flags() | Qt::ItemIsEditable);
         addTopLevelItem(folder);
+        // Предлагаем сразу изменить название папки
+        editItem(folder);
     }
-
 }
 
 void FileTreeWidget::deleteItem()
