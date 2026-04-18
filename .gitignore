@@ -92,7 +92,7 @@ Makefile
 *.pyc
 
 # Binaries
-# --------
+# ---------
 *.dll
 *.exe
 !src/utils/pandoc/pandoc.exe
