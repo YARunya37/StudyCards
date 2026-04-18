@@ -1,15 +1,13 @@
-﻿#include "pch.h"
-#include "FileLoader.h"
-#include <direct.h>
+﻿#include "FileLoader.h"
 
+// #include <QCoreApplication>
+
+//Getting the full path to pandoc
 string getPandocPath()
 {
-	char currentDir[260];
-	_getcwd(currentDir, 260);  // Получаем текущую папку
-
-	// Строим полный путь
-	return string(currentDir) + "\\utils\\pandoc\\pandoc.exe";
+   return "/src/utils/pandoc/pandoc.exe";
 }
+//Getting the path of the output file with the .html extension
 string getOutputHtmlPath(const string& inputPath)
 {
 	int LenFile = inputPath.size();
@@ -29,6 +27,7 @@ string getOutputHtmlPath(const string& inputPath)
 	}
 	return outputPath + ".html";
 }
+//Getting the extension of an incoming file
 string getFileExtension(const string& FilePath)
 {
 	int LenFile = FilePath.size();
@@ -51,6 +50,7 @@ string getFileExtension(const string& FilePath)
 	}
 	return "";
 }
+//Checking for supported format
 bool isSupportedFormat(const string& FilePath)
 {
 	string ext = getFileExtension(FilePath);
@@ -61,33 +61,7 @@ bool isSupportedFormat(const string& FilePath)
 	}
 	else return false;
 }
-bool loadHtmlFile(const string& FilePath, SourceText& text)
-{
-	ifstream input(FilePath);
-	if (!input.is_open())
-	{
-		cout << "Файл не открылся" << endl;
-		return 0;
-	}
-	string row;
-	while (getline(input, row))
-	{
-		text.size++;
-	}
-	if (text.rows != nullptr)
-	{
-		delete[] text.rows;
-	}
-	text.rows = new string[text.size];
-	input.clear();// очищает состояние потока (флаги)
-	input.seekg(0);// Возвращаемся в начало для чтения
-	for (int i = 0; getline(input, row) && i < text.size; i++)
-	{
-		text.rows[i] = row;
-	}
-	input.close();
-	return 1;
-}
+//Checking if pandoc opens
 bool isPandocAvailable(const string& PandocPath)
 {
 	ifstream input(PandocPath);
@@ -95,6 +69,7 @@ bool isPandocAvailable(const string& PandocPath)
 		return 1;
 	else return 0;
 }
+//Конвертация исходного файла в файл в html формате
 bool ConvertToHtml(const string& FilePath, string& outputPath, const string& PandocPath)
 {
 	if (!isPandocAvailable(PandocPath))
@@ -118,23 +93,40 @@ bool ConvertToHtml(const string& FilePath, string& outputPath, const string& Pan
 	}
 	return false;
 }
-bool loadDocument(const string& FilePath, SourceText& text)
+//Uploading files
+bool loadDocument(const string& inputPath, string& html, const string& pandocPath)
 {
-	if (!isSupportedFormat(FilePath))
-	{
+	// 1. Проверка формата
+	if (!isSupportedFormat(inputPath)) {
+		cout << "Неподдерживаемый формат файла" << endl;
 		return false;
 	}
 
-	string outputPath; // выходной файл
-	string PandocPath = GetPandocPath(); // путь к pandoc(конвертатор)
+	// 2. Путь к Pandoc
+    string path = pandocPath.empty() ? getPandocPath() : pandocPath;
+    if (!isPandocAvailable(path)) {
+        cout << "Pandoc не найден: " << path << endl;
+		return false;
+	}
 
-	if (!ConvertToHtml(FilePath, outputPath, PandocPath))
-	{
+	// 3. Конвертация
+	string outputPath;
+	if (!ConvertToHtml(inputPath, outputPath, pandocPath)) {
+		cout << "Ошибка конвертации в HTML" << endl;
 		return false;
 	}
-	if (!loadHtmlFile(outputPath, text))
-	{
-		return false;
-	}
+
+	// 4. Чтение HTML файла в строку (через fstream + итераторы)
+	ifstream input(outputPath);
+    if (!input.is_open()) {
+        cout << "Не удалось открыть HTML файл" << endl;
+        return false;
+    }
+
+	// Читаем весь файл в строку
+	html = string((istreambuf_iterator<char>(input)),
+		istreambuf_iterator<char>());
+
+	input.close();
 	return true;
 }

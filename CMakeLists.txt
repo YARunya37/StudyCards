@@ -1,26 +1,23 @@
 cmake_minimum_required(VERSION 3.19)
 project(StudyCards LANGUAGES CXX)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets LinguistTools)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Поиск Qt6
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
 
 qt_standard_project_setup()
 
-qt_add_translations(
-    TARGETS StudyCards
-    TS_FILES StudyCards_ru_RU.ts
-)
-
 include(GNUInstallDirs)
 
-# Подключение подкаталогов
+# Подключение подкаталогов (здесь создаётся target StudyCards)
 add_subdirectory(src)
 
-# Копирование Pandoc при сборке
-if(WIN32)
-    add_custom_command(TARGET StudyCards POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:StudyCards>/utils/pandoc
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_SOURCE_DIR}/utils/pandoc/pandoc.exe"
-            $<TARGET_FILE_DIR:StudyCards>/utils/pandoc/
-    )
-endif()
+# ВРЕМЕННО ОТКЛЮЧЕНО - переводы
+# Раскомментируй когда всё будет работать
+# qt_add_translations(
+#     TARGETS StudyCards
+#     TS_FILES StudyCards_ru_RU.ts
+# )
+

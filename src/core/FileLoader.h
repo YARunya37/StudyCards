@@ -1,11 +1,15 @@
 ﻿#pragma once
-#include "common.h"
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <windows.h>
 
-string GetPandocPath();
+using namespace std;
+
+string getPandocPath();
 string getOutputHtmlPath(const string&);
 string getFileExtension(const string&);
 bool isSupportedFormat(const string&);
 bool isPandocAvailable(const string&);
 bool ConvertToHtml(const string&,  string&, const string&);
-bool loadHtmlFile(const string&, SourceText&);
-bool loadDocument(const string&, SourceText&);
+bool loadDocument(const string&, string&, const string&);

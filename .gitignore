@@ -95,6 +95,7 @@ Makefile
 # --------
 *.dll
 *.exe
+!src/utils/pandoc/pandoc.exe
 
 # Directories with generated files
 .moc/
