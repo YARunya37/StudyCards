@@ -15,9 +15,10 @@ public:
     QStringList add_files(QStringList files);
     // Метод для сохранения паки внутри проекта
     void add_folder(QString name);
-
+    // Метод для добавления записи о файле в папку
     void add_item_to_folder(const QString& item, const QString& folder);
-
+    // Метод для перезаписи файла из одной папки в другую
+    void add_item_to_folder(const QString& item, const QString& new_folder, const QString& old_folder);
     void remove_item_from_folder(const QString& item, const QString& folder);
     // Метод для получения всех файлов из директории проекта
     QStringList get_existing_files();

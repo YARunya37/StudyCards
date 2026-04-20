@@ -52,18 +52,67 @@ void FileManager::add_folder(QString name){
 
 void FileManager::add_item_to_folder(const QString &item, const QString &folder)
 {
+    // Если мы перетягиваем в пустую область, то никуда добавлять не надо
+    if(folder == ""){
+        // В ДАЛЬНЕЙШЕМ ЗДЕСЬ, ВЕРОЯТНО БУДЕТ КАКОЕ-ТО ДОПОЛНИТЕЛЬНОЕ УДАЛЕНИЕ
+        return;
+    }
+
     QFile* target_folder = localFolders.value(folder);
+
+    // Проверяем не содержится ли файл в этой папке, если да, то заканчиваем работу
+    if(target_folder->open(QIODevice::ReadOnly)){
+        QTextStream read(target_folder);
+        QString line;
+        while(!read.atEnd()){
+            line = read.readLine();
+            if(line == item){
+                return;
+            }
+        }
+
+        target_folder->close();
+    }
+
+    // Добавляем item в папку
     if(localFolders.contains(folder) && target_folder->open(QIODevice::Append)){
-
-        // Удаляем item из любой другой папки
-
-
-        // Проверяем не содержится ли файл в этой папке, если да, то заканчиваем работу
-
-
         QTextStream write(target_folder);
         write << item << Qt::endl;
+
+        target_folder->close();
     }
+}
+
+void FileManager::add_item_to_folder(const QString &item, const QString &new_folder, const QString &old_folder)
+{
+    QFile* from_folder = localFolders.value(old_folder);
+
+    // Перезаписываем старую папку
+    if(from_folder->open(QIODevice::ReadOnly)){
+        QTextStream read(from_folder);
+        QStringList lines;
+        QString line;
+        while(!read.atEnd()){
+            line = read.readLine();
+            if(line != item){
+                lines.append(line);
+            }
+        }
+
+        from_folder->close();
+
+        if(from_folder->open(QIODevice::WriteOnly)){
+            QTextStream write(from_folder);
+            foreach (auto line, lines) {
+                write << line << Qt::endl;
+            }
+
+            from_folder->close();
+        }
+    }
+
+    // Записываем файл в новую папку
+    add_item_to_folder(item, new_folder);
 }
 
 

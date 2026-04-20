@@ -82,6 +82,14 @@ void FileTreeWidget::dropEvent(QDropEvent *event)
     auto draggedItem = selectedItems().first();
     // Если бросаем элемент в пустое место, то вызываем стандартную реализацию
     if(!targetItem){
+        // Добавляем в файловую систему
+        // Если файл находился в какой-то папке
+        if(draggedItem->parent()){
+            fmn->add_item_to_folder(draggedItem->text(0), "", draggedItem->parent()->text(0));
+        }
+        else{
+            fmn->add_item_to_folder(draggedItem->text(0), "");
+        }
         QTreeWidget::dropEvent(event);
         return;
     }
@@ -100,8 +108,17 @@ void FileTreeWidget::dropEvent(QDropEvent *event)
         }
         // Делаем файл дочерним к папке
         else{
+            // Добавляем в файловую систему
+            // Если файл находился в какой-то папке
+            if(draggedItem->parent()){
+                fmn->add_item_to_folder(draggedItem->text(0), targetItem->text(0), draggedItem->parent()->text(0));
+            }
+            else{
+                fmn->add_item_to_folder(draggedItem->text(0), targetItem->text(0));
+            }
+
             QTreeWidget::dropEvent(event);
-            fmn->add_item_to_folder(draggedItem->text(0), targetItem->text(0));
+
             qInfo() << "Разрешено действие";
             return;
         }
