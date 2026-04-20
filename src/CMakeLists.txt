@@ -11,7 +11,6 @@ qt_add_executable(StudyCards
     # core/Main.cpp
 )
 
-# Подключаем все необходимые компоненты для РАБОТЫ ПРОГРАММЫ
 target_link_libraries(StudyCards
 PRIVATE
     Qt::Core
@@ -19,18 +18,42 @@ PRIVATE
     main_ui_module
     core_module
 )
+target_include_directories(main_ui_module PUBLIC
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/src/ui
+    ${CMAKE_SOURCE_DIR}/build
+)
 
 # Копирование Pandoc при сборке
+# if(WIN32)
+#     add_custom_command(TARGET StudyCards POST_BUILD
+#         COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:StudyCards>/utils/pandoc
+#         COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#             "${CMAKE_SOURCE_DIR}/src/utils/pandoc/pandoc.exe"
+#             $<TARGET_FILE_DIR:StudyCards>/utils/pandoc/
+#         COMMENT "Copying pandoc.exe to build directory..."
+#     )
+# endif()
+# Копирование Pandoc при сборке
 if(WIN32)
+    # Путь к pandoc.exe в исходниках
+    set(PANDOC_SOURCE "${CMAKE_SOURCE_DIR}/src/utils/pandoc/pandoc.exe")
+
+    # Путь куда копировать (в билд директорию)
+    set(PANDOC_DESTINATION "${CMAKE_BINARY_DIR}/utils/pandoc/pandoc.exe")
+
+    # Создаём папку utils/pandoc
+    file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/utils/pandoc")
+
+    # Копируем pandoc.exe
     add_custom_command(TARGET StudyCards POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:StudyCards>/utils/pandoc
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_SOURCE_DIR}/src/utils/pandoc/pandoc.exe"
-            $<TARGET_FILE_DIR:StudyCards>/utils/pandoc/
+            "${PANDOC_SOURCE}"
+            "${PANDOC_DESTINATION}"
         COMMENT "Copying pandoc.exe to build directory..."
+        VERBATIM
     )
 endif()
-
 # Хз, что тут. QT сам создал это, я не трогал
 install(TARGETS StudyCards
     BUNDLE  DESTINATION .
