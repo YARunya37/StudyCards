@@ -15,6 +15,7 @@ target_link_libraries(StudyCards
 PRIVATE
 Qt::Core
 main_ui_module
+file_manager
 )
 
 # Добавление папки resources с копированием всего её содержимого

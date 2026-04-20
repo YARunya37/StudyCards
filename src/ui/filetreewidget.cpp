@@ -1,12 +1,10 @@
 #include "filetreewidget.h"
 #include <QFileDialog>
-#include <QFile>
-#include <QDir>
 #include <QDebug>
-#include <QCoreApplication>
 #include <QDropEvent>
 #include <QDragMoveEvent>
 #include <QMenu>
+
 FileTreeWidget::FileTreeWidget(QWidget* parent) :
     QTreeWidget(parent)
 {
@@ -18,6 +16,9 @@ FileTreeWidget::FileTreeWidget(QWidget* parent) :
 
     // Измененение item по двойному щелчку
     setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+
+    // Создание filemanager
+    fmn = FileManager();
 }
 
 void FileTreeWidget::AddFiles()
@@ -30,25 +31,13 @@ void FileTreeWidget::AddFiles()
         "Текстовые документы (*.docx *.md *.pdf)"
     );
 
-    // Все указанные файлы конвертируем и добавляем в папку с файлами проекта
-    foreach (auto filePath, files) {
-        QString name = GetName(filePath).split(".")[0];
 
-        // Если файла с таким именем ещё нет, то добавляем его в дерево
-        if(!localFiles.contains(name)){
-            // Путь к директории с файлами(внутри проекта) + имя данного файла с расширением
-            QString dest = QCoreApplication::applicationDirPath() + "/resources/userfiles/"+ GetName(filePath);
-
-            // ЗДЕСЬ ДОЛЖНА БЫТЬ КОНВЕРТАЦИЯ ФАЙЛОВ И ЗАПИСЬ ИХ В НУЖНУЮ ПАПКУ
-            if(QFile::copy(filePath, dest)){
-                // Добавляем в map локальный файл
-                localFiles.insert(name, dest);
-
-                // Создаем новую строчку в виджете с именем файла
-                QTreeWidgetItem* new_item = new QTreeWidgetItem(this);
-                new_item->setText(0, name);
-            }
-            // СДЕЛАТЬ УВЕДОМЛЕНИЕ ЧТО ФАЙЛЫ УЖЕ ДОБАЛЕНЫ
+    // Отображаем в дереве добавленные файлы
+    auto added_files = fmn.add_files(files);
+    if(!added_files.isEmpty()){
+        foreach(auto file, added_files){
+            QTreeWidgetItem* new_item = new QTreeWidgetItem(this);
+            new_item->setText(0, file);
         }
     }
 }
@@ -74,40 +63,15 @@ void FileTreeWidget::setUpTree()
     setAcceptDrops(true);
 }
 
-QString FileTreeWidget::GetName(QString file)
-{
-    QString name = "";
-    // Циклом справа налево записываем символы в строку
-    for (int i = file.length()-1; i >= 0; i--) {
-        if(file[i] != "/" && file[i] != "\\"){
-            name = file[i] + name;
-        }
-        else{
-            // Если мы дошли до / или \, то имя записано полностью
-            break;
-        }
-    }
-
-    return name;
-}
 
 void FileTreeWidget::restoreState()
 {
-    // Путь к директориии с файлами, добавленными пользователем
-    QString localfilesPath = QCoreApplication::applicationDirPath() + "/resources/userfiles/";
     // Получение всех файлов внури директории localfilesPath
-    QStringList existing_files = QDir(localfilesPath).entryList(QDir::Files);
+    QStringList existing_files = fmn.get_existing_files();
 
-    // Каждый файл отображаем в виджете и заново добавляем в map локальных файлов
     foreach (auto file, existing_files) {
-        QString name = GetName(file).split(".")[0];
-
-        // Добавление в map
-        localFiles.insert(name, localfilesPath + file);
-
-        // Создаем новую строчку в виджете с именем файла
         QTreeWidgetItem* new_item = new QTreeWidgetItem(this);
-        new_item->setText(0, name);
+        new_item->setText(0, file);
     }
 }
 
@@ -129,7 +93,7 @@ void FileTreeWidget::dropEvent(QDropEvent *event)
         drop == QAbstractItemView::BelowItem){
 
         // Если элемент, на который бросаем - файл, то игнорируем
-        if(localFiles.contains(targetItem->text(0))){
+        if(fmn.is_file(targetItem->text(0))){
             event->ignore();
             qInfo() << "Запрещено";
             return;
@@ -161,7 +125,7 @@ void FileTreeWidget::showContextMenu(const QPoint &pos)
     // Контекстное меню для элемента
     else{
         // Если нажали по одной папке, то добавляем действие переименования и создания папки
-        if(!localFiles.contains(item->text(0)) && selectedItems().size() == 1){
+        if(!fmn.is_file(item->text(0)) && selectedItems().size() == 1){
 
             QAction* createAct = new QAction(QString("Создать папку"), this);
             connect(createAct, &QAction::triggered, this, &FileTreeWidget::createFolder);
@@ -184,7 +148,7 @@ void FileTreeWidget::createFolder()
 {
     auto selected = selectedItems();
     // Если создаём в папке
-    if(selected.size() == 1 && !localFiles.contains(selected.value(0)->text(0))){
+    if(selected.size() == 1 && !fmn.is_file(selected.value(0)->text(0))){
         // Создаём item-папку под выбранной папкой
         QTreeWidgetItem* folder = new QTreeWidgetItem(selected.value(0));
         folder->setText(0, QString("Новая папка"));
@@ -214,9 +178,8 @@ void FileTreeWidget::deleteItem()
         deleteChildren(item);
         // Удаляем сам элемент
         // Если файл, нужно удалить его по пути и из map
-        if(localFiles.contains(item->text(0))){
-            QFile::remove(localFiles.value(item->text(0)));
-            localFiles.remove(item->text(0));
+        if(fmn.is_file(item->text(0))){
+            fmn.remove_file(item->text(0));
         }
         delete item;
     }
@@ -234,15 +197,14 @@ void FileTreeWidget::deleteChildren(QTreeWidgetItem *folder)
     for(int i = folder->childCount()-1; i >= 0; i--) {
         auto currChild = folder->child(i);
         // Если дочерний элемент - папка, то удаляем все файлы уже в ней
-        if(!localFiles.contains(currChild->text(0))){
+        if(!fmn.is_file(currChild->text(0))){
             deleteChildren(currChild);
             delete currChild;
         }
-        // Удалаяем файл из проекта, массива, дерева
+        // Удалаяем файл из проекта, дерева
         else{
-            qInfo() << "Удаляем файл по пути:" << localFiles.value(currChild->text(0));
-            QFile::remove(localFiles.value(currChild->text(0)));
-            localFiles.remove(currChild->text(0));
+            // Удаление из файлов
+            fmn.remove_file(currChild->text(0));
             delete currChild;
         }
     }

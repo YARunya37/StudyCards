@@ -13,10 +13,12 @@ add_library(main_ui_module STATIC
 # Подключаем Qt к модулю
 target_link_libraries(main_ui_module PUBLIC
     Qt6::Widgets
+    file_manager
 )
 
 # Для доступа к header-ам main_ui_module
 target_include_directories(main_ui_module PUBLIC
 "C:/Projects/StudyCards/src/ui/"
+"C:/Projects/StudyCards/src/core"
 "C:/Projects/StudyCards/build/"
 )
