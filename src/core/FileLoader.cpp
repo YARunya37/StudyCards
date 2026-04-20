@@ -1,132 +1,241 @@
 ﻿#include "FileLoader.h"
 
-// #include <QCoreApplication>
+#include <QProcess>
+#include <QFile>
+#include <QTextStream>
+#include <QDir>
+#include <QFileInfo>
+#include <QStandardPaths>
+#include <QDateTime>
+#include <QDebug>
+#include <QCoreApplication>
+#include <QTemporaryDir>
+#include <QTemporaryFile>
 
-//Getting the full path to pandoc
-string getPandocPath()
+//CSS СТИЛИ
+static const QString CSS_STYLES =
+    "<style>"
+    "table { "
+    "    border-collapse: collapse; "
+    "    width: 100%; "
+    "    border: 2px solid #888; "
+    "}"
+    "th { "
+    "    padding: 6px; "
+    "    font-weight: bold; "
+    "}"
+    "td { "
+    "    border: 1px solid #888; "
+    "    padding: 6px; "
+    "}"
+    "img { "
+    "    max-width: 40em; "
+    "    width: 100%; "
+    "    height: auto; "
+    "    display: block; "
+    "    margin: 1em 0; "
+    "}"
+    "pre { background: #1e1e1e; padding: 10px; overflow-x: auto; }"
+    "code { font-family: 'Courier New', monospace; }"
+    "a { color: #9b59b6; text-decoration: underline; }"
+    "</style>";
+
+//Добавление CSS к HTML
+void addCssStyles(QString& htmlContent)
 {
-   return "/src/utils/pandoc/pandoc.exe";
+    if (htmlContent.contains("<head>", Qt::CaseInsensitive)) {
+        htmlContent.replace("<head>", "<head>\n" + CSS_STYLES, Qt::CaseInsensitive);
+    }
+    else
+    {
+        htmlContent.prepend(CSS_STYLES);
+    }
 }
-//Getting the path of the output file with the .html extension
-string getOutputHtmlPath(const string& inputPath)
+
+// Получение полного пути к pandoc
+QString getPandocPath()
 {
-	int LenFile = inputPath.size();
-	string outputPath = "";
-	int LastPointIndex = -1;
-	for (int i = 0; i < LenFile; i++)
-	{
-		if (inputPath[i] == '.')
-		{
-			LastPointIndex = i;
-		}
-	}
-	if (LastPointIndex > 0)
-	{
-		outputPath = inputPath.substr(0, LastPointIndex) + ".html";
-		return outputPath;
-	}
-	return outputPath + ".html";
+    // Сначала ищем в папке приложения
+    QString localPandoc = QDir::cleanPath(QCoreApplication::applicationDirPath() + "/utils/pandoc/pandoc.exe");
+    if (QFile::exists(localPandoc)) return localPandoc;
+
+    // Если нет, ищем в системном PATH (удобно для разработки)
+    return QStandardPaths::findExecutable("pandoc");
 }
-//Getting the extension of an incoming file
-string getFileExtension(const string& FilePath)
+
+// Получение пути выходного файла с расширением .html
+QString getOutputHtmlPath(const QString& inputPath)
 {
-	int LenFile = FilePath.size();
-	string Extension;
-	int LastPointIndex = -1;
-	for (int i = 0; i < LenFile; i++)
-	{
-		if (FilePath[i] == '.')
-		{
-			LastPointIndex = i;
-		}
-	}
-	for (int i = LastPointIndex + 1; i < LenFile; i++)
-	{
-		Extension += FilePath[i];
-	}
-	if (LastPointIndex > 0)
-	{
-		return Extension;
-	}
-	return "";
+    QFileInfo fileInfo(inputPath);
+    return fileInfo.absolutePath() + "/" + fileInfo.baseName() + ".html";
 }
-//Checking for supported format
-bool isSupportedFormat(const string& FilePath)
+
+// Получение расширения входящего файла
+QString getFileExtension(const QString& filePath)
 {
-	string ext = getFileExtension(FilePath);
-	if (ext == "docx" || ext == "doc" ||
-		ext == "md" || ext == "markdown")
-	{
-		return true;
-	}
-	else return false;
+    QFileInfo fileInfo(filePath);
+    return fileInfo.suffix().toLower();
 }
-//Checking if pandoc opens
-bool isPandocAvailable(const string& PandocPath)
+
+// Проверка поддерживаемого формата
+bool isSupportedFormat(const QString& filePath)
 {
-	ifstream input(PandocPath);
-	if (input.is_open())
-		return 1;
-	else return 0;
+    QString ext = getFileExtension(filePath);
+    return (ext == "docx" || ext == "doc" || ext == "md" || ext == "markdown");
 }
-//Конвертация исходного файла в файл в html формате
-bool ConvertToHtml(const string& FilePath, string& outputPath, const string& PandocPath)
+// Проверка доступности pandoc
+bool isPandocAvailable(const QString& pandocPath)
 {
-	if (!isPandocAvailable(PandocPath))
-		return false;
-
-	outputPath = getOutputHtmlPath(FilePath);
-
-	string command = "\"" + PandocPath + "\"" + " -s -t html --wrap=none --extract-media=./images " + FilePath + " -o " + outputPath;
-
-	int result = system(command.c_str()); // .c_str() преобразует string в const char*, (это нужно, 
-	//потому что system() принимает const char* (старый C-стиль строки)
-
-	if (result == 0)
-	{
-		cout << "Конвертация прошла успешно!" << endl;
-		return true;
-	}
-	else
-	{
-		cout << "Ошибка! Код: " << result << endl;
-	}
-	return false;
+    return QFile::exists(pandocPath);
 }
-//Uploading files
-bool loadDocument(const string& inputPath, string& html, const string& pandocPath)
+
+// Конвертация исходного файла в HTML формат
+bool ConvertToHtml(const QString& filePath, QString& outputPath, const QString& pandocPath)
 {
-	// 1. Проверка формата
-	if (!isSupportedFormat(inputPath)) {
-		cout << "Неподдерживаемый формат файла" << endl;
-		return false;
-	}
+    qInfo() << "ConvertToHtml: Starting...";
+    qInfo() << "File:" << filePath;
+    qInfo() << "Pandoc:" << pandocPath;
 
-	// 2. Путь к Pandoc
-    string path = pandocPath.empty() ? getPandocPath() : pandocPath;
-    if (!isPandocAvailable(path)) {
-        cout << "Pandoc не найден: " << path << endl;
-		return false;
-	}
-
-	// 3. Конвертация
-	string outputPath;
-	if (!ConvertToHtml(inputPath, outputPath, pandocPath)) {
-		cout << "Ошибка конвертации в HTML" << endl;
-		return false;
-	}
-
-	// 4. Чтение HTML файла в строку (через fstream + итераторы)
-	ifstream input(outputPath);
-    if (!input.is_open()) {
-        cout << "Не удалось открыть HTML файл" << endl;
+    if (!isPandocAvailable(pandocPath)) {
+        qWarning() << "ConvertToHtml: Pandoc not found:" << pandocPath;
         return false;
     }
 
-	// Читаем весь файл в строку
-	html = string((istreambuf_iterator<char>(input)),
-		istreambuf_iterator<char>());
+    // Генерируем путь для выходного файла
+    outputPath = getOutputHtmlPath(filePath);
 
-	input.close();
-	return true;
+    // Создаём временную папку для извлечения медиа (картинок)
+    QString mediaDir = QDir::tempPath() + "/pandoc_media_" +
+                       QString::number(QDateTime::currentMSecsSinceEpoch());
+    QDir().mkpath(mediaDir);
+
+    //Используем QProcess вместо system()
+    QProcess process;
+    process.setProgram(pandocPath);
+    process.setArguments({
+        filePath,
+        "-s",
+        "-t", "html",
+        "--wrap=none",
+        "--embed-resources",
+        "--standalone",
+        "-o", outputPath
+    });
+
+    qInfo() << "Running pandoc...";
+    process.start();
+
+    // Ждём завершения (30 секунд)
+    if (!process.waitForFinished(30000)) {
+        qWarning() << "ConvertToHtml: Timeout -" << process.errorString();
+        process.kill();
+        return false;
+    }
+
+    // Проверяем результат
+    if (process.exitCode() == 0) {
+        qInfo() << "ConvertToHtml: Success!";
+        return true;
+    } else {
+        QString errorOutput = QString::fromLocal8Bit(process.readAllStandardError());
+        qWarning() << "ConvertToHtml: Error (code" << process.exitCode() << "):";
+        qWarning() << errorOutput;
+        return false;
+    }
+}
+
+// Загрузка документа (основная функция)
+bool loadDocument(const QString& inputPath, QString& html, const QString& pandocPath)
+{
+    qInfo() << "=== FileLoader: loadDocument ===";
+    qInfo() << "Input:" << inputPath;
+    qInfo() << "Pandoc:" << pandocPath;
+
+    // 1. Проверка входного файла
+    if (!QFile::exists(inputPath)) {
+        qWarning() << "FileLoader: Input file not found:" << inputPath;
+        return false;
+    }
+
+    // 2. Проверка формата
+    if (!isSupportedFormat(inputPath)) {
+        qWarning() << "FileLoader: Unsupported format:" << getFileExtension(inputPath);
+        return false;
+    }
+
+    // 3. Проверка pandoc
+    if (!isPandocAvailable(pandocPath)) {
+        qWarning() << "FileLoader: Pandoc not found:" << pandocPath;
+        return false;
+    }
+
+    // 4. Временные файлы (автоматическая очистка)
+    QTemporaryDir tempDir;
+    QTemporaryFile tempHtml;
+
+    if (!tempDir.isValid()) {
+        qWarning() << "FileLoader: Failed to create temp dir";
+        return false;
+    }
+
+    if (!tempHtml.open()) {
+        qWarning() << "FileLoader: Failed to create temp file";
+        return false;
+    }
+    tempHtml.close();
+
+    qInfo() << "Temp dir:" << tempDir.path();
+    qInfo() << "Temp file:" << tempHtml.fileName();
+
+    // 5. Запускаем pandoc через QProcess
+    QProcess process;
+    process.setProgram(pandocPath);
+    process.setArguments({
+        inputPath,
+        "-f", "docx",
+        "-t", "html",
+        "--embed-resources",
+        "--standalone",
+        "-o", tempHtml.fileName()
+    });
+
+    qInfo() << "Running pandoc...";
+    process.start();
+
+    // 6. Ждём завершения (30 секунд)
+    if (!process.waitForFinished(30000)) {
+        qWarning() << "FileLoader: Timeout -" << process.errorString();
+        process.kill();
+        return false;  // tempDir и tempHtml удалятся автоматически!
+    }
+
+    // 7. Проверяем результат
+    if (process.exitCode() != 0) {
+        QString error = QString::fromLocal8Bit(process.readAllStandardError());
+        qWarning() << "FileLoader: Error (code" << process.exitCode() << "):" << error;
+        return false;  // tempDir и tempHtml удалятся автоматически!
+    }
+
+    // 8. Читаем HTML из временного файла
+    QFile file(tempHtml.fileName());
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "FileLoader: Cannot read temp file:" << tempHtml.fileName();
+        return false;
+    }
+
+    QTextStream in(&file);
+    html = in.readAll();
+    file.close();
+
+    qInfo() << "FileLoader: HTML loaded," << html.size() << "bytes";
+
+    // 9. Добавляем CSS стили
+    addCssStyles(html);
+
+    qInfo() << "FileLoader: CSS added," << html.size() << "bytes";
+    qInfo() << "=== FileLoader: Success ===";
+
+    // tempDir и tempHtml удалятся сами когда функция завершится!
+
+    return !html.isEmpty();
 }

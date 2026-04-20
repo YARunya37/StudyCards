@@ -1,45 +1,89 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "scaledtextedit.h"
 #include "core/FileLoader.h"
-#include <QFileDialog>
-#include <QVBoxLayout>
-#include <QWidget>
-#include <QMessageBox>
-#include <QWheelEvent>
 
+#include <QWidget>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QCoreApplication>
+#include <QDir>
+#include <QFile>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    // Создаём центральный виджет
+    QWidget *centralWidget = new QWidget(this);
+    setCentralWidget(centralWidget);
+
+    // Создаём компоновку
+    QVBoxLayout *layout = new QVBoxLayout(centralWidget);
+    layout->setContentsMargins(10, 10, 10, 10);
+    layout->setSpacing(10);
+
+    // Кнопка "Открыть файл"
+    QPushButton *btnOpen = new QPushButton("📂 Открыть документ (DOCX/MD)", this);
+
+    // Текстовый редактор
     editor = new ScaledTextEdit(this);
-    editor->setReadOnly(false);     // ← Разрешить редактирование!
-    editor->setAcceptRichText(true); // ← Принимать форматированный текст
+    editor->setPlaceholderText("Нажми кнопку чтобы открыть файл...");
+    editor->setReadOnly(false);
+    editor->setAcceptRichText(true);
+
+    // Добавляем в компоновку
     layout->addWidget(btnOpen);
-    layout->addWidget(editor);
+    layout->addWidget(editor, 1);  // 1 = растягивается
+
+    // Подключаем сигнал кнопки к слоту
     connect(btnOpen, &QPushButton::clicked, this, &MainWindow::onOpenFile);
+
+    setWindowTitle("StudyCards - FileLoader Test");
+    resize(900, 700);
+
+    qInfo() << "MainWindow: Initialized";
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
+
 void MainWindow::onOpenFile()
 {
+    qInfo() << "=== MainWindow: onOpenFile ===";
+
+    // 1. Получаем путь к приложению
     QString appDir = QCoreApplication::applicationDirPath();
+
+    // 2. Путь к pandoc (относительно exe файла)
     QString pandocPath = QDir::cleanPath(appDir + "/utils/pandoc/pandoc.exe");
 
-    // Проверяем
+    qInfo() << "App directory:" << appDir;
+    qInfo() << "Pandoc path:" << pandocPath;
+
+    // 3. Проверяем что pandoc существует
     if (!QFile::exists(pandocPath)) {
         QMessageBox::critical(
             this, "Ошибка",
-            "Pandoc не найден!\nПуть: " + pandocPath + "\n\n"
-            "Убедитесь что pandoc.exe находится в папке utils/pandoc/"
+            "Pandoc не найден!\n\n"
+            "Путь: " + pandocPath + "\n\n"
+            "Убедитесь что:\n"
+            "1. pandoc.exe находится в папке utils/pandoc/\n"
+            "2. Проект был правильно собран\n"
+            "3. Папка utils/pandoc скопирована в build/"
         );
+        qWarning() << "MainWindow: Pandoc not found!" << pandocPath;
         return;
     }
 
+    // 4. Диалог выбора файла
     QString filePath = QFileDialog::getOpenFileName(
         this,
         "Открыть документ",
@@ -48,50 +92,40 @@ void MainWindow::onOpenFile()
     );
 
     if (filePath.isEmpty()) {
+        qInfo() << "MainWindow: User cancelled file dialog";
         return;
     }
 
-    editor->setPlainText("Загрузка: " + filePath + "...");
+    qInfo() << "Selected file:" << filePath;
+    qInfo() << "File exists:" << QFile::exists(filePath);
 
-    std::string html;
-    if (loadDocument(filePath.toStdString(), html, pandocPath.toStdString())) {
-        QString htmlContent = QString::fromStdString(html);
+    // 5. Показываем статус загрузки
+    editor->setPlainText("Загрузка:\n" + filePath + "\n\nПодождите...");
 
-        //CSS для таблиц
-        QString cssStyles =
-            "<style>"
-            "table { "
-            "    border-collapse: collapse; "
-            "    width: 100%; "
-            "    border: 2px solid #888; "
-            "}"
-            "th { "
-            "    padding: 6px; "
-            "    font-weight: bold; "
-            "}"
-            "td { "
-            "    border: 1px solid #888; "
-            "    padding: 6px; "
-            "}"
-            "img { "
-                "    max-width: 40em; "
-                "    width: 100%; "
-                "    height: auto; "
-                "    display: block; "
-                "    margin: 1em 0; "
-                "}"
-            "pre { background: #1e1e1e; padding: 10px; overflow-x: auto; }"
-            "code { font-family: 'Courier New', monospace; }"
-            "a { color: #9b59b6; text-decoration: underline; }"
-            "</style>";
-        editor->setHtml(cssStyles + htmlContent);
+    // 6. ← ← ← FileLoader возвращает УЖЕ ГОТОВЫЙ HTML с CSS!
+    QString html;
+    if (loadDocument(filePath, html, pandocPath)) {
+        qInfo() << "MainWindow: File loaded successfully!";
+        qInfo() << "HTML size:" << html.size() << "bytes";
+
+        // ← ← ← Просто показываем! CSS уже внутри!
+        editor->setHtml(html);
+
     } else {
-        QMessageBox::critical(this, "Ошибка",
+        qWarning() << "MainWindow: Failed to load file:" << filePath;
+
+        QMessageBox::critical(
+            this, "Ошибка",
             "Не удалось загрузить файл!\n\n"
-            "Проверь:\n"
-            "1. Файл существует\n"
-            "2. Pandoc.exe находится в src/utils/pandoc/");
+            "Файл: " + filePath + "\n\n"
+            "Проверьте:\n"
+            "1. Файл существует и не повреждён\n"
+            "2. Pandoc.exe находится в правильном месте\n"
+            "3. Формат файла поддерживается (DOCX или MD)\n\n"
+            "Смотрите вывод в консоли для деталей"
+        );
         editor->setPlainText("");
     }
-}
 
+    qInfo() << "=== MainWindow: onOpenFile complete ===";
+}

@@ -1,15 +1,29 @@
 ﻿#pragma once
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <windows.h>
+
+#include <QString>
 
 using namespace std;
 
-string getPandocPath();
-string getOutputHtmlPath(const string&);
-string getFileExtension(const string&);
-bool isSupportedFormat(const string&);
-bool isPandocAvailable(const string&);
-bool ConvertToHtml(const string&,  string&, const string&);
-bool loadDocument(const string&, string&, const string&);
+// Получение полного пути к pandoc
+QString getPandocPath();
+
+// Получение пути выходного файла с расширением .html
+QString getOutputHtmlPath(const QString& inputPath);
+
+// Получение расширения входящего файла
+QString getFileExtension(const QString& filePath);
+
+// Проверка поддерживаемого формата
+bool isSupportedFormat(const QString& filePath);
+
+// Проверка доступности pandoc
+bool isPandocAvailable(const QString& pandocPath);
+
+// Конвертация исходного файла в HTML
+bool ConvertToHtml(const QString& filePath, QString& outputPath, const QString& pandocPath);
+
+// Загрузка документа (основная функция)
+bool loadDocument(const QString& inputPath, QString& html, const QString& pandocPath);
+
+// Добавление CSS стилей к HTML
+void addCssStyles(QString& htmlContent);
