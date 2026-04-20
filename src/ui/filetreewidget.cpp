@@ -157,7 +157,18 @@ void FileTreeWidget::createFolder()
         folder->setFlags(folder->flags() | Qt::ItemIsEditable);
         addTopLevelItem(folder);
         // Предлагаем сразу изменить название папки
-        editItem(folder);
+        bool isOk;
+        QString new_name = QInputDialog::getText(
+            this,
+            "Создать папку",
+            "Название папки:",
+            QLineEdit::Normal,
+            "Новая папка",
+            &isOk
+            );
+        if(isOk && !new_name.trimmed().isEmpty()){
+            folder->setText(0, new_name);
+        }
         // Добавляем файл в систему
         fmn->add_folder(folder->text(0));
         fmn->add_item_to_folder(folder->text(0), selected.value(0)->text(0));
@@ -170,7 +181,18 @@ void FileTreeWidget::createFolder()
         folder->setFlags(folder->flags() | Qt::ItemIsEditable);
         addTopLevelItem(folder);
         // Предлагаем сразу изменить название папки
-        editItem(folder);
+        bool isOk;
+        QString new_name = QInputDialog::getText(
+            this,
+            "Создать папку",
+            "Название папки:",
+            QLineEdit::Normal,
+            "Новая папка",
+            &isOk
+            );
+        if(isOk && !new_name.trimmed().isEmpty()){
+            folder->setText(0, new_name);
+        }
         // Добавляем файл в систему
         fmn->add_folder(folder->text(0));
     }
@@ -191,9 +213,30 @@ void FileTreeWidget::deleteItem()
     }
 }
 
-void FileTreeWidget::renameItem(){
+// Возвращает старое имя
+QString FileTreeWidget::renameItem(){
     auto items = selectedItems();
-    editItem(items.value(0), 0);
+    QString old_name = items.at(0)->text(0);
+
+    bool isOk;
+    QString new_name = QInputDialog::getText(
+        this,
+        "Создать папку",
+        "Название папки:",
+        QLineEdit::Normal,
+        "Новая папка",
+        &isOk
+    );
+
+    // Если отмененно или имя пустое
+    if(!isOk || new_name.trimmed().isEmpty()){
+        return old_name;
+    }
+    // Записываем новое имя
+    items.at(0)->setText(0, new_name);
+
+    // НАДО БУДЕТ ДОБАВИТЬ МЕТОД ПЕРЕИМЕНОВАНИЕ ПАПКИ
+    return old_name;
 }
 
 void FileTreeWidget::deleteChildren(QTreeWidgetItem *folder)

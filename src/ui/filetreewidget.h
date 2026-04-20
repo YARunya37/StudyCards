@@ -21,8 +21,8 @@ private slots:
     void createFolder();
     // Слот для удаления любого(файла, папки) элемента в виджете
     void deleteItem();
-    // Переименовать папку
-    void renameItem();
+    // Переименовать папку, возвращает старое имя
+    QString renameItem();
 protected:
     // Переопределение метода перетягивания элементов
     void dropEvent(QDropEvent* event) override;
