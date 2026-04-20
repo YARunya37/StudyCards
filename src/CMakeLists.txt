@@ -2,7 +2,6 @@
 add_subdirectory(ui)
 add_subdirectory(core)
 add_subdirectory(ai)
-add_subdirectory(utils)
 
 # Вход в программу
 qt_add_executable(StudyCards
@@ -24,16 +23,6 @@ target_include_directories(main_ui_module PUBLIC
     ${CMAKE_SOURCE_DIR}/build
 )
 
-# Копирование Pandoc при сборке
-# if(WIN32)
-#     add_custom_command(TARGET StudyCards POST_BUILD
-#         COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:StudyCards>/utils/pandoc
-#         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#             "${CMAKE_SOURCE_DIR}/src/utils/pandoc/pandoc.exe"
-#             $<TARGET_FILE_DIR:StudyCards>/utils/pandoc/
-#         COMMENT "Copying pandoc.exe to build directory..."
-#     )
-# endif()
 # Копирование Pandoc при сборке
 if(WIN32)
     # Путь к pandoc.exe в исходниках
