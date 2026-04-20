@@ -3,14 +3,21 @@
 #include <QDir>
 
 QMap<QString, QString> FileManager::localFiles;
+QMap<QString, QFile*> FileManager::localFolders;
 
-FileManager::FileManager()
+FileManager::FileManager(QObject* parent)
+    : QObject(parent)
 {
     localfilesPath = QCoreApplication::applicationDirPath() + "/resources/userfiles/";
     // Восстанавливаем на основе файлов map
     foreach (auto file, QDir(localfilesPath).entryList(QDir::Files)) {
-        // Если файл, то добавляем в map файлов
-        localFiles.insert(file.split(".")[0], localfilesPath + file);
+        if(file.split(".")[1] != "txt"){
+            // Если файл, то добавляем в map файлов
+            localFiles.insert(file.split(".")[0], localfilesPath + file);
+        }
+        else{
+            // Отправляем в filetreewidget имя папки и всех его членов
+        }
     }
 }
 
@@ -37,6 +44,28 @@ QStringList FileManager::add_files(QStringList files)
     }
     return added_files;
 }
+
+void FileManager::add_folder(QString name){
+    QFile* folder = new QFile(localfilesPath + name + ".txt");
+    localFolders.insert(name, folder);
+}
+
+void FileManager::add_item_to_folder(const QString &item, const QString &folder)
+{
+    QFile* target_folder = localFolders.value(folder);
+    if(localFolders.contains(folder) && target_folder->open(QIODevice::Append)){
+
+        // Удаляем item из любой другой папки
+
+
+        // Проверяем не содержится ли файл в этой папке, если да, то заканчиваем работу
+
+
+        QTextStream write(target_folder);
+        write << item << Qt::endl;
+    }
+}
+
 
 QStringList FileManager::get_existing_files()
 {

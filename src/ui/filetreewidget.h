@@ -28,7 +28,7 @@ protected:
     void dropEvent(QDropEvent* event) override;
 private:
     // Класс для управления файлами в проекте
-    FileManager fmn;
+    FileManager* fmn;
     // Создаёт виджет(форма, стиль и необходимый функционал)
     void setUpTree();
     // Отображает уже сохранённые пользователем файлы

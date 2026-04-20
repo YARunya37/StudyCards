@@ -4,7 +4,7 @@
 #include <QDropEvent>
 #include <QDragMoveEvent>
 #include <QMenu>
-
+#include <QInputDialog>
 FileTreeWidget::FileTreeWidget(QWidget* parent) :
     QTreeWidget(parent)
 {
@@ -18,7 +18,7 @@ FileTreeWidget::FileTreeWidget(QWidget* parent) :
     setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
 
     // Создание filemanager
-    fmn = FileManager();
+    fmn = new FileManager(this);
 }
 
 void FileTreeWidget::AddFiles()
@@ -33,7 +33,7 @@ void FileTreeWidget::AddFiles()
 
 
     // Отображаем в дереве добавленные файлы
-    auto added_files = fmn.add_files(files);
+    auto added_files = fmn->add_files(files);
     if(!added_files.isEmpty()){
         foreach(auto file, added_files){
             QTreeWidgetItem* new_item = new QTreeWidgetItem(this);
@@ -67,7 +67,7 @@ void FileTreeWidget::setUpTree()
 void FileTreeWidget::restoreState()
 {
     // Получение всех файлов внури директории localfilesPath
-    QStringList existing_files = fmn.get_existing_files();
+    QStringList existing_files = fmn->get_existing_files();
 
     foreach (auto file, existing_files) {
         QTreeWidgetItem* new_item = new QTreeWidgetItem(this);
@@ -79,7 +79,7 @@ void FileTreeWidget::dropEvent(QDropEvent *event)
 {
     // Элемент над которым сейчас находится курсор
     auto targetItem = itemAt(event->position().toPoint());
-
+    auto draggedItem = selectedItems().first();
     // Если бросаем элемент в пустое место, то вызываем стандартную реализацию
     if(!targetItem){
         QTreeWidget::dropEvent(event);
@@ -93,7 +93,7 @@ void FileTreeWidget::dropEvent(QDropEvent *event)
         drop == QAbstractItemView::BelowItem){
 
         // Если элемент, на который бросаем - файл, то игнорируем
-        if(fmn.is_file(targetItem->text(0))){
+        if(fmn->is_file(targetItem->text(0))){
             event->ignore();
             qInfo() << "Запрещено";
             return;
@@ -101,6 +101,7 @@ void FileTreeWidget::dropEvent(QDropEvent *event)
         // Делаем файл дочерним к папке
         else{
             QTreeWidget::dropEvent(event);
+            fmn->add_item_to_folder(draggedItem->text(0), targetItem->text(0));
             qInfo() << "Разрешено действие";
             return;
         }
@@ -125,7 +126,7 @@ void FileTreeWidget::showContextMenu(const QPoint &pos)
     // Контекстное меню для элемента
     else{
         // Если нажали по одной папке, то добавляем действие переименования и создания папки
-        if(!fmn.is_file(item->text(0)) && selectedItems().size() == 1){
+        if(!fmn->is_file(item->text(0)) && selectedItems().size() == 1){
 
             QAction* createAct = new QAction(QString("Создать папку"), this);
             connect(createAct, &QAction::triggered, this, &FileTreeWidget::createFolder);
@@ -148,7 +149,7 @@ void FileTreeWidget::createFolder()
 {
     auto selected = selectedItems();
     // Если создаём в папке
-    if(selected.size() == 1 && !fmn.is_file(selected.value(0)->text(0))){
+    if(selected.size() == 1 && !fmn->is_file(selected.value(0)->text(0))){
         // Создаём item-папку под выбранной папкой
         QTreeWidgetItem* folder = new QTreeWidgetItem(selected.value(0));
         folder->setText(0, QString("Новая папка"));
@@ -157,6 +158,9 @@ void FileTreeWidget::createFolder()
         addTopLevelItem(folder);
         // Предлагаем сразу изменить название папки
         editItem(folder);
+        // Добавляем файл в систему
+        fmn->add_folder(folder->text(0));
+        fmn->add_item_to_folder(folder->text(0), selected.value(0)->text(0));
     }
     else{
         // Создаём item-папку в корне дерева
@@ -167,6 +171,8 @@ void FileTreeWidget::createFolder()
         addTopLevelItem(folder);
         // Предлагаем сразу изменить название папки
         editItem(folder);
+        // Добавляем файл в систему
+        fmn->add_folder(folder->text(0));
     }
 }
 
@@ -178,8 +184,8 @@ void FileTreeWidget::deleteItem()
         deleteChildren(item);
         // Удаляем сам элемент
         // Если файл, нужно удалить его по пути и из map
-        if(fmn.is_file(item->text(0))){
-            fmn.remove_file(item->text(0));
+        if(fmn->is_file(item->text(0))){
+            fmn->remove_file(item->text(0));
         }
         delete item;
     }
@@ -197,14 +203,14 @@ void FileTreeWidget::deleteChildren(QTreeWidgetItem *folder)
     for(int i = folder->childCount()-1; i >= 0; i--) {
         auto currChild = folder->child(i);
         // Если дочерний элемент - папка, то удаляем все файлы уже в ней
-        if(!fmn.is_file(currChild->text(0))){
+        if(!fmn->is_file(currChild->text(0))){
             deleteChildren(currChild);
             delete currChild;
         }
         // Удалаяем файл из проекта, дерева
         else{
             // Удаление из файлов
-            fmn.remove_file(currChild->text(0));
+            fmn->remove_file(currChild->text(0));
             delete currChild;
         }
     }
