@@ -19,6 +19,9 @@ FileTreeWidget::FileTreeWidget(QWidget* parent) :
 
     // Создание filemanager
     fmn = new FileManager(this);
+
+    // Восстанавливаем состояние на основе уже добавленных файлов
+    restoreState();
 }
 
 void FileTreeWidget::AddFiles()
@@ -52,9 +55,6 @@ void FileTreeWidget::setUpTree()
     setMaximumWidth(200);
     setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding));
     setColumnCount(1);
-
-    // Восстанавливаем состояние на основе уже добавленных файлов
-    restoreState();
 
     // Включаем возможность перемещать элементы внутри виджета
     this->setDragEnabled(true);
