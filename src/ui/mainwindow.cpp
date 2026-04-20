@@ -28,7 +28,17 @@ MainWindow::~MainWindow()
 void MainWindow::onOpenFile()
 {
     QString appDir = QCoreApplication::applicationDirPath();
-    QString pandocPath = QDir::cleanPath(appDir + "/../../src/utils/pandoc/pandoc.exe");
+    QString pandocPath = QDir::cleanPath(appDir + "/utils/pandoc/pandoc.exe");
+
+    // Проверяем
+    if (!QFile::exists(pandocPath)) {
+        QMessageBox::critical(
+            this, "Ошибка",
+            "Pandoc не найден!\nПуть: " + pandocPath + "\n\n"
+            "Убедитесь что pandoc.exe находится в папке utils/pandoc/"
+        );
+        return;
+    }
 
     QString filePath = QFileDialog::getOpenFileName(
         this,
