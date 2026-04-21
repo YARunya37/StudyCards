@@ -252,7 +252,9 @@ QString FileTreeWidget::renameItem(){
     // Записываем новое имя
     items.at(0)->setText(0, new_name);
 
-    // НАДО БУДЕТ ДОБАВИТЬ МЕТОД ПЕРЕИМЕНОВАНИЕ ПАПКИ
+    // Переименуем папку в файлах
+    fmn->rename_folder(old_name, items.at(0)->text(0));
+
     return old_name;
 }
 

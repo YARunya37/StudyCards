@@ -115,6 +115,35 @@ void FileManager::add_item_to_folder(const QString &item, const QString &new_fol
     add_item_to_folder(item, new_folder);
 }
 
+void FileManager::rename_folder(const QString &old_name, const QString &new_name)
+{
+    QFile* renamed_folder = localFolders.value(old_name);
+
+    QStringList lines;
+    // Сохраняем все записи о папке
+    if(renamed_folder->open(QIODevice::ReadOnly)){
+        QTextStream read(renamed_folder);
+        QString line;
+        while(!read.atEnd()){
+            line = read.readLine();
+            lines.append(line);
+        }
+        renamed_folder->close();
+    }
+
+    // Удаляем папку и создаём новую
+    if(renamed_folder->remove()){
+        localFolders.remove(old_name);
+        renamed_folder = new QFile(localfilesPath + new_name + ".txt");
+        localFolders.insert(new_name, renamed_folder);
+    }
+
+    // Добавляем все сохранённые строки в папку
+    foreach(auto line, lines){
+        add_item_to_folder(line, new_name);
+    }
+}
+
 
 QStringList FileManager::get_existing_files()
 {
