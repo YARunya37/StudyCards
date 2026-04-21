@@ -244,10 +244,10 @@ QString FileTreeWidget::renameItem(){
     bool isOk;
     QString new_name = QInputDialog::getText(
         this,
-        "Создать папку",
+        "Изменить название папки",
         "Название папки:",
         QLineEdit::Normal,
-        "Новая папка",
+        old_name,
         &isOk
     );
 
