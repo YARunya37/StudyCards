@@ -14,8 +14,9 @@ FileTreeWidget::FileTreeWidget(QWidget* parent) :
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QTreeWidget::customContextMenuRequested, this, &FileTreeWidget::showContextMenu);
 
-    // Измененение item по двойному щелчку
-    setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+    // Измененение item только по двойному щелчку
+    setEditTriggers(NoEditTriggers);
+    connect(this, &QTreeWidget::itemDoubleClicked, this, &FileTreeWidget::renameItem);
 
     // Создание filemanager
     fmn = new FileManager(this);
@@ -234,6 +235,11 @@ void FileTreeWidget::deleteItem()
 QString FileTreeWidget::renameItem(){
     auto items = selectedItems();
     QString old_name = items.at(0)->text(0);
+
+    // Если пытаемся изменить имя файла, то ничего не делаем
+    if(fmn->is_file(old_name)){
+        return old_name;
+    }
 
     bool isOk;
     QString new_name = QInputDialog::getText(
