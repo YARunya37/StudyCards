@@ -16,6 +16,8 @@ FileManager::FileManager(QObject* parent)
             localFiles.insert(file.split(".")[0], localfilesPath + file);
         }
         else{
+            // Добавляем в map папок
+            localFolders.insert(file.split(".")[0], new QFile(localfilesPath + file));
             // Отправляем в filetreewidget имя папки и всех его членов
         }
     }
@@ -214,11 +216,33 @@ void FileManager::rename_folder(const QString &old_name, const QString &new_name
     }
 }
 
+QStringList FileManager::get_existing_folders() const
+{
+    // Получение всех папок внури директории localfilesPath
+    return localFolders.keys();
+}
 
-QStringList FileManager::get_existing_files()
+
+QStringList FileManager::get_existing_files() const
 {
     // Получение всех файлов внури директории localfilesPath
     return localFiles.keys();
+}
+
+QStringList FileManager::get_children(const QString &folder_name) const
+{
+    QFile* folder = localFolders.value(folder_name);
+    QStringList children;
+    // Проходимся по всем строчкам и заполняем список
+    if(folder->open(QIODevice::ReadOnly)){
+        QTextStream read(folder);
+        while (!read.atEnd()) {
+            children.append(read.readLine());
+        }
+
+        folder->close();
+    }
+    return children;
 }
 
 void FileManager::remove_file(QString file_name)

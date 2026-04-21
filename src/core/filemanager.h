@@ -23,8 +23,12 @@ public:
     void remove_item_from_folder(const QString& item, const QString& folder);
     //Метод для переименования папки внутри проекта
     void rename_folder(const QString& old_name, const QString& new_name);
+    // Возвращает все папки, доступные внутри директории файлов
+    QStringList get_existing_folders() const;
     // Метод для получения всех файлов из директории проекта
-    QStringList get_existing_files();
+    QStringList get_existing_files() const;
+    // Возвращает дочерние элементы к папке
+    QStringList get_children(const QString& folder_name) const;
     // Метод для удаления файла с указанным именем
     void remove_file(QString file_name);
     // Метод, который возващает true если существует файл с указанным именем

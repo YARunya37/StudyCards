@@ -68,12 +68,73 @@ void FileTreeWidget::setUpTree()
 
 void FileTreeWidget::restoreState()
 {
-    // Получение всех файлов внури директории localfilesPath
-    QStringList existing_files = fmn->get_existing_files();
+    QStringList added_files;
 
-    foreach (auto file, existing_files) {
-        QTreeWidgetItem* new_item = new QTreeWidgetItem(this);
-        new_item->setText(0, file);
+    // Восстановление папок
+
+    QStringList folders = fmn->get_existing_folders();
+    foreach(auto folder, folders){
+        QTreeWidgetItem* parent_folder = nullptr;
+
+        // Поиск элемента по тексту
+        QList<QTreeWidgetItem*> parent_found = this->findItems(
+            folder,
+            Qt::MatchExactly | Qt::MatchRecursive, // Флаги поиска
+            0  // Номер колонки
+            );
+
+        // Если нашли папку, то сохраняем указатель на неё
+        if(!parent_found.isEmpty()){
+            parent_folder = parent_found.first();
+        }
+        // Создаём её в корне
+        else{
+            parent_folder = new QTreeWidgetItem(this);
+            parent_folder->setText(0, folder);
+        }
+
+        foreach (auto child, fmn->get_children(folder)) {
+            QTreeWidgetItem* childItem = nullptr;
+
+            // Поиск элемента по тексту
+            QList<QTreeWidgetItem*> child_found = this->findItems(
+                child,
+                Qt::MatchExactly | Qt::MatchRecursive, // Флаги поиска
+                0  // Номер колонки
+                );
+
+            // Если нашли в дереве, то сохраняем указатель
+            if(!child_found.isEmpty()){
+                childItem = child_found.first();
+                // Просто удаляем от старого родителя
+                if(childItem->parent()){
+                    childItem->parent()->removeChild(childItem);
+                }
+                else{
+                    // Если на верхнем уровне дерева
+                    int index = indexOfTopLevelItem(childItem);
+                    takeTopLevelItem(index);
+                }
+
+                // Добавляем к новому
+                parent_folder->addChild(childItem);
+            }
+            // Если нет, то создаём
+            else{
+                childItem = new QTreeWidgetItem(parent_folder);
+                childItem->setText(0, child);
+            }
+            added_files.append(childItem->text(0));
+        }
+    }
+
+    // Проверяем все файлы
+    foreach (auto file, fmn->get_existing_files()) {
+        // Если файл с таким именем ещё не добавили, то делаем это
+        if(!added_files.contains(file)){
+            QTreeWidgetItem* new_item = new QTreeWidgetItem(this);
+            new_item->setText(0, file);
+        }
     }
 }
 
