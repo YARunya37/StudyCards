@@ -5,6 +5,7 @@
 #include <QDragMoveEvent>
 #include <QMenu>
 #include <QInputDialog>
+#include <QMessageBox>
 FileTreeWidget::FileTreeWidget(QWidget* parent) :
     QTreeWidget(parent)
 {
@@ -223,11 +224,23 @@ void FileTreeWidget::deleteItem()
         // Удаляем детей
         deleteChildren(item);
         // Удаляем сам элемент
-        // Если файл, нужно удалить его по пути и из map
-        if(fmn->is_file(item->text(0))){
-            fmn->remove_file(item->text(0));
+        try {
+            // Если это файл в корне проекта, то сразу удаляем его
+            if(fmn->is_file(item->text(0)) && !item->parent()){
+                fmn->remove_file(item->text(0));
+            }
+            else if(item->parent()){
+                fmn->remove_item_from_folder(item->text(0), item->parent()->text(0));
+            }
+            else{
+                fmn->remove_item_from_folder(item->text(0), "");
+            }
+            delete item;
+        } catch (const std::runtime_error& e) {
+            qCritical() << "Ошибка:" << e.what();
+            // Обработка ошибки
+            QMessageBox::critical(nullptr, "Ошибка", e.what());
         }
-        delete item;
     }
 }
 
@@ -277,8 +290,6 @@ void FileTreeWidget::deleteChildren(QTreeWidgetItem *folder)
         }
         // Удалаяем файл из проекта, дерева
         else{
-            // Удаление из файлов
-            fmn->remove_file(currChild->text(0));
             delete currChild;
         }
     }

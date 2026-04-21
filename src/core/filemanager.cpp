@@ -115,6 +115,75 @@ void FileManager::add_item_to_folder(const QString &item, const QString &new_fol
     add_item_to_folder(item, new_folder);
 }
 
+void FileManager::remove_item_from_folder(const QString &item, const QString &folder)
+{
+    QFile* from_folder = localFolders.value(folder);
+
+    // Если item в папке
+    if(folder != ""){
+        // Перезаписываем старую папку
+        if(from_folder->open(QIODevice::ReadOnly)){
+            QTextStream read(from_folder);
+            QStringList lines;
+            QString line;
+            while(!read.atEnd()){
+                line = read.readLine();
+                if(line != item){
+                    lines.append(line);
+                }
+            }
+
+            from_folder->close();
+
+            if(from_folder->open(QIODevice::WriteOnly)){
+                QTextStream write(from_folder);
+                foreach (auto line, lines) {
+                    write << line << Qt::endl;
+                }
+
+                from_folder->close();
+            }
+        }
+    }
+
+    // Определяем является файлом или нет
+    if(is_file(item)){
+        // Удаляем файл из системы
+        remove_file(item);
+    }
+    else{
+        // Если это папка, то удаляем всех детей
+        QFile* item_folder = localFolders.value(item);
+
+        // Проверка на nullptr
+        if(item_folder)
+        {
+            if(item_folder->open(QIODevice::ReadOnly)){
+                QTextStream read(item_folder);
+                QString line;
+                while(!read.atEnd()){
+                    line = read.readLine();
+                    // Проверяем текущий элемент. Если файл, то просто удаляем его.
+                    // Если это папка, то рекурсивно вызываем метод, чтобы удалить конкретно её в текущей папке
+                    if(is_file(line))
+                        remove_file(line);
+                    else
+                        remove_item_from_folder(line, item);
+                }
+                item_folder->close();
+            }
+            // Удаляем саму папку
+            if(item_folder->remove()){
+                localFolders.remove(item);
+                delete item_folder;
+            }
+        }
+        else{
+            throw std::runtime_error("Folder wasn't found: " + item.toStdString());
+        }
+    }
+}
+
 void FileManager::rename_folder(const QString &old_name, const QString &new_name)
 {
     QFile* renamed_folder = localFolders.value(old_name);
@@ -134,6 +203,7 @@ void FileManager::rename_folder(const QString &old_name, const QString &new_name
     // Удаляем папку и создаём новую
     if(renamed_folder->remove()){
         localFolders.remove(old_name);
+        delete renamed_folder;
         renamed_folder = new QFile(localfilesPath + new_name + ".txt");
         localFolders.insert(new_name, renamed_folder);
     }

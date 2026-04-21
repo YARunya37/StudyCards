@@ -19,6 +19,7 @@ public:
     void add_item_to_folder(const QString& item, const QString& folder);
     // Метод для перезаписи файла из одной папки в другую
     void add_item_to_folder(const QString& item, const QString& new_folder, const QString& old_folder);
+    // Метод для полного удаления item из папки(проекта)
     void remove_item_from_folder(const QString& item, const QString& folder);
     //Метод для переименования папки внутри проекта
     void rename_folder(const QString& old_name, const QString& new_name);
