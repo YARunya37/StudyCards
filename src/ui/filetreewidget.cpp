@@ -111,12 +111,28 @@ void FileTreeWidget::dropEvent(QDropEvent *event)
         // Делаем файл дочерним к папке
         else{
             // Добавляем в файловую систему
-            // Если файл находился в какой-то папке
-            if(draggedItem->parent()){
-                fmn->add_item_to_folder(draggedItem->text(0), targetItem->text(0), draggedItem->parent()->text(0));
+
+            // Если бросаем на элемет, то папкой будет он
+            if(drop == QAbstractItemView::OnItem){
+                // Если файл находился в какой-то папке
+                if(draggedItem->parent()){
+                    fmn->add_item_to_folder(draggedItem->text(0), targetItem->text(0), draggedItem->parent()->text(0));
+                }
+                else{
+                    fmn->add_item_to_folder(draggedItem->text(0), targetItem->text(0));
+                }
             }
+            // Если выше или ниже, то родитель - родитель элемента, над/под которым бросили
             else{
-                fmn->add_item_to_folder(draggedItem->text(0), targetItem->text(0));
+                if(targetItem->parent()){
+                    // Если файл находился в какой-то папке
+                    if(draggedItem->parent()){
+                        fmn->add_item_to_folder(draggedItem->text(0), targetItem->parent()->text(0), draggedItem->parent()->text(0));
+                    }
+                    else{
+                        fmn->add_item_to_folder(draggedItem->text(0), targetItem->parent()->text(0));
+                    }
+                }
             }
 
             QTreeWidget::dropEvent(event);
