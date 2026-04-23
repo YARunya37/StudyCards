@@ -3,11 +3,11 @@
 
 #include <QWidget>
 #include <QTextEdit>
-class StudyCard : public QWidget
+class StudyCardWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit StudyCard(QWidget *parent = nullptr);
+    explicit StudyCardWidget(QWidget *parent = nullptr);
 
 signals:
 

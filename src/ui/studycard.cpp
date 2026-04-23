@@ -1,7 +1,7 @@
 #include "studycard.h"
 #include <QVBoxLayout>
 #include <QFont>
-StudyCard::StudyCard(QWidget *parent)
+StudyCardWidget::StudyCardWidget(QWidget *parent)
     : QWidget{parent}
 {
     // Создаём layout для организации
