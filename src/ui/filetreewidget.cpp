@@ -20,7 +20,7 @@ FileTreeWidget::FileTreeWidget(QWidget* parent) :
     connect(this, &QTreeWidget::itemDoubleClicked, this, &FileTreeWidget::renameItem);
 
     // Создание filemanager
-    fmn = new FileManager(this);
+    fmn = new FileManager(this, "/resources/userfiles/");
 
     // Восстанавливаем состояние на основе уже добавленных файлов
     restoreState();

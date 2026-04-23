@@ -5,10 +5,10 @@
 QMap<QString, QString> FileManager::localFiles;
 QMap<QString, QFile*> FileManager::localFolders;
 
-FileManager::FileManager(QObject* parent)
+FileManager::FileManager(QObject* parent, QString path)
     : QObject(parent)
 {
-    localfilesPath = QCoreApplication::applicationDirPath() + "/resources/userfiles/";
+    localfilesPath = QCoreApplication::applicationDirPath() + path;
     // Восстанавливаем на основе файлов map
     foreach (auto file, QDir(localfilesPath).entryList(QDir::Files)) {
         if(file.split(".")[1] != "txt"){

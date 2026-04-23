@@ -10,7 +10,7 @@ class FileManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit FileManager(QObject* parent);
+    explicit FileManager(QObject* parent, QString path);
     // Метод для добавления файлов внутрь проекта. Возвращает все добавленные файлы
     QStringList add_files(QStringList files);
     // Метод для сохранения паки внутри проекта
