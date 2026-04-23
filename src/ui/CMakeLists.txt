@@ -8,7 +8,6 @@ add_library(main_ui_module STATIC
     mainwindow.cpp
     mainwindow.ui
     filetreewidget.h filetreewidget.cpp
-    studycard.h studycard.cpp
 )
 
 # Подключаем Qt к модулю
@@ -24,12 +23,12 @@ target_include_directories(main_ui_module PUBLIC
 "C:/Projects/StudyCards/build/"
 )
 
-add_library(groups_ui
-
-
+# Создаём библиотеку для билетов
+add_library(study_cards STATIC
+    studycard.cpp
+    studycard.h
 )
-
-target_link_libraries(groups_ui PUBLIC
+target_link_libraries(study_cards PUBLIC
     Qt6::Widgets
-
 )
+
