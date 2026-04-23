@@ -8,6 +8,7 @@ add_library(main_ui_module STATIC
     mainwindow.cpp
     mainwindow.ui
     scaledtextedit.h
+    scaledtextedit.cpp
 )
 
 # Подключаем Qt к модулю

@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "scaledtextedit.h"
 #include "core/FileLoader.h"
 
 #include <QWidget>
@@ -57,16 +56,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::onOpenFile()
 {
-    qInfo() << "=== MainWindow: onOpenFile ===";
+   qInfo() << "MainWindow: Opening";
 
     // 1. Получаем путь к приложению
     QString appDir = QCoreApplication::applicationDirPath();
 
     // 2. Путь к pandoc (относительно exe файла)
     QString pandocPath = QDir::cleanPath(appDir + "/utils/pandoc/pandoc.exe");
-
-    qInfo() << "App directory:" << appDir;
-    qInfo() << "Pandoc path:" << pandocPath;
 
     // 3. Проверяем что pandoc существует
     if (!QFile::exists(pandocPath)) {
@@ -102,15 +98,13 @@ void MainWindow::onOpenFile()
     // 5. Показываем статус загрузки
     editor->setPlainText("Загрузка:\n" + filePath + "\n\nПодождите...");
 
-    // 6. ← ← ← FileLoader возвращает УЖЕ ГОТОВЫЙ HTML с CSS!
+    // 6. FileLoader возвращает уже готовый HTML с CSS
     QString html;
     if (loadDocument(filePath, html, pandocPath)) {
         qInfo() << "MainWindow: File loaded successfully!";
         qInfo() << "HTML size:" << html.size() << "bytes";
 
-        // ← ← ← Просто показываем! CSS уже внутри!
         editor->setHtml(html);
-
     } else {
         qWarning() << "MainWindow: Failed to load file:" << filePath;
 

@@ -15,14 +15,17 @@
 #include <QDateTime> // Класс для работы с датой и временем
 // Создаём уникальные имена для временных файлов
 #include <QDebug> // Класс для отладочного вывода
-// qInfo(), qWarning() — вывод в консоль
+
 #include <QCoreApplication> // Класс для доступа к информации о приложении
 // Класс для доступа к информации о приложении
 #include <QTemporaryDir>
 #include <QTemporaryFile> // Классы для временных файлов
 // Автоматическое создание и удаление временных файлов
 
+#include <QRegularExpression>
+#include <QDirIterator>
 //Храним стили которые добавим в HTML
+
 static const QString CSS_STYLES =
     "<style>"
     "table { "
@@ -67,15 +70,18 @@ void addCssStyles(QString& htmlContent)
 // Получение полного пути к pandoc
 QString getPandocPath()
 {
-    // Сначала ищем в папке приложения
-    QString localPandoc = QDir::cleanPath(QCoreApplication::applicationDirPath() + "/utils/pandoc/pandoc.exe");
-    //QDir::cleanPath() — исправляет слеши (// -> /)
-    if (QFile::exists(localPandoc)) return localPandoc;
+    QString localPandoc = QDir::cleanPath(
+        QCoreApplication::applicationDirPath() + "/utils/pandoc/pandoc"
+    );
 
-    // Если нет, ищем в системном PATH (удобно для разработки)
+    // Добавляем .exe для Windows
+#ifdef Q_OS_WIN
+    localPandoc += ".exe";
+#endif
+
+    if (QFile::exists(localPandoc)) return localPandoc;
     return QStandardPaths::findExecutable("pandoc");
 }
-
 // Получение пути выходного файла с расширением .html
 QString getOutputHtmlPath(const QString& inputPath)
 {
@@ -102,77 +108,194 @@ bool isSupportedFormat(const QString& filePath)
 // Проверяем существует ли файл pandoc
 bool isPandocAvailable(const QString& pandocPath)
 {
-    return QFile::exists(pandocPath);//QFile::exists() — Проверяет, существует ли указанный путь к файлу.
+    return QFile::exists(pandocPath);
     //Возвращает true если файл есть
 }
 
-// Конвертация исходного файла в HTML формат
-bool ConvertToHtml(const QString& filePath, QString& outputPath, const QString& pandocPath)
+QString findObsidianVaultRoot(const QString& filePath)
 {
-    //Выводим отладочную информацию
-    qInfo() << "ConvertToHtml: Starting...";
-    qInfo() << "File:" << filePath;
-    qInfo() << "Pandoc:" << pandocPath;
-    //qInfo() — вывод в консоль
+    QFileInfo fileInfo(filePath);
+    QDir dir = fileInfo.absoluteDir();
 
-    //Проверяем что pandoc существует
-    if (!isPandocAvailable(pandocPath)) {
-        qWarning() << "ConvertToHtml: Pandoc not found:" << pandocPath;
-        return false;//Если pandoc нет — выводим ошибку и выходим
+    qInfo() << "Searching for .obsidian vault root from:" << dir.absolutePath();
+
+    // Идём вверх по дереву папок
+    while (true) {
+        // Проверяем есть ли .obsidian в текущей папке
+        if (QFile::exists(dir.absoluteFilePath(".obsidian"))) {
+            qInfo() << "Found .obsidian at:" << dir.absolutePath();
+            return dir.absolutePath();
+        }
+
+        // Поднимаемся на уровень выше
+        if (!dir.cdUp()) {
+            break;  // Достигли корня диска
+        }
     }
 
-    // Генерируем путь для выходного файла
-    outputPath = getOutputHtmlPath(filePath);
-
-    // Создаём временную папку для картинок
-    QString mediaDir = QDir::tempPath() + "/pandoc_media_" + //QDir::tempPath() — временная папка системы
-                       QString::number(QDateTime::currentMSecsSinceEpoch());//currentMSecsSinceEpoch() — текущее время в миллисекундах
-    QDir().mkpath(mediaDir);//mkpath() — создаёт папку
-
-    //Используем QProcess вместо system() - для запуска pandoc
-    QProcess process;
-    process.setProgram(pandocPath); // Указываем какую программу запускать (pandoc.exe)
-    process.setArguments({
-        filePath,
-        "-s",
-        "-t", "html",
-        "--wrap=none",
-        "--embed-resources",
-        "--standalone",
-        "-o", outputPath
-    });//Передаем аргументы командной строки pandoc
-
-    qInfo() << "Running pandoc...";
-    process.start();//Запускаем pandoc
-
-    //Чтобы программа не зависла навсегда, ждём завершения (максимум 30 секунд)
-    //Если дольше — убиваем процесс и выходим
-    if (!process.waitForFinished(30000)) {
-        qWarning() << "ConvertToHtml: Timeout -" << process.errorString();
-        process.kill();
-        return false;
-    }
-
-    // Проверяем код завершения
-    if (process.exitCode() == 0) {
-        qInfo() << "ConvertToHtml: Success!"; // exitCode() == 0 — успех
-        return true;
-    } else { // exitCode() != 0 — ошибка
-        //fromLocal8Bit() — конвертируем в QString (для кириллицы)
-        QString errorOutput = QString::fromLocal8Bit(process.readAllStandardError()); //readAllStandardError() — читаем сообщение об ошибке от pandoc
-        qWarning() << "ConvertToHtml: Error (code" << process.exitCode() << "):";
-        qWarning() << errorOutput;
-        return false;
-    }
+    // Не нашли .obsidian — возвращаем папку файла
+    qWarning() << "⚠ .obsidian not found, using file directory";
+    return QFileInfo(filePath).absoluteDir().absolutePath();
 }
 
+QString findImageFile(const QString& imagePath, const QString& mdFilePath)
+{
+    if (imagePath.isEmpty()) return "";
+
+        // Нормализуем путь и проверяем что он внутри vault
+        QString cleanImage = QDir::cleanPath(imagePath);
+        if (cleanImage.startsWith("..") || cleanImage.startsWith("/")) {
+            qWarning() << "Blocked path traversal attempt:" << imagePath;
+            return "";
+        }
+
+    qInfo() << "Searching for image:" << imagePath;
+
+    // 1. Абсолютный путь
+    if (QFile::exists(imagePath)) {
+        qInfo() << "Found (absolute):" << imagePath;
+        return imagePath;
+    }
+
+    // 2. Находим корень Obsidian vault
+    QString vaultRoot = findObsidianVaultRoot(mdFilePath);
+    QString mdFileDir = QFileInfo(mdFilePath).absolutePath();
+
+    // 3. Ищем относительно папки MD файла
+    QString relativePath = QDir(mdFileDir).filePath(imagePath);
+    if (QFile::exists(relativePath)) {
+        qInfo() << "Found (relative to MD):" << relativePath;
+        return relativePath;
+    }
+
+    // 4. Ищем в подпапках vault (относительно корня)
+    QStringList searchDirs = {
+        "_attachments",
+        "assets",
+        "media",
+        "images",
+        "img",
+        "files",
+        "resources"
+    };
+
+    for (const QString& subDir : searchDirs) {
+        QString fullPath = QDir(vaultRoot).filePath(subDir + "/" + imagePath);
+        if (QFile::exists(fullPath)) {
+            qInfo() << "Found in vault/" << subDir << ":" << fullPath;
+            return fullPath;
+        }
+    }
+
+    // 5. Ищем в подпапках относительно MD файла
+    for (const QString& subDir : searchDirs) {
+        QString fullPath = QDir(mdFileDir).filePath(subDir + "/" + imagePath);
+        if (QFile::exists(fullPath)) {
+            qInfo() << "Found in MD folder/" << subDir << ":" << fullPath;
+            return fullPath;
+        }
+    }
+
+    // 6. Рекурсивный поиск по vault (медленно, но надёжно)
+    if (imagePath.contains("Pasted image", Qt::CaseInsensitive)) {
+        qInfo() << "Recursive search in vault...";
+        QString baseName = QFileInfo(imagePath).baseName();
+
+        QDirIterator it(vaultRoot,
+                       {"*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp"},
+                       QDir::Files,
+                       QDirIterator::Subdirectories);
+
+        while (it.hasNext()) {
+            QString file = it.next();
+            if (QFileInfo(file).baseName() == baseName) {
+                qInfo() << "Found similar:" << file;
+                return file;
+            }
+        }
+    }
+
+    qWarning() << "Image not found:" << imagePath;
+    return "";
+}
+
+// Конвертация Obsidian-синтаксиса в стандартный Markdown
+QString convertObsidianToMarkdown(const QString& content,
+                                   const QString& mdFilePath,
+                                   const QString& tempDir)
+{
+    QString result = content;
+    QString vaultRoot = findObsidianVaultRoot(mdFilePath);
+
+    qInfo() << "=== Converting Obsidian syntax ===";
+    qInfo() << "MD file:" << mdFilePath;
+    qInfo() << "Vault root:" << vaultRoot;
+    qInfo() << "Temp dir:" << tempDir;
+
+    QRegularExpression obsidianImage(R"(!\[\[([^\]\|]+)(?:\|([^\]]+))?\]\])");
+    QRegularExpressionMatchIterator it = obsidianImage.globalMatch(result);
+
+    QList<QPair<int, int>> imageReplacements;
+    QList<QString> imageNewValues;
+
+    while (it.hasNext()) {
+        QRegularExpressionMatch match = it.next();
+        QString imageName = match.captured(1).trimmed();
+        QString altText = match.captured(2).trimmed();
+
+        qInfo() << "Processing image:" << imageName;
+
+        // Ищем файл
+        QString foundPath = findImageFile(imageName, mdFilePath);
+
+        QString replacement;
+        if (foundPath.isEmpty()) {
+            replacement = QString("*(Не найдено: %1)*").arg(imageName);
+        } else {
+            // Копируем во временную папку
+            QString destPath = QDir(tempDir).filePath(imageName);
+            QFileInfo fileInfo(imageName);
+
+            if (fileInfo.dir().path() != ".") {
+                QDir(tempDir).mkpath(fileInfo.dir().path());
+                destPath = QDir(tempDir).filePath(imageName);
+            }
+
+            if (QFile::copy(foundPath, destPath)) {
+                qInfo() << "Copied to:" << destPath;
+
+                // ← ← ← Создаём ПРАВИЛЬНЫЙ синтаксис с абсолютным путём!
+                if (altText.isEmpty()) {
+                    replacement = QString("![](%1)").arg(destPath);
+                } else {
+                    replacement = QString("![%1](%2)").arg(altText, destPath);
+                }
+            } else {
+                replacement = QString("*(Ошибка копирования)*");
+            }
+        }
+
+        imageReplacements.append(qMakePair(match.capturedStart(), match.capturedLength()));
+        imageNewValues.append(replacement);
+    }
+
+    // Применяем замены
+    for (int i = imageReplacements.size() - 1; i >= 0; --i) {
+        result.replace(imageReplacements[i].first, imageReplacements[i].second, imageNewValues[i]);
+    }
+
+    // Wiki-ссылки
+    result.replace(QRegularExpression(R"(\[\[([^\]|]+)\|([^\]]+)\]\])"), R"([\2](\1.md))");
+    result.replace(QRegularExpression(R"(\[\[([^\]]+)\]\])"), R"([\1](\1.md))");
+
+    qInfo() << "=== Conversion complete ===";
+    return result;
+}
 // Загрузка документа (основная функция)
 bool loadDocument(const QString& inputPath, QString& html, const QString& pandocPath)
 {
     //Отладочный вывод:
-    qInfo() << "=== FileLoader: loadDocument ===";
-    qInfo() << "Input:" << inputPath;
-    qInfo() << "Pandoc:" << pandocPath;
+    qInfo() << "FileLoader: Loading" << inputPath;
 
     // 1. Проверка входного файла
     if (!QFile::exists(inputPath)) {
@@ -185,7 +308,6 @@ bool loadDocument(const QString& inputPath, QString& html, const QString& pandoc
         qWarning() << "FileLoader: Unsupported format:" << getFileExtension(inputPath);
         return false;
     }
-
     // 3. Проверка pandoc; Если pandocPath пустой — получаем его автоматически
     if (!isPandocAvailable(pandocPath)) {
         qWarning() << "FileLoader: Pandoc not found:" << pandocPath;
@@ -213,36 +335,65 @@ bool loadDocument(const QString& inputPath, QString& html, const QString& pandoc
     qInfo() << "Temp dir:" << tempDir.path(); //tempDir.path() — полный путь к временной папке
     qInfo() << "Temp file:" << tempHtml.fileName();//tempHtml.fileName() — полный путь к временному файлу
 
-    // 5. Запускаем pandoc через QProcess
+    // 5. Для MD файлов: читаем и конвертируем Obsidian-синтаксис
+        QString ext = getFileExtension(inputPath);
+        bool isMarkdown = (ext == "md" || ext == "markdown");
+
+        QString markdownContent;
+        if (isMarkdown) {
+            QFile inputFile(inputPath);
+            if (inputFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                QTextStream in(&inputFile);
+                markdownContent = in.readAll();
+                inputFile.close();
+
+                // Конвертируем ![[...]] → !(...)
+                markdownContent = convertObsidianToMarkdown(markdownContent, inputPath, tempDir.path());
+
+                qInfo() << "Converted Obsidian syntax to standard Markdown";
+            }
+        }
+    // 6. Запускаем pandoc через QProcess
     QProcess process;//Создаёт объект для запуска внешней программы
     process.setProgram(pandocPath);// Указываем какую программу запускать
-    process.setArguments({
-        inputPath,
-        "-f", "docx",
-        "-t", "html",
-        "--embed-resources",//Картинки в base64 внутри HTML
-        "--standalone",//Добавляет <html>, <head>, <body>
-        "-o", tempHtml.fileName()
-    });//Передаём аргументы командной строки pandoc
+    if (isMarkdown && !markdownContent.isEmpty()) {
+            process.setArguments({
+                "-f", "markdown-yaml_metadata_block",
+                "-t", "html",
+                "--embed-resources",
+                "--standalone",
+                "-o", tempHtml.fileName()
+            });
+            process.start();
+            process.write(markdownContent.toUtf8());  // Передаём конвертированный текст!
+            process.closeWriteChannel();
+        } else {
+            // ← ← ← DOCX: передаём путь к файлу
+            process.setArguments({
+                inputPath,
+                "-t", "html",
+                "--embed-resources",
+                "--standalone",
+                "-o", tempHtml.fileName()
+            });
+            process.start();
+        }
 
-    qInfo() << "Running pandoc...";
-    process.start();
-
-    // 6. Ждём завершения (30 секунд)
+    // 7. Ждём завершения (30 секунд)
     if (!process.waitForFinished(30000)) {
         qWarning() << "FileLoader: Timeout -" << process.errorString();
         process.kill();
         return false;  // tempDir и tempHtml удалятся автоматически!
     }
 
-    // 7. Проверяем код завершения pandoc
+    // 8. Проверяем код завершения pandoc
     if (process.exitCode() != 0) {
         QString error = QString::fromLocal8Bit(process.readAllStandardError());
         qWarning() << "FileLoader: Error (code" << process.exitCode() << "):" << error;
         return false;  // tempDir и tempHtml удалятся автоматически!
     }
 
-    // 8. Читаем HTML из временного файла
+    // 9. Читаем HTML из временного файла
     QFile file(tempHtml.fileName());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qWarning() << "FileLoader: Cannot read temp file:" << tempHtml.fileName();
@@ -255,7 +406,7 @@ bool loadDocument(const QString& inputPath, QString& html, const QString& pandoc
 
     qInfo() << "FileLoader: HTML loaded," << html.size() << "bytes";
 
-    // 9. Добавляем CSS стили
+    // 10. Добавляем CSS стили
     addCssStyles(html);
 
     qInfo() << "FileLoader: CSS added," << html.size() << "bytes";

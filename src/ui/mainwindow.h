@@ -4,11 +4,6 @@
 #include "scaledtextedit.h"
 
 #include <QMainWindow>
-#include <QTextEdit>
-#include <QPushButton>
-#include <string>
-
-
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
