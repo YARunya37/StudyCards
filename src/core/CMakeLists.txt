@@ -10,11 +10,11 @@ target_link_libraries(file_manager PUBLIC
     Qt6::Core
 )
 
-add_library(group_manager STATIC
+add_library(groups_managament STATIC
     groupmanager.h
     groupmanager.cpp
 )
 
-target_link_libraries(group_manager PUBLIC
+target_link_libraries(groups_managament PUBLIC
     Qt6::Core
 )

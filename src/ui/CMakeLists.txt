@@ -23,3 +23,13 @@ target_include_directories(main_ui_module PUBLIC
 "C:/Projects/StudyCards/src/core"
 "C:/Projects/StudyCards/build/"
 )
+
+add_library(groups_ui
+
+
+)
+
+target_link_libraries(groups_ui PUBLIC
+    Qt6::Widgets
+
+)
