@@ -1,3 +1,5 @@
 #include "group.h"
 
-Group::Group() {}
+Group::Group(const QString& name)
+    : name{name}
+{}
