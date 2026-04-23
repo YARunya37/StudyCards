@@ -31,4 +31,7 @@ add_library(study_cards STATIC
 target_link_libraries(study_cards PUBLIC
     Qt6::Widgets
 )
+target_include_directories(study_cards PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/ui/
+)
 

@@ -18,4 +18,10 @@ add_library(groups_managament STATIC
 
 target_link_libraries(groups_managament PUBLIC
     Qt6::Core
+    study_cards
+)
+
+target_include_directories(groups_managament PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/src/ui/
 )

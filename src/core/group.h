@@ -2,6 +2,8 @@
 #define GROUP_H
 
 #include <QString>
+#include "studycard.h"
+
 // Класс, отвечающий за конкретную группу пользователя
 class Group
 {
