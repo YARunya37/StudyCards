@@ -13,6 +13,7 @@ target_link_libraries(file_manager PUBLIC
 add_library(groups_managament STATIC
     groupmanager.h
     groupmanager.cpp
+    group.h group.cpp
 )
 
 target_link_libraries(groups_managament PUBLIC
