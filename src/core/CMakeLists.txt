@@ -9,3 +9,12 @@ add_library(file_manager STATIC
 target_link_libraries(file_manager PUBLIC
     Qt6::Core
 )
+
+add_library(group_manager STATIC
+    groupmanager.h
+    groupmanager.cpp
+)
+
+target_link_libraries(group_manager PUBLIC
+    Qt6::Core
+)
