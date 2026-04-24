@@ -95,12 +95,20 @@ void MainWindow::onOpenFile()
     qInfo() << "Selected file:" << filePath;
     qInfo() << "File exists:" << QFile::exists(filePath);
 
-    // 5. Показываем статус загрузки
     editor->setPlainText("Загрузка:\n" + filePath + "\n\nПодождите...");
+
+    //5. Указываем путь для сохранения HTML!
+    // Поднимаемся из build/ в корень
+    QDir appPath(appDir);
+    if (appPath.dirName().toLower().contains("build")) {
+        appPath.cdUp();
+    }
+
+    QString outputDir = appDir + "/output";
 
     // 6. FileLoader возвращает уже готовый HTML с CSS
     QString html;
-    if (loadDocument(filePath, html, pandocPath)) {
+    if (loadDocument(filePath, html, pandocPath, outputDir)) {
         qInfo() << "MainWindow: File loaded successfully!";
         qInfo() << "HTML size:" << html.size() << "bytes";
 

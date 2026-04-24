@@ -219,6 +219,47 @@ QString findImageFile(const QString& imagePath, const QString& mdFilePath)
     return "";
 }
 
+QString normalizeMarkdown(const QString& content)
+{
+    QString result = content;
+
+    qInfo() << "=== normalizeMarkdown START ===";
+    qInfo() << "Original size:" << content.size() << "bytes";
+
+    // 1. Перед заголовками (##, ###, ####)
+    result.replace(QRegularExpression("([^\n])\n(#{1,6} )"), "\n\n\\2");
+
+    // 2. Перед списками (1., -, *)
+    result.replace(QRegularExpression("([^\n])\n(\\d+\\. |- |\\* )"), "\n\n\\2");
+
+    // 3. Перед изображениями ![]()
+    result.replace(QRegularExpression("([^\n])\n(!\\[.*?\\]\\(.*?\\))"), "\n\n\\2");
+
+    // 4. Перед таблицами (| ...)
+    result.replace(QRegularExpression("([^\n])\n(\\|.+)"), "\n\n\\2");
+
+    // 5. Перед кодом (```)
+    result.replace(QRegularExpression("([^\n])\n(```)"), "\n\n\\2");
+
+    // После кода (```)
+    result.replace(QRegularExpression("(```)\n([^\n])"), "\\1\n\n\\2");
+
+    // 6. Перед цитатами (>)
+    result.replace(QRegularExpression("([^\n])\n(>)"), "\n\n\\2");
+
+    // 7. После горизонтальных линий (---)
+    result.replace(QRegularExpression("(---)\n([^\n])"), "\\1\n\n\\2");
+
+    // Убираем множественные пустые строки (более 2 подряд)
+    result.replace(QRegularExpression("\n{3,}"), "\n\n");
+
+    qInfo() << "Normalized size:" << result.size() << "bytes";
+        qInfo() << "First 300 chars:";
+        qInfo() << result.left(300);
+        qInfo() << "=== normalizeMarkdown END ===";
+    return result;
+}
+
 // Конвертация Obsidian-синтаксиса в стандартный Markdown
 QString convertObsidianToMarkdown(const QString& content,
                                    const QString& mdFilePath,
@@ -292,7 +333,7 @@ QString convertObsidianToMarkdown(const QString& content,
     return result;
 }
 // Загрузка документа (основная функция)
-bool loadDocument(const QString& inputPath, QString& html, const QString& pandocPath)
+bool loadDocument(const QString& inputPath, QString& html, const QString& pandocPath, const QString& outputDir)
 {
     //Отладочный вывод:
     qInfo() << "FileLoader: Loading" << inputPath;
@@ -347,6 +388,9 @@ bool loadDocument(const QString& inputPath, QString& html, const QString& pandoc
                 markdownContent = in.readAll();
                 inputFile.close();
 
+                markdownContent = normalizeMarkdown(markdownContent);
+                qInfo() << "Normalized Markdown formatting";
+
                 // Конвертируем ![[...]] → !(...)
                 markdownContent = convertObsidianToMarkdown(markdownContent, inputPath, tempDir.path());
 
@@ -358,7 +402,7 @@ bool loadDocument(const QString& inputPath, QString& html, const QString& pandoc
     process.setProgram(pandocPath);// Указываем какую программу запускать
     if (isMarkdown && !markdownContent.isEmpty()) {
             process.setArguments({
-                "-f", "markdown-yaml_metadata_block",
+                "-f", "markdown+pipe_tables+grid_tables-yaml_metadata_block-smart",
                 "-t", "html",
                 "--embed-resources",
                 "--standalone",
@@ -406,7 +450,31 @@ bool loadDocument(const QString& inputPath, QString& html, const QString& pandoc
 
     qInfo() << "FileLoader: HTML loaded," << html.size() << "bytes";
 
-    // 10. Добавляем CSS стили
+    if (!outputDir.isEmpty()) {
+        // Создаём ПОЛНЫЙ путь к файлу (папка + имя файла)
+        QFileInfo inputInfo(inputPath);
+        QString fileName = inputInfo.baseName() + ".html";  // ← Lab_7.html
+        QString fullPath = outputDir + "/" + fileName;      // ← output/Lab_7.html
+
+        qInfo() << "FileLoader: Saving to:" << fullPath;
+
+        // Создаём папку если нет
+        QDir().mkpath(outputDir);  // Создаём ПАПКУ
+
+        // Сохраняем файл
+        QFile outFile(fullPath);  // ПОЛНЫЙ путь!
+        if (outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream out(&outFile);
+            out << html;
+            outFile.close();
+            qInfo() << "FileLoader: HTML saved:" << fullPath;
+        } else {
+            qWarning() << "FileLoader: Failed to save:" << fullPath;
+        }
+    }
+    qInfo() << "First 500 chars of HTML:";
+    qInfo() << html.left(500);
+    // 11. Добавляем CSS стили
     addCssStyles(html);
 
     qInfo() << "FileLoader: CSS added," << html.size() << "bytes";

@@ -21,11 +21,14 @@ QString findObsidianVaultRoot(const QString& filePath);
 
 QString findImageFile(const QString& imagePath, const QString& mdFileDir);
 
+// Нормализация Markdown (добавление пустых строк)
+QString normalizeMarkdown(const QString& content);
+
 // Конвертация Obsidian-синтаксиса в стандартный Markdown
 QString convertObsidianToMarkdown(const QString& content, const QString& mdFilePath, const QString& tempDir);
 
 // Загрузка документа (основная функция)
-bool loadDocument(const QString& inputPath, QString& html, const QString& pandocPath);
+bool loadDocument(const QString& inputPath, QString& html, const QString& pandocPath, const QString& outputDir = "");
 
 // Добавление CSS стилей к HTML
 void addCssStyles(QString& htmlContent);

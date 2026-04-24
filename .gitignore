@@ -104,3 +104,6 @@ Makefile
 .rcc/
 .uic/
 /build*/
+
+# Игнорируем сгенерированные HTML
+output/*.html
