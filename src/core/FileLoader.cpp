@@ -450,30 +450,31 @@ bool loadDocument(const QString& inputPath, QString& html, const QString& pandoc
 
     qInfo() << "FileLoader: HTML loaded," << html.size() << "bytes";
 
-    if (!outputDir.isEmpty()) {
-        // Создаём ПОЛНЫЙ путь к файлу (папка + имя файла)
+    // 10. Сохраняем HTML файл в папку output
+    QString saveDir = outputDir;
+
+        if (saveDir.isEmpty()) {
+            // Если параметр пустой — используем путь по умолчанию
+            saveDir = QCoreApplication::applicationDirPath() + "/output";
+        }
+
+        QDir().mkpath(saveDir);  // Создаём если нет
+
         QFileInfo inputInfo(inputPath);
-        QString fileName = inputInfo.baseName() + ".html";  // ← Lab_7.html
-        QString fullPath = outputDir + "/" + fileName;      // ← output/Lab_7.html
+        QString fileName = inputInfo.baseName() + ".html";
+        QString fullPath = saveDir + "/" + fileName;  // Используем saveDir
 
         qInfo() << "FileLoader: Saving to:" << fullPath;
 
-        // Создаём папку если нет
-        QDir().mkpath(outputDir);  // Создаём ПАПКУ
-
-        // Сохраняем файл
-        QFile outFile(fullPath);  // ПОЛНЫЙ путь!
+        QFile outFile(fullPath);
         if (outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
             QTextStream out(&outFile);
             out << html;
             outFile.close();
-            qInfo() << "FileLoader: HTML saved:" << fullPath;
+            qInfo() << "FileLoader: HTML saved!" << fullPath;
         } else {
-            qWarning() << "FileLoader: Failed to save:" << fullPath;
+            qWarning() << "FileLoader: Failed to save!" << fullPath;
         }
-    }
-    qInfo() << "First 500 chars of HTML:";
-    qInfo() << html.left(500);
     // 11. Добавляем CSS стили
     addCssStyles(html);
 

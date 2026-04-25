@@ -23,6 +23,9 @@ target_include_directories(main_ui_module PUBLIC
     ${CMAKE_SOURCE_DIR}/build
 )
 
+# Создаём папку output при сборке
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/output")
+
 # Копирование Pandoc при сборке
 if(WIN32)
     # Путь к pandoc.exe в исходниках
