@@ -33,6 +33,12 @@ add_custom_command(
     "$<TARGET_FILE_DIR:${PROJECT_NAME}>/resources/userfiles/.gitkeep"
 )
 
+# Очистка папки usergroups от .gitkeep
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E rm -rf
+    "$<TARGET_FILE_DIR:${PROJECT_NAME}>/resources/usergroups/.gitkeep"
+)
 
 # Хз, что тут. QT сам создал это, я не трогал
 install(TARGETS StudyCards

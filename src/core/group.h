@@ -9,7 +9,6 @@ class Group
 {
 public:
     Group(const QString& name);
-
     // Метод для получение имени группы
     QString Name() const;
 private:
