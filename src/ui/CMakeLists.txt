@@ -7,14 +7,15 @@ add_library(main_ui_module STATIC
     mainwindow.h
     mainwindow.cpp
     mainwindow.ui
-    scaledtextedit.h
-    scaledtextedit.cpp
+    scaledtextedit.h scaledtextedit.cpp
+    filetreewidget.h filetreewidget.cpp
 )
 
 # Подключаем Qt к модулю
 target_link_libraries(main_ui_module PUBLIC
     Qt6::Widgets
     core_module
+    file_manager
 )
 
 # Для доступа к header-ам

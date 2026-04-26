@@ -16,6 +16,7 @@ PRIVATE
     Qt::Widgets
     main_ui_module
     core_module
+    file_manager
 )
 target_include_directories(main_ui_module PUBLIC
     ${CMAKE_SOURCE_DIR}/src
@@ -23,8 +24,21 @@ target_include_directories(main_ui_module PUBLIC
     ${CMAKE_SOURCE_DIR}/build
 )
 
-# Создаём папку output при сборке
-file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/output")
+# Добавление папки resources с копированием всего её содержимого
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/resources
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources
+)
+
+# Очистка папки userfiles от .gitkeep
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E rm -rf
+    "$<TARGET_FILE_DIR:${PROJECT_NAME}>/resources/userfiles/.gitkeep"
+)
+
 
 # Копирование Pandoc при сборке
 if(WIN32)
@@ -33,6 +47,8 @@ if(WIN32)
 
     # Путь куда копировать (в билд директорию)
     set(PANDOC_DESTINATION "${CMAKE_BINARY_DIR}/utils/pandoc/pandoc.exe")
+
+
 
     # Создаём папку utils/pandoc
     file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/utils/pandoc")
@@ -46,6 +62,7 @@ if(WIN32)
         VERBATIM
     )
 endif()
+
 # Хз, что тут. QT сам создал это, я не трогал
 install(TARGETS StudyCards
     BUNDLE  DESTINATION .

@@ -1,3 +1,5 @@
+# Модули, отвечающие за внутреннюю логику проекта
+
 # Модуль FileLoader (конвертация документов)
 
 # Исходники
@@ -20,5 +22,15 @@ add_library(core_module STATIC
 target_compile_features(core_module PRIVATE cxx_std_17)
 
 target_link_libraries(core_module PRIVATE
+    Qt6::Core
+)
+
+# Модуль управляющий файлами внутри проекта
+add_library(file_manager STATIC
+    filemanager.h
+    filemanager.cpp
+)
+
+target_link_libraries(file_manager PUBLIC
     Qt6::Core
 )

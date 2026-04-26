@@ -4,6 +4,10 @@
 #include "scaledtextedit.h"
 
 #include <QMainWindow>
+#include <QSplitter>
+#include <QString>
+#include <QStringList>
+#include <QFileDialog>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -22,7 +26,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    ScaledTextEdit *editor;
+    // Метод для создания разделителя между основными виджетами
+    void SetUpSPlitter();
 };
 
 #endif // MAINWINDOW_H
