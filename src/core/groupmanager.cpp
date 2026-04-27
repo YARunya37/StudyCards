@@ -20,12 +20,20 @@ Group *GroupManager::GetGroup(const QString &group_name)
 
 void GroupManager::CreateGroup(const QString &group_name)
 {
-    AddItem(group_name);
-    groups.insert(group_name, new Group(group_name));
+    if(AddItem(group_name)){
+        groups.insert(group_name, new Group(group_name));
+    }
+    else{
+        qInfo() << "Ошибка при создании группы";
+    }
 }
 
 void GroupManager::DeleteGroup(const QString &group_name)
 {
-    DeleteItem(group_name);
-    groups.remove(group_name);
+    if(DeleteItem(group_name)){
+        groups.remove(group_name);
+    }
+    else{
+        qInfo() << "Ошибка при удалении группы";
+    }
 }
