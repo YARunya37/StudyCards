@@ -30,6 +30,15 @@ bool DirItemsManager::DeleteItem(const QString &name)
     return false;
 }
 
+bool DirItemsManager::RenameItem(const QString &old_name, const QString &new_name)
+{
+    if(currDir.rename(old_name, new_name)){
+        return true;
+    }
+
+    return false;
+}
+
 QStringList DirItemsManager::RestoreItems()
 {
     // Возвращаем все папки, кроме специальных, системных
