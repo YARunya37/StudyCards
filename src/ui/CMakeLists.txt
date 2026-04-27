@@ -15,6 +15,7 @@ target_link_libraries(main_ui_module PUBLIC
     Qt6::Widgets
     file_manager
     study_cards
+    groups_ui
 )
 
 # Для доступа к header-ам main_ui_module
@@ -42,6 +43,7 @@ target_include_directories(study_cards PUBLIC
 
 # Библиотека для групп
 add_library(groups_ui STATIC
+    groupcreationdialog.h groupcreationdialog.cpp
 
 )
 
