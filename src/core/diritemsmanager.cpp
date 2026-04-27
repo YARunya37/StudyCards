@@ -22,7 +22,7 @@ bool DirItemsManager::DeleteItem(const QString &name)
 {
     // Если существует папка с таким именем, то удаляем её
     if(currDir.exists(name)){
-        if(currDir.remove(name)){
+        if(currDir.rmdir(name)){
             return true;
         }
     }
