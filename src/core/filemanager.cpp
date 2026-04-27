@@ -5,10 +5,16 @@
 QMap<QString, QString> FileManager::localFiles;
 QMap<QString, QFile*> FileManager::localFolders;
 
-FileManager::FileManager(QObject* parent, QString path)
+FileManager::FileManager(QObject* parent, QString path_to_dir)
     : QObject(parent)
 {
-    localfilesPath = QCoreApplication::applicationDirPath() + path;
+    // Если путь в конце не содержит /, то необходимо его добавить
+    if(path_to_dir.endsWith("/")){
+        localfilesPath = QCoreApplication::applicationDirPath() + path_to_dir;
+    }
+    else{
+        localfilesPath = QCoreApplication::applicationDirPath() + path_to_dir + "/";
+    }
     // Восстанавливаем на основе файлов map
     foreach (auto file, QDir(localfilesPath).entryList(QDir::Files)) {
         if(file.split(".")[1] != "txt"){
@@ -45,6 +51,39 @@ QStringList FileManager::add_files(QStringList files)
         }
     }
     return added_files;
+}
+
+void FileManager::create_files(QStringList file_names)
+{
+    foreach (auto file, file_names) {
+        QString full_name = file + ".html";
+
+        // Если файла с таким именем ещё нет, то добавляем его в дерево
+        if(!localFiles.contains(file)){
+            // Путь к директории с файлами(внутри проекта) + имя данного файла с расширением
+            QString dest = localfilesPath + full_name;
+
+            QFile new_file(dest);
+            if(new_file.open(QIODeviceBase::WriteOnly)){
+                // Добавляем в map локальный файл
+                localFiles.insert(file, dest);
+            }
+        }
+    }
+}
+
+void FileManager::write_to_file(const QString& file_name, const QString& content)
+{
+    QFile target(localFiles.value(file_name));
+
+    if(target.open(QIODeviceBase::WriteOnly | QIODeviceBase::Text)){
+        QTextStream write(&target);
+        write << content;  // Записываем содержимое
+        target.close();     // Закрываем файл
+    }
+    else {
+        qWarning() << "Cannot open file for writing:" << target.fileName();
+    }
 }
 
 void FileManager::add_folder(QString name){
@@ -256,6 +295,22 @@ void FileManager::remove_file(QString file_name)
 bool FileManager::is_file(QString item_name){
     // Если в map есть такой элемент, то это файл
     return localFiles.contains(item_name);
+}
+
+QString FileManager::get_file_content(const QString &file_name)
+{
+    if(localFiles.contains(file_name)){
+        QFile file(localFiles.value(file_name));
+        if(file.open(QIODeviceBase::ReadOnly | QIODeviceBase::Text)){
+            QTextStream in(&file);
+
+            QString content = in.readAll();
+
+            file.close();
+            return content;
+        }
+    }
+    return QString("Ошибка чтения файла");
 }
 
 QString FileManager::GetName(QString file)

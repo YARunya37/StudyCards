@@ -11,8 +11,12 @@ class FileManager : public QObject
     Q_OBJECT
 public:
     explicit FileManager(QObject* parent, QString path);
-    // Метод для добавления файлов внутрь проекта. Возвращает все добавленные файлы
+    // Метод для ДОБАВЛЕНИЯ файлов внутрь проекта. Возвращает все добавленные файлы
     QStringList add_files(QStringList files);
+    // Метод для СОЗДАНИЯ файлов внутри директории
+    void create_files(QStringList file_names);
+    // Метод для записи контента в файл
+    void write_to_file(const QString& file_name, const QString& content);
     // Метод для сохранения паки внутри проекта
     void add_folder(QString name);
     // Метод для добавления записи о файле в папку
@@ -33,6 +37,8 @@ public:
     void remove_file(QString file_name);
     // Метод, который возващает true если существует файл с указанным именем
     bool is_file(QString item_name);
+    // Метод для получения контента файла
+    QString get_file_content(const QString& file_name);
 public slots:
     // void OnFolderNameChanged();
 private:
