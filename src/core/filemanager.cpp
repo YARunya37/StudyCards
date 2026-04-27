@@ -72,6 +72,20 @@ void FileManager::create_files(QStringList file_names)
     }
 }
 
+void FileManager::write_to_file(const QString& file_name, const QString& content)
+{
+    QFile target(localFiles.value(file_name));
+
+    if(target.open(QIODeviceBase::WriteOnly | QIODeviceBase::Text)){
+        QTextStream write(&target);
+        write << content;  // Записываем содержимое
+        target.close();     // Закрываем файл
+    }
+    else {
+        qWarning() << "Cannot open file for writing:" << target.fileName();
+    }
+}
+
 void FileManager::add_folder(QString name){
     QFile* folder = new QFile(localfilesPath + name + ".txt");
     localFolders.insert(name, folder);

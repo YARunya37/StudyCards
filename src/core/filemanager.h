@@ -15,6 +15,8 @@ public:
     QStringList add_files(QStringList files);
     // Метод для СОЗДАНИЯ файлов внутри директории
     void create_files(QStringList file_names);
+    // Метод для записи контента в файл
+    void write_to_file(const QString& file_name, const QString& content);
     // Метод для сохранения паки внутри проекта
     void add_folder(QString name);
     // Метод для добавления записи о файле в папку
