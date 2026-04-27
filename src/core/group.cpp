@@ -41,6 +41,11 @@ void Group::DeleteCard(const QString &card_name)
 {
     if(DeleteItem(card_name)){
         auto card = GetCard(card_name);
+
+        // Проверка на nullptr
+        if(!card)
+            return;
+
         delete card;
         cards.remove(card_name);
     }
@@ -53,6 +58,11 @@ void Group::RenameCard(const QString &old_name, const QString &new_name)
 {
     if(RenameItem(old_name, new_name)){
         auto card = GetCard(old_name);
+
+        // Проверка на nullptr
+        if(!card)
+            return;
+
         // Удаление группы
         cards.remove(old_name);
 

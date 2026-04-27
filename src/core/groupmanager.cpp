@@ -22,6 +22,10 @@ void GroupManager::RenameGroup(const QString &old_name, const QString &new_name)
 {
     if(RenameItem(old_name, new_name)){
         auto group = GetGroup(old_name);
+        // Проверка на nullptr
+        if(!group)
+            return;
+
         // Удаление группы
         groups.remove(old_name);
 
@@ -45,6 +49,12 @@ void GroupManager::CreateGroup(const QString &group_name)
 void GroupManager::DeleteGroup(const QString &group_name)
 {
     if(DeleteItem(group_name)){
+        auto group = GetGroup(group_name);
+        // Проверка на nullptr
+        if(!group)
+            return;
+
+        delete group;
         groups.remove(group_name);
     }
     else{
