@@ -53,6 +53,25 @@ QStringList FileManager::add_files(QStringList files)
     return added_files;
 }
 
+void FileManager::create_files(QStringList file_names)
+{
+    foreach (auto file, file_names) {
+        QString full_name = file + ".html";
+
+        // Если файла с таким именем ещё нет, то добавляем его в дерево
+        if(!localFiles.contains(file)){
+            // Путь к директории с файлами(внутри проекта) + имя данного файла с расширением
+            QString dest = localfilesPath + full_name;
+
+            QFile new_file(dest);
+            if(new_file.open(QIODeviceBase::WriteOnly)){
+                // Добавляем в map локальный файл
+                localFiles.insert(file, dest);
+            }
+        }
+    }
+}
+
 void FileManager::add_folder(QString name){
     QFile* folder = new QFile(localfilesPath + name + ".txt");
     localFolders.insert(name, folder);
