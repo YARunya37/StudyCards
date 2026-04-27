@@ -161,7 +161,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <x>0</x>
      <y>0</y>
      <width>830</width>
-     <height>22</height>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -172,17 +172,17 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
-     <string>Билеты</string>
+     <string>Группы билетов</string>
     </property>
-    <addaction name="action_3"/>
-    <addaction name="action_4"/>
+    <addaction name="create_group"/>
+    <addaction name="open_group"/>
     <addaction name="action_7"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
      <string>Тест</string>
     </property>
-    <addaction name="action_5"/>
+    <addaction name="open_group_in_window"/>
     <addaction name="action_6"/>
    </widget>
    <addaction name="menu"/>
@@ -199,19 +199,19 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <string>Добавить файл</string>
    </property>
   </action>
-  <action name="action_3">
+  <action name="create_group">
    <property name="text">
     <string>Создать группу</string>
    </property>
   </action>
-  <action name="action_4">
+  <action name="open_group">
    <property name="text">
     <string>Открыть группу</string>
    </property>
   </action>
-  <action name="action_5">
+  <action name="open_group_in_window">
    <property name="text">
-    <string>Запустить с текущей колодой</string>
+    <string>Запустить с текущей группой</string>
    </property>
   </action>
   <action name="action_6">
