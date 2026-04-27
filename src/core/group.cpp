@@ -7,7 +7,7 @@ Group::Group(const QString& name)
     DirItemsManager(group_path)
 {
     foreach(auto item, RestoreItems()){
-        auto card = new StudyCardWidget(nullptr, group_path + "/" + item);
+        auto card = new StudyCardWidget(nullptr, group_path + "/" + item, item);
         cards.insert(item, card);
     }
 }
