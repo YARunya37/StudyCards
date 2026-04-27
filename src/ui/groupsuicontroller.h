@@ -14,6 +14,8 @@ public slots:
     void show_creation_group_dialog();
 
     void show_delete_group_window();
+
+    void choose_active_group();
 private:
     GroupManager* gm;
 };

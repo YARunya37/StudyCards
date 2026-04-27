@@ -5,7 +5,12 @@
 GroupsUIController::GroupsUIController(QObject *parent)
     : QObject{parent},
     gm{new GroupManager(parent)}
-{}
+{
+    // Для тестов выбора активной группы
+    connect(gm, &GroupManager::active_group_changed, this, [this](Group* new_active_group){
+        qInfo() << "Активная группа" << new_active_group->Name();
+    });
+}
 
 void GroupsUIController::show_creation_group_dialog()
 {
@@ -65,5 +70,32 @@ void GroupsUIController::show_delete_group_window()
         {
             gm->DeleteGroup(selectedGroup);
         }
+    }
+}
+
+void GroupsUIController::choose_active_group()
+{
+    QStringList groups = gm->GetAvaliableGroups();
+
+    if (groups.isEmpty())
+    {
+        QMessageBox::information(qobject_cast<QWidget*>(this->parent()), "Нет групп",
+                                 "Нет доступных групп для выбора.");
+        return;
+    }
+
+    bool ok;
+    QString selectedGroup = QInputDialog::getItem(
+        qobject_cast<QWidget*>(this->parent()),
+        "Выбор активной группы",
+        "Выберите группу для удаления:",
+        groups,
+        0,          // Текущий индекс
+        false,      // Редактируемый (false = нельзя вводить вручную)
+        &ok
+    );
+
+    if(ok && !selectedGroup.isEmpty()){
+        gm->SetActiveGroup(selectedGroup);
     }
 }

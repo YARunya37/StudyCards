@@ -175,7 +175,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <string>Группы билетов</string>
     </property>
     <addaction name="create_group"/>
-    <addaction name="open_group"/>
+    <addaction name="select_group"/>
     <addaction name="action_7"/>
     <addaction name="delete_group"/>
    </widget>
@@ -205,9 +205,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <string>Создать группу</string>
    </property>
   </action>
-  <action name="open_group">
+  <action name="select_group">
    <property name="text">
-    <string>Открыть группу</string>
+    <string>Выбрать активную группу</string>
    </property>
   </action>
   <action name="open_group_in_window">

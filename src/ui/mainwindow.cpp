@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->create_group, &QAction::triggered, controller, &GroupsUIController::show_creation_group_dialog);
     // Кнопка удаления группы
     connect(ui->delete_group, &QAction::triggered, controller, &GroupsUIController::show_delete_group_window);
+    // Кнопка выбора группы
+    connect(ui->select_group, &QAction::triggered, controller, &GroupsUIController::choose_active_group);
 }
 
 MainWindow::~MainWindow()
