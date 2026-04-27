@@ -14,6 +14,7 @@ public:
     // Метод для получения указателя на группу
     Group* GetGroup(const QString& group_name);
 public slots:
+    void RenameGroup(const QString& old_name, const QString& new_name);
     void CreateGroup(const QString& group_name);
     void DeleteGroup(const QString& group_name);
 private:
