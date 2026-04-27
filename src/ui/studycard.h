@@ -11,7 +11,8 @@ class StudyCardWidget : public QWidget
 public:
     explicit StudyCardWidget(QWidget *parent, const QString& path_to_card, const QString& card_name);
 
-    const QString Name() const;
+    QString Name() const;
+    void SetName(const QString& new_name);
 signals:
 
 private slots:

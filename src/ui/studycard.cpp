@@ -34,6 +34,13 @@ StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_c
 
 }
 
+void StudyCardWidget::SetName(const QString &new_name)
+{
+    if(new_name != ""){
+        this->name = new_name;
+    }
+}
+
 void StudyCardWidget::save_to_files()
 {
     QStringList files = fmn.get_existing_files();
