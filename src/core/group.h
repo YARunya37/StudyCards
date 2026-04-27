@@ -5,16 +5,12 @@
 #include "studycard.h"
 #include <QMap>
 #include "diritemsmanager.h"
-
+#include "namedfileitem.h"
 // Класс, отвечающий за конкретную группу пользователя
-class Group : public DirItemsManager
+class Group : public DirItemsManager, public NamedFileItem
 {
 public:
     Group(const QString& name);
-    // Метод для получение имени группы
-    QString Name() const;
-    // Метод для установки имени
-    void SetName(const QString& new_name);
     // Метод для получения указателя на билет по имени
     StudyCardWidget* GetCard(const QString& name) const;
     // Метод для удаления всех билетов в группе
@@ -24,8 +20,6 @@ public slots:
     void DeleteCard(const QString& card_name);
     void RenameCard(const QString& old_name, const QString& new_name);
 private:
-    // Поле с именем группы
-    QString name;
     // Список билетов
     QMap<QString, StudyCardWidget*> cards;
     // Путь к группе

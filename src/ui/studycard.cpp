@@ -6,7 +6,7 @@
 StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_card, const QString& card_name)
     : QWidget{parent},
     fmn(this, local_path_to_card),
-    name{card_name}
+    NamedFileItem{card_name}
 {
     SetUpUI();
     // Если есть файлы, то восстанавливаем текст
@@ -34,12 +34,6 @@ StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_c
 
 }
 
-void StudyCardWidget::SetName(const QString &new_name)
-{
-    if(new_name != ""){
-        this->name = new_name;
-    }
-}
 
 void StudyCardWidget::save_to_files()
 {
@@ -99,7 +93,7 @@ void StudyCardWidget::SetUpUI()
 
     QFont header_font = header->font();
 
-    header->setPlainText(name);
+    header->setPlainText(Name());
 
     header_font.setPointSize(20);
     header_font.setBold(true);
