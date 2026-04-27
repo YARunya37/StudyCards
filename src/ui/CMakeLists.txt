@@ -14,6 +14,7 @@ add_library(main_ui_module STATIC
 target_link_libraries(main_ui_module PUBLIC
     Qt6::Widgets
     file_manager
+    study_cards
 )
 
 # Для доступа к header-ам main_ui_module

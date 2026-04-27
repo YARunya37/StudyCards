@@ -300,7 +300,7 @@ bool FileManager::is_file(QString item_name){
 QString FileManager::get_file_content(const QString &file_name)
 {
     if(localFiles.contains(file_name)){
-        QFile file(localfilesPath + file_name);
+        QFile file(localFiles.value(file_name));
         if(file.open(QIODeviceBase::ReadOnly | QIODeviceBase::Text)){
             QTextStream in(&file);
 
