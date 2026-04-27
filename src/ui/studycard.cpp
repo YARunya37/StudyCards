@@ -22,7 +22,7 @@ StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_c
     // Используем таймер, который по истечении вызовет сохранение текущего состояния виджетов
     QTimer *saveTimer = new QTimer(this);
     saveTimer->setSingleShot(true);
-    saveTimer->setInterval(2000); // 2 секунды после последнего изменения
+    saveTimer->setInterval(1000); // 2 секунды после последнего изменения
 
     connect(header, &QTextEdit::textChanged, [saveTimer]() {
         saveTimer->start(); // перезапускаем таймер
