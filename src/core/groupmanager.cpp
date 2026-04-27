@@ -10,6 +10,14 @@ GroupManager::GroupManager(QObject *parent)
     }
 }
 
+Group *GroupManager::GetGroup(const QString &group_name)
+{
+    if(groups.contains(group_name)){
+        return groups.value(group_name);
+    }
+    return nullptr;
+}
+
 void GroupManager::CreateGroup(const QString &group_name)
 {
     AddItem(group_name);

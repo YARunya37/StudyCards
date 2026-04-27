@@ -11,7 +11,8 @@ class GroupManager : public QObject, public DirItemsManager
     Q_OBJECT
 public:
     explicit GroupManager(QObject *parent = nullptr);
-
+    // Метод для получения указателя на группу
+    Group* GetGroup(const QString& group_name);
 public slots:
     void CreateGroup(const QString& group_name);
     void DeleteGroup(const QString& group_name);
