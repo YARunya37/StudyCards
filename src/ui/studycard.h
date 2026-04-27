@@ -14,6 +14,9 @@ public:
     const QString Name() const;
 signals:
 
+private slots:
+    void save_to_files();
+
 private:
     // Имя билета
     QString name;

@@ -2,6 +2,7 @@
 #include <QVBoxLayout>
 #include <QFont>
 #include <QCoreApplication>
+#include <QTimer>
 StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_card, const QString& card_name)
     : QWidget{parent},
     fmn(this, local_path_to_card),
@@ -14,6 +15,41 @@ StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_c
     }
 
     SetUpUI();
+
+
+    // Для сохранения изменений
+
+    // Используем таймер, который по истечении вызовет сохранение текущего состояния виджетов
+    QTimer *saveTimer = new QTimer(this);
+    saveTimer->setSingleShot(true);
+    saveTimer->setInterval(2000); // 2 секунды после последнего изменения
+
+    connect(header, &QTextEdit::textChanged, [saveTimer]() {
+        saveTimer->start(); // перезапускаем таймер
+    });
+    connect(body, &QTextEdit::textChanged, [saveTimer]() {
+        saveTimer->start(); // перезапускаем таймер
+    });
+    connect(saveTimer, &QTimer::timeout, this, &StudyCardWidget::save_to_files);
+
+}
+
+void StudyCardWidget::save_to_files()
+{
+    QStringList files = fmn.get_existing_files();
+    if(files.length() < 2){
+        fmn.create_files(QStringList() << "header" << "body");
+    }
+    else{
+        foreach(auto file, files){
+            if(file == "header"){
+                fmn.write_to_file(file, header->toHtml());
+            }
+            else{
+                fmn.write_to_file(file, body->toHtml());
+            }
+        }
+    }
 }
 
 bool StudyCardWidget::RestoreText()
