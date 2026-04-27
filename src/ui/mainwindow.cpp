@@ -1,8 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "filetreewidget.h"
-#include "studycard.h"
-#include <QCoreApplication>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -16,9 +15,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Подключаем реализацию функции добавления файла к кнопке
     connect(ui->add_file, &QAction::triggered, sourceTree, &FileTreeWidget::AddFiles);
-
-    ui->tabWidget->addTab(new StudyCardWidget(ui->tabWidget, "/resources/usergroups/group1/card","card"),
-                           "card");
 }
 
 MainWindow::~MainWindow()
