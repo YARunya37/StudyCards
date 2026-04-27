@@ -29,6 +29,8 @@ private:
     bool RestoreText();
     // Метод, который собирает интерфейс виджета
     void SetUpUI();
+    // Метод для выставления высоты header
+    void DrawHeader();
 };
 
 #endif // STUDYCARD_H

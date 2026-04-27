@@ -59,9 +59,8 @@ bool StudyCardWidget::RestoreText()
     if(!files.isEmpty()){
         foreach (auto file, files) {
             if(file == "header"){
-                int last_height = header->height();
                 header->setHtml(fmn.get_file_content(file));
-                header->setFixedHeight(last_height);
+                DrawHeader();
             }else{
                 body->setHtml(fmn.get_file_content(file));
             }
@@ -104,12 +103,7 @@ void StudyCardWidget::SetUpUI()
 
     header->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    // Используем QFontMetrics для вычисления высоты
-    QFontMetrics fm(header->font());
-    int lineHeight = fm.lineSpacing();
-    int lines = header->document()->lineCount();
-    int newHeight = qBound(50, lineHeight * lines + 10, 100);
-    header->setFixedHeight(newHeight);
+    DrawHeader();
 
     // При изменении заголовка его размер будет автоматически подгоняться
     connect(header->document(), &QTextDocument::contentsChanged, [this]() {
@@ -128,4 +122,14 @@ void StudyCardWidget::SetUpUI()
     body->setFont(body_font);
 
     body->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+}
+
+void StudyCardWidget::DrawHeader()
+{
+    // Используем QFontMetrics для вычисления высоты
+    QFontMetrics fm(header->font());
+    int lineHeight = fm.lineSpacing();
+    int lines = header->document()->lineCount();
+    int newHeight = qBound(50, lineHeight * lines + 10, 100);
+    header->setFixedHeight(newHeight);
 }
