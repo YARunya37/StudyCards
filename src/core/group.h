@@ -22,6 +22,9 @@ private:
     QString name;
     // Список билетов
     QMap<QString, StudyCardWidget*> cards;
+    // Путь к группе
+    const QString group_path;
+
 };
 
 #endif // GROUP_H

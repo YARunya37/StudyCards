@@ -3,10 +3,11 @@
 
 Group::Group(const QString& name)
     : name{name},
-    DirItemsManager(QCoreApplication::applicationDirPath() + "/resources/usergroups/" + name)
+    group_path{QCoreApplication::applicationDirPath() + "/resources/usergroups/" + name},
+    DirItemsManager(group_path)
 {
     foreach(auto item, RestoreItems()){
-        auto card = new StudyCardWidget();
+        auto card = new StudyCardWidget(nullptr, group_path + "/" + item);
         cards.insert(item, card);
     }
 }
