@@ -5,10 +5,16 @@
 QMap<QString, QString> FileManager::localFiles;
 QMap<QString, QFile*> FileManager::localFolders;
 
-FileManager::FileManager(QObject* parent, QString path)
+FileManager::FileManager(QObject* parent, QString path_to_dir)
     : QObject(parent)
 {
-    localfilesPath = QCoreApplication::applicationDirPath() + path;
+    // Если путь в конце не содержит /, то необходимо его добавить
+    if(path_to_dir.endsWith("/")){
+        localfilesPath = QCoreApplication::applicationDirPath() + path_to_dir;
+    }
+    else{
+        localfilesPath = QCoreApplication::applicationDirPath() + path_to_dir + "/";
+    }
     // Восстанавливаем на основе файлов map
     foreach (auto file, QDir(localfilesPath).entryList(QDir::Files)) {
         if(file.split(".")[1] != "txt"){
@@ -256,6 +262,22 @@ void FileManager::remove_file(QString file_name)
 bool FileManager::is_file(QString item_name){
     // Если в map есть такой элемент, то это файл
     return localFiles.contains(item_name);
+}
+
+QString FileManager::get_file_content(const QString &file_name)
+{
+    if(localFiles.contains(file_name)){
+        QFile file(localfilesPath + file_name);
+        if(file.open(QIODeviceBase::ReadOnly | QIODeviceBase::Text)){
+            QTextStream in(&file);
+
+            QString content = in.readAll();
+
+            file.close();
+            return content;
+        }
+    }
+    return QString("Ошибка чтения файла");
 }
 
 QString FileManager::GetName(QString file)

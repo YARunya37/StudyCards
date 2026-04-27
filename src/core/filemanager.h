@@ -33,6 +33,8 @@ public:
     void remove_file(QString file_name);
     // Метод, который возващает true если существует файл с указанным именем
     bool is_file(QString item_name);
+    // Метод для получения контента файла
+    QString get_file_content(const QString& file_name);
 public slots:
     // void OnFolderNameChanged();
 private:
