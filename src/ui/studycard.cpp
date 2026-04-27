@@ -2,10 +2,41 @@
 #include <QVBoxLayout>
 #include <QFont>
 #include <QCoreApplication>
-StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& path_to_card, const QString& card_name)
+StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_card, const QString& card_name)
     : QWidget{parent},
-    fmn(this, path_to_card),
+    fmn(this, local_path_to_card),
     name{card_name}
+{
+    // Если мы не восстановили билет из файла, то инициализируем текст в нём значениями по умолчанию
+    if(!RestoreText()){
+        header->setPlainText(name);
+        body->setPlainText("Текст Вашего билета");
+    }
+
+    SetUpUI();
+}
+
+bool StudyCardWidget::RestoreText()
+{
+    QStringList files = fmn.get_existing_files();
+    // Если файлы в директории есть, то восстанавливаем
+    if(!files.isEmpty()){
+        foreach (auto file, files) {
+            if(file == "header"){
+                header->setHtml(fmn.get_file_content(file));
+            }else{
+                body->setHtml(fmn.get_file_content(file));
+            }
+        }
+
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+void StudyCardWidget::SetUpUI()
 {
     // Создаём layout для организации
     QVBoxLayout* layout = new QVBoxLayout(this);
@@ -20,7 +51,6 @@ StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& path_to_card, c
     layout->addWidget(body);
 
     // Настройка header
-    header->setPlainText("Название билета");
 
     QFont header_font = header->font();
 
@@ -38,10 +68,10 @@ StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& path_to_card, c
 
     // При изменении заголовка его размер будет автоматически подгоняться
     connect(header->document(), &QTextDocument::contentsChanged, [this]() {
-            int h = header->document()->size().height() + 5;
-            header->setFixedHeight(qMin(h, 100)); // Максимум 100px
-        }
-    );
+        int h = header->document()->size().height() + 5;
+        header->setFixedHeight(qMin(h, 100)); // Максимум 100px
+    }
+            );
 
     // Настройка body
     QFont body_font = body->font();
@@ -51,6 +81,4 @@ StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& path_to_card, c
     body->setFont(body_font);
 
     body->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-
-    body->setPlainText("Текст вашего билета");
 }

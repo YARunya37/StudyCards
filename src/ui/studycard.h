@@ -22,6 +22,10 @@ private:
     QTextEdit* body;
     // Для управления файлами связанными с текстом билетов
     FileManager fmn;
+    // Метод для восстановления текста билетов. true если текст был восстановлен
+    bool RestoreText();
+    // Метод, который собирает интерфейс виджета
+    void SetUpUI();
 };
 
 #endif // STUDYCARD_H
