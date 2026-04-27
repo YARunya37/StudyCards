@@ -4,7 +4,7 @@
 Group::Group(const QString& name)
     : NamedFileItem(name),
     group_path{QCoreApplication::applicationDirPath() + "/resources/usergroups/" + name},
-    DirItemsManager(group_path)
+    DirItemsManager(QCoreApplication::applicationDirPath() + "/resources/usergroups/" + name)
 {
     foreach(auto item, RestoreItems()){
         auto card = new StudyCardWidget(nullptr, group_path + "/" + item, item);

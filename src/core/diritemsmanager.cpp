@@ -3,7 +3,7 @@
 
 
 DirItemsManager::DirItemsManager(const QString& path_to_working_dir)
-    : currDir(path_to_working_dir)
+    : currDir{QDir(path_to_working_dir)}
 {}
 
 bool DirItemsManager::AddItem(const QString &name)
