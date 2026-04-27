@@ -36,9 +36,9 @@ target_link_libraries(study_cards PUBLIC
 
 target_include_directories(study_cards PUBLIC
     ${CMAKE_SOURCE_DIR}/src/ui/
+    ${CMAKE_SOURCE_DIR}/src/core/
 )
 
-target_include_directories(study_cards PUBLIC
 
 # Библиотека для групп
 add_library(groups_ui STATIC
