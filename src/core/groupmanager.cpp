@@ -41,13 +41,15 @@ void GroupManager::RenameGroup(const QString &old_name, const QString &new_name)
     }
 }
 
-void GroupManager::CreateGroup(const QString &group_name)
+bool GroupManager::CreateGroup(const QString &group_name)
 {
     if(AddItem(group_name)){
         groups.insert(group_name, new Group(group_name));
+        return true;
     }
     else{
         qInfo() << "Ошибка при создании группы";
+        return false;
     }
 }
 

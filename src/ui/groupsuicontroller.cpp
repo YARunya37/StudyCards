@@ -1,6 +1,6 @@
 #include "groupsuicontroller.h"
 #include "groupcreationdialog.h"
-
+#include <QMessageBox>
 GroupsUIController::GroupsUIController(QObject *parent)
     : QObject{parent},
     gm{new GroupManager(parent)}
@@ -15,6 +15,15 @@ void GroupsUIController::show_creation_group_dialog()
     if (dialog.exec() == QDialog::Accepted)
     {
         QString group_name = dialog.getText();
-        gm->CreateGroup(group_name);
+        // Если не удалось создать группу выводим сообщение об ошибку
+        if(!gm->CreateGroup(group_name)){
+            QMessageBox::warning(
+                qobject_cast<QWidget*>(this->parent()),                          // parent
+                "Ошибка создания группы",                // заголовок
+                "Группа с именем \"" + group_name + "\" уже существует.\n"
+                 "Пожалуйста, выберите другое имя.",     // текст
+                QMessageBox::Ok                          // кнопки
+                );
+        }
     }
 }
