@@ -176,14 +176,14 @@ li.checked::marker { content: &quot;\2612&quot;; }
     </property>
     <addaction name="create_group"/>
     <addaction name="select_group"/>
-    <addaction name="action_7"/>
+    <addaction name="open_group_in_window"/>
     <addaction name="delete_group"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
      <string>Тест</string>
     </property>
-    <addaction name="open_group_in_window"/>
+    <addaction name="action_2"/>
     <addaction name="action_6"/>
    </widget>
    <addaction name="menu"/>
@@ -210,7 +210,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <string>Выбрать активную группу</string>
    </property>
   </action>
-  <action name="open_group_in_window">
+  <action name="action_2">
    <property name="text">
     <string>Запустить с текущей группой</string>
    </property>
@@ -220,7 +220,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <string>Посмотреть результаты</string>
    </property>
   </action>
-  <action name="action_7">
+  <action name="open_group_in_window">
    <property name="text">
     <string>Открыть группу в окне</string>
    </property>

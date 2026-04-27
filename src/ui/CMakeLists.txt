@@ -45,6 +45,8 @@ target_include_directories(study_cards PUBLIC
 add_library(groups_ui STATIC
     groupcreationdialog.h groupcreationdialog.cpp
     groupsuicontroller.h groupsuicontroller.cpp
+    groupwindow.h groupwindow.cpp
+
 
 )
 

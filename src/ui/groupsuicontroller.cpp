@@ -1,5 +1,6 @@
 #include "groupsuicontroller.h"
 #include "groupcreationdialog.h"
+#include "groupwindow.h"
 #include <QInputDialog>
 #include <QMessageBox>
 GroupsUIController::GroupsUIController(QObject *parent)
@@ -97,5 +98,36 @@ void GroupsUIController::choose_active_group()
 
     if(ok && !selectedGroup.isEmpty()){
         gm->SetActiveGroup(selectedGroup);
+    }
+}
+
+void GroupsUIController::choose_group_to_open()
+{
+    QStringList groups = gm->GetAvaliableGroups();
+
+    if (groups.isEmpty())
+    {
+        QMessageBox::information(qobject_cast<QWidget*>(this->parent()), "Нет групп",
+                                 "Нет доступных групп для выбора.");
+        return;
+    }
+
+    bool ok;
+    QString selectedGroup = QInputDialog::getItem(
+        qobject_cast<QWidget*>(this->parent()),
+        "Выбор активной группы",
+        "Выберите группу для удаления:",
+        groups,
+        0,          // Текущий индекс
+        false,      // Редактируемый (false = нельзя вводить вручную)
+        &ok
+        );
+
+    if(ok && !selectedGroup.isEmpty()){
+        auto group = gm->GetGroup(selectedGroup);
+        if(group){
+            GroupWindow* window = new GroupWindow(gm->GetGroup(selectedGroup), qobject_cast<QWidget*>(this->parent()));
+            window->show();
+        }
     }
 }

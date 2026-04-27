@@ -25,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->delete_group, &QAction::triggered, controller, &GroupsUIController::show_delete_group_window);
     // Кнопка выбора группы
     connect(ui->select_group, &QAction::triggered, controller, &GroupsUIController::choose_active_group);
+    // Открытие группы в окне
+    connect(ui->open_group_in_window, &QAction::triggered, controller, &GroupsUIController::choose_group_to_open);
 }
 
 MainWindow::~MainWindow()
