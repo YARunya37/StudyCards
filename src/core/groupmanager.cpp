@@ -18,6 +18,11 @@ Group *GroupManager::GetGroup(const QString &group_name)
     return nullptr;
 }
 
+QStringList GroupManager::GetAvaliableGroups() const
+{
+    return groups.keys();
+}
+
 void GroupManager::RenameGroup(const QString &old_name, const QString &new_name)
 {
     if(RenameItem(old_name, new_name)){

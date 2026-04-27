@@ -14,6 +14,8 @@ public:
     // Метод для получения указателя на группу
     Group* GetGroup(const QString& group_name);
 
+    // Метод для получения всех имён групп
+    QStringList GetAvaliableGroups() const;
 signals:
     void active_group_changed(Group* new_active_group);
 public slots:
