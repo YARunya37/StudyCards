@@ -1,8 +1,11 @@
 #include "studycard.h"
 #include <QVBoxLayout>
 #include <QFont>
-StudyCardWidget::StudyCardWidget(QWidget *parent)
-    : QWidget{parent}
+#include <QCoreApplication>
+StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& path_to_card, const QString& card_name)
+    : QWidget{parent},
+    fmn(this, path_to_card),
+    name{card_name}
 {
     // Создаём layout для организации
     QVBoxLayout* layout = new QVBoxLayout(this);
