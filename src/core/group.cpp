@@ -12,6 +12,13 @@ Group::Group(const QString& name)
     }
 }
 
+void Group::SetName(const QString &new_name)
+{
+    if(new_name != ""){
+        this->name = new_name;
+    }
+}
+
 StudyCardWidget* Group::GetCard(const QString &name) const
 {
     return cards.value(name);

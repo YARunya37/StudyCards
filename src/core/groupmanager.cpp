@@ -21,12 +21,14 @@ Group *GroupManager::GetGroup(const QString &group_name)
 void GroupManager::RenameGroup(const QString &old_name, const QString &new_name)
 {
     if(RenameItem(old_name, new_name)){
-        // Удаление группы
         auto group = GetGroup(old_name);
+        // Удаление группы
         groups.remove(old_name);
 
         // Вставка с новым именем
         groups.insert(new_name, group);
+        // Установка нового имени группе
+        group->SetName(new_name);
     }
 }
 

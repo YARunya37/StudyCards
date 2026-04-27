@@ -13,6 +13,8 @@ public:
     Group(const QString& name);
     // Метод для получение имени группы
     QString Name() const;
+    // Метод для установки имени
+    void SetName(const QString& new_name);
     // Метод для получения указателя на билет по имени
     StudyCardWidget* GetCard(const QString& name) const;
     // Метод для удаления всех билетов в группе
