@@ -17,7 +17,7 @@ public:
     // Метод для восстановления уже существующих объектов
     virtual QStringList RestoreItems() = 0;
 
-    virtual ~IFileItemsManager();
+    virtual ~IFileItemsManager() = default;
 };
 
 #endif // IFILEITEMSMANAGER_H

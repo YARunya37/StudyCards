@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "filetreewidget.h"
+#include "groupsuicontroller.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -13,8 +14,13 @@ MainWindow::MainWindow(QWidget *parent)
     // Создаём разделитель
     SetUpSPlitter();
 
+    // Создаём контроллер групп
+    GroupsUIController* controller = new GroupsUIController(this);
+
     // Подключаем реализацию функции добавления файла к кнопке
     connect(ui->add_file, &QAction::triggered, sourceTree, &FileTreeWidget::AddFiles);
+    // Подключаем реализацию создания группы к кнопке в панели
+    connect(ui->create_group, &QAction::triggered, controller, &GroupsUIController::show_creation_group_dialog);
 }
 
 MainWindow::~MainWindow()
