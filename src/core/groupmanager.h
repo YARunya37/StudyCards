@@ -12,8 +12,9 @@ class GroupManager : public QObject, public DirItemsManager
 public:
     explicit GroupManager(QObject *parent = nullptr);
 
-signals:
-
+public slots:
+    void CreateGroup(const QString& group_name);
+    void DeleteGroup(const QString& group_name);
 private:
     // Список всех групп по именам
     QMap<QString, Group*> groups;
