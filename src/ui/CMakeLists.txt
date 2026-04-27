@@ -33,13 +33,25 @@ target_link_libraries(study_cards PUBLIC
     Qt6::Widgets
     file_manager
 )
+
 target_include_directories(study_cards PUBLIC
     ${CMAKE_SOURCE_DIR}/src/ui/
 )
 
 target_include_directories(study_cards PUBLIC
+
+# Библиотека для групп
+add_library(groups_ui STATIC
+
+)
+
+target_link_libraries(groups_ui PUBLIC
+    Qt6::Widgets
+    groups_managament
+)
+
+target_include_directories(groups_ui PUBLIC
     ${CMAKE_SOURCE_DIR}/src/ui/
     ${CMAKE_SOURCE_DIR}/src/core/
 )
-
 
