@@ -1,5 +1,6 @@
 #include "groupsuicontroller.h"
 #include "groupcreationdialog.h"
+#include <QInputDialog>
 #include <QMessageBox>
 GroupsUIController::GroupsUIController(QObject *parent)
     : QObject{parent},
@@ -24,6 +25,45 @@ void GroupsUIController::show_creation_group_dialog()
                  "Пожалуйста, выберите другое имя.",     // текст
                 QMessageBox::Ok                          // кнопки
                 );
+        }
+    }
+}
+
+void GroupsUIController::show_delete_group_window()
+{
+    QStringList groups = gm->GetAvaliableGroups();
+
+    if (groups.isEmpty())
+    {
+        QMessageBox::information(qobject_cast<QWidget*>(this->parent()), "Нет групп",
+                                 "Нет доступных групп для удаления.");
+        return;
+    }
+
+    bool ok;
+    QString selectedGroup = QInputDialog::getItem(
+        qobject_cast<QWidget*>(this->parent()),
+        "Удаление группы",
+        "Выберите группу для удаления:",
+        groups,
+        0,          // Текущий индекс
+        false,      // Редактируемый (false = нельзя вводить вручную)
+        &ok
+        );
+
+    if (ok && !selectedGroup.isEmpty())
+    {
+        // Подтверждение
+        QMessageBox::StandardButton reply = QMessageBox::question(
+            qobject_cast<QWidget*>(this->parent()),
+            "Подтверждение",
+            QString("Удалить группу \"%1\"?").arg(selectedGroup),
+            QMessageBox::Yes | QMessageBox::No
+            );
+
+        if (reply == QMessageBox::Yes)
+        {
+            gm->DeleteGroup(selectedGroup);
         }
     }
 }

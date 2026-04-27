@@ -177,6 +177,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <addaction name="create_group"/>
     <addaction name="open_group"/>
     <addaction name="action_7"/>
+    <addaction name="delete_group"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
@@ -222,6 +223,11 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <action name="action_7">
    <property name="text">
     <string>Открыть группу в окне</string>
+   </property>
+  </action>
+  <action name="delete_group">
+   <property name="text">
+    <string>Удалить группу</string>
    </property>
   </action>
  </widget>

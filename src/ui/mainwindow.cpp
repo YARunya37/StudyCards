@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->add_file, &QAction::triggered, sourceTree, &FileTreeWidget::AddFiles);
     // Подключаем реализацию создания группы к кнопке в панели
     connect(ui->create_group, &QAction::triggered, controller, &GroupsUIController::show_creation_group_dialog);
+    // Кнопка удаления группы
+    connect(ui->delete_group, &QAction::triggered, controller, &GroupsUIController::show_delete_group_window);
 }
 
 MainWindow::~MainWindow()

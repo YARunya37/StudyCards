@@ -13,6 +13,7 @@ public:
 public slots:
     void show_creation_group_dialog();
 
+    void show_delete_group_window();
 private:
     GroupManager* gm;
 };
