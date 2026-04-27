@@ -29,12 +29,8 @@ target_include_directories(groups_managament PUBLIC
 
 # Библиотека для управления файловыми объектами
 add_library(file_items_managers STATIC
-
-
     ifileitemsmanager.h ifileitemsmanager.cpp
     diritemsmanager.h diritemsmanager.cpp
-
-
 
 )
 

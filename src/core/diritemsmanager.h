@@ -2,6 +2,7 @@
 #define DIRITEMSMANAGER_H
 
 #include "ifileitemsmanager.h"
+#include <QDir>
 
 class DirItemsManager : public IFileItemsManager
 {
@@ -13,11 +14,11 @@ protected:
     QDir currDir;
 
     // Метод для добавления файлового объекта по имени
-    void AddItem(const QString& name) override;
+    bool AddItem(const QString& name) override;
     // Метод для удаления файлового объекта по имени
-    void DeleteItem(const QString& name) override;
+    bool DeleteItem(const QString& name) override;
     // Метод для восстановления уже существующих объектов
-    void RestoreItems() override;
+    QStringList RestoreItems() override;
 };
 
 #endif // DIRITEMSMANAGER_H
