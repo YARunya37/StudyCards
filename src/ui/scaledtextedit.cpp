@@ -9,8 +9,8 @@
 ScaledTextEdit::ScaledTextEdit(QWidget *parent)
     : QTextEdit(parent)
 {
-    // Включаем взаимодействие с текстом
-    setTextInteractionFlags(Qt::TextBrowserInteraction);
+    // Разрешаем и редактирование, и ссылки
+    setTextInteractionFlags(Qt::TextEditorInteraction | Qt::LinksAccessibleByMouse);
 }
 
 void ScaledTextEdit::wheelEvent(QWheelEvent *event)
@@ -56,3 +56,4 @@ void ScaledTextEdit::mousePressEvent(QMouseEvent *event)
     // Обычная обработка клика
     QTextEdit::mousePressEvent(event);
 }
+
