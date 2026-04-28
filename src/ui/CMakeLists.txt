@@ -21,4 +21,5 @@ target_link_libraries(main_ui_module PUBLIC
 # Для доступа к header-ам
 target_include_directories(main_ui_module PUBLIC
     ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/src/core
 )

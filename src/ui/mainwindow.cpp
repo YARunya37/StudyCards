@@ -13,6 +13,7 @@
 #include <QDebug>
 
 #include "filetreewidget.h"
+#include "scaledtextedit.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
