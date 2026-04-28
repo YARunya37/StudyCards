@@ -1,7 +1,9 @@
 #include "groupwindow.h"
-#include <QVBoxLayout>
+#include <QPushButton>
+#include <QLayout>
 #include <QLabel>
-#include <QSplitter>
+#include <QFrame>
+// #include <QSplitter>
 #include <QListWidget>
 GroupWindow::GroupWindow(Group* group, QWidget *parent)
     : QMainWindow{parent}, group{group}
@@ -11,70 +13,108 @@ GroupWindow::GroupWindow(Group* group, QWidget *parent)
 
 void GroupWindow::setupUI()
 {
-    setWindowTitle("Группа:" + group->Name());
+    setWindowTitle("Группа: " + group->Name());
     setMinimumSize(800, 600);
 
+    // Создаём центральный виджет
     QWidget* centralWidget = new QWidget(this);
-    QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->setSpacing(0);
+    QVBoxLayout *verticalLayout = new QVBoxLayout(centralWidget);
+    verticalLayout->setContentsMargins(0, 0, 0, 0);
+    verticalLayout->setSpacing(0);
 
-    // Панель заголовка
-    QWidget *headerWidget = new QWidget(this);
-    headerWidget->setStyleSheet("background-color: #2c3e50; padding: 10px;");
-    QHBoxLayout *headerLayout = new QHBoxLayout(headerWidget);
-
-    QLabel* titleLabel = new QLabel(group->Name(), headerWidget);
-    titleLabel->setStyleSheet(
-        "color: white; "
-        "font-size: 18px; "
-        "font-weight: bold;"
-        );
-    headerLayout->addWidget(titleLabel);
-    headerLayout->addStretch();
+    // Добавляем панель с кнопками
+    verticalLayout->addWidget(create_button_panel());
 
 
-    // Splitter для разделения списка и деталей
-    QSplitter* splitter = new QSplitter(Qt::Horizontal, this);
+    // Создаём виджет, в котором будет находиться весь контент
+    QWidget* content = new QWidget(this);
+    verticalLayout->addWidget(content);
+
+    QHBoxLayout* contentLayout = new QHBoxLayout(content);
+    contentLayout->setContentsMargins(0, 0, 0, 0);
+    contentLayout->setSpacing(0);
 
     // Левая панель - список элементов
-    QWidget *leftPanel = new QWidget(this);
-    QVBoxLayout *leftLayout = new QVBoxLayout(leftPanel);
-    leftLayout->setContentsMargins(5, 5, 5, 5);
+    QListWidget* cardList = new QListWidget();
+    cardList->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+    cardList->setStyleSheet(
+        "QListWidget {"
+        "   border: 1px solid #ccc;"
+        "   border-radius: 4px;"
+        "}"
+        "QListWidget::item:hover {"
+        "   background-color: #e3f2fd;"
+        "}"
+        "QListWidget::item:selected {"
+        "   background-color: #2196F3;"
+        "   color: white;"
+        "}"
+    );
 
-    QLabel *listLabel = new QLabel("Элементы:", leftPanel);
-    listLabel->setStyleSheet("font-weight: bold; font-size: 14px;");
+    contentLayout->addWidget(cardList);
 
-    QListWidget* itemsList = new QListWidget(leftPanel);
-    itemsList->setStyleSheet(
-        "QListWidget { "
-        "   border: 1px solid #bdc3c7; "
-        "   border-radius: 5px; "
-        "   padding: 5px; "
-        "} "
-        "QListWidget::item { "
-        "   padding: 8px; "
-        "   border-bottom: 1px solid #ecf0f1; "
-        "} "
-        "QListWidget::item:selected { "
-        "   background-color: #3498db; "
-        "   color: white; "
+
+    this->setCentralWidget(centralWidget);
+}
+
+QFrame* GroupWindow::create_button_panel()
+{
+    QFrame *panel = new QFrame();
+    panel->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
+    panel->setFixedHeight(35); // Фиксированная высота панели
+
+    panel->setStyleSheet(
+        "QFrame {"
+        "   background-color: #e0e0e0;"  // Светло-серый фон панели
+        "   border: 1px solid #bdbdbd;"
         "}"
         );
 
-    leftLayout->addWidget(listLabel);
-    leftLayout->addWidget(itemsList);
+    QHBoxLayout *layout = new QHBoxLayout(panel);
+    layout->setContentsMargins(0, 2, 0, 2); // Отступы: left, top, right, bottom
+    layout->setSpacing(2); // Расстояние между кнопками
 
+    // Кнопка добавления с плюсиком
+    QPushButton *addButton = new QPushButton("+");
+    addButton->setFixedHeight(30);
+    addButton->setFixedWidth(30); // Квадратная кнопка
+    addButton->setStyleSheet(
+        "QPushButton {"
+            "   font-size: 20px;"
+            "   font-weight: bold;"
+            "   background-color: #d0d0d0;"  // На оттенок темнее панели
+            "   border: 1px solid #bdbdbd;"
+            "   border-radius: 4px;"
+        "}"
+        "QPushButton:hover {"
+            "   background-color: #c0c0c0;"  // Ещё темнее при наведении
+        "}"
+        "QPushButton:pressed {"
+            "   background-color: #b0b0b0;"
+        "}"
+    );
 
-    // Добавление в splitter
-    splitter->addWidget(leftPanel);
-    // splitter->addWidget(detailsWidget);
-    splitter->setStretchFactor(0, 1); // Левая панель - 1 часть
-    splitter->setStretchFactor(1, 2); // Правая панель - 2 части
+    // Кнопка запуска тестирования
+    QPushButton *testButton = new QPushButton("Запустить тестирование");
+    testButton->setFixedHeight(30);
+    testButton->setMinimumWidth(200); // Минимальная ширина
+    testButton->setStyleSheet(
+        "QPushButton {"
+        "   background-color: #d0d0d0;"
+        "   border: 1px solid #bdbdbd;"
+        "   border-radius: 4px;"
+        "}"
+        "QPushButton:hover {"
+        "   background-color: #c0c0c0;"
+        "}"
+        "QPushButton:pressed {"
+        "   background-color: #b0b0b0;"
+        "}"
+        );
 
-    // Сборка основного layout
-    mainLayout->addWidget(headerWidget);
-    mainLayout->addWidget(splitter);
+    layout->addWidget(addButton);
+    layout->addWidget(testButton);
+    layout->addStretch(); // Добавляет пространство справа
 
-    setCentralWidget(centralWidget);
+    return panel;
 }

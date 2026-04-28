@@ -18,6 +18,9 @@ private:
     // Виджет билета
     StudyCardWidget* active_card = nullptr;
     void setupUI();
+
+    // Создаёт панель с кнопками. Возвращает созданную панель
+    QFrame* create_button_panel();
 };
 
 #endif // GROUPWINDOW_H
