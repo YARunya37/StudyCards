@@ -3,12 +3,46 @@
 #include <QLayout>
 #include <QLabel>
 #include <QFrame>
+#include <QCoreApplication>
 // #include <QSplitter>
 #include <QListWidget>
+#include "textinputdialog.h"
+#include <QMessageBox>
+
 GroupWindow::GroupWindow(Group* group, QWidget *parent)
     : QMainWindow{parent}, group{group}
 {
     setupUI();
+}
+
+void GroupWindow::add_new_card()
+{
+    TextInputDialog dialog = TextInputDialog(this, "Введите название билета", "Название:");
+
+    // Запускаем диалог. Если пользователь принимает имя, то отправляем его на создание
+    if (dialog.exec() == QDialog::Accepted)
+    {
+        QString group_name = dialog.getText();
+        // Если не удалось создать группу выводим сообщение об ошибку
+        if(!group->CreateCard(group_name)){
+            QMessageBox::warning(
+                qobject_cast<QWidget*>(this->parent()),                          // parent
+                "Ошибка создания группы",                // заголовок
+                "Группа с именем \"" + group_name + "\" уже существует.\n"
+                                                    "Пожалуйста, выберите другое имя.",     // текст
+                QMessageBox::Ok                          // кнопки
+                );
+        }
+        else{
+            // Иначе отключаем предыдущий виджет и создаём текущий
+            if(active_card){
+                content->layout()->removeWidget(active_card);
+            }
+            active_card = new StudyCardWidget(this, QCoreApplication::applicationDirPath() + "resources/usergroups/" + group->Name(), group_name);
+            content->layout()->addWidget(active_card);
+        }
+    }
+
 }
 
 void GroupWindow::setupUI()
@@ -27,7 +61,6 @@ void GroupWindow::setupUI()
 
 
     // Создаём виджет, в котором будет находиться весь контент
-    QWidget* content = new QWidget(this);
     content = new QWidget(this);
     verticalLayout->addWidget(content);
 
@@ -116,6 +149,9 @@ QFrame* GroupWindow::create_button_panel()
     layout->addWidget(addButton);
     layout->addWidget(testButton);
     layout->addStretch(); // Добавляет пространство справа
+
+    // Подключаем кнопки
+    connect(addButton, &QPushButton::clicked, this, &GroupWindow::add_new_card);
 
     return panel;
 }

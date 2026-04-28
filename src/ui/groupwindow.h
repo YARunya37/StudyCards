@@ -10,6 +10,8 @@ class GroupWindow : public QMainWindow
 public:
     explicit GroupWindow(Group* name, QWidget *parent = nullptr);
 
+private slots:
+    void add_new_card();
 
 private:
     QWidget* content = nullptr;
