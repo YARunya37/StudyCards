@@ -1,28 +1,28 @@
-#include "groupcreationdialog.h"
+#include "textinputdialog.h"
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QPushButton>
 
-GroupCreationDialog::GroupCreationDialog(QWidget *parent)
-    : QDialog{parent}
+TextInputDialog::TextInputDialog(QWidget *parent, const QString& title, const QString& label)
+    : QDialog{parent}, title{title}, label_text{label}
 {
     setupUI();
 }
 
-QString GroupCreationDialog::getText() const
+QString TextInputDialog::getText() const
 {
     return m_lineEdit->text();
 }
 
-void GroupCreationDialog::setupUI()
+void TextInputDialog::setupUI()
 {
-    setWindowTitle("Введите название группы");
+    setWindowTitle(title);
 
     // Создание виджетов
     QLabel *label = new QLabel("Название:", this);
     m_lineEdit = new QLineEdit(this);
-    m_okButton = new QPushButton("OK", this);
-    m_cancelButton = new QPushButton("Отмена", this);
+    QPushButton* m_okButton = new QPushButton("OK", this);
+    QPushButton* m_cancelButton = new QPushButton("Отмена", this);
 
     // Компоновка
     QVBoxLayout *mainLayout = new QVBoxLayout(this);

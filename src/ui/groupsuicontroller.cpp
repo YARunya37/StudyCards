@@ -1,5 +1,5 @@
 #include "groupsuicontroller.h"
-#include "groupcreationdialog.h"
+#include "textinputdialog.h"
 #include "groupwindow.h"
 #include <QInputDialog>
 #include <QMessageBox>
@@ -16,7 +16,7 @@ GroupsUIController::GroupsUIController(QObject *parent)
 void GroupsUIController::show_creation_group_dialog()
 {
     // Насильно приводим QObject предаваемый через parent, т.к. это MainWindow(QWidget)
-    GroupCreationDialog dialog = GroupCreationDialog(qobject_cast<QWidget*>(this->parent()));
+    TextInputDialog dialog = TextInputDialog(qobject_cast<QWidget*>(this->parent()), "Введите название группы", "Название:");
 
     // Запускаем диалог. Если пользователь принимает имя, то отправляем его на создание
     if (dialog.exec() == QDialog::Accepted)

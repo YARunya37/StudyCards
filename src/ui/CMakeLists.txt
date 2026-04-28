@@ -43,7 +43,6 @@ target_include_directories(study_cards PUBLIC
 
 # Библиотека для групп
 add_library(groups_ui STATIC
-    groupcreationdialog.h groupcreationdialog.cpp
     groupsuicontroller.h groupsuicontroller.cpp
     groupwindow.h groupwindow.cpp
 
@@ -53,6 +52,7 @@ add_library(groups_ui STATIC
 target_link_libraries(groups_ui PUBLIC
     Qt6::Widgets
     groups_managament
+    dialogs
 )
 
 target_include_directories(groups_ui PUBLIC
@@ -60,3 +60,15 @@ target_include_directories(groups_ui PUBLIC
     ${CMAKE_SOURCE_DIR}/src/core/
 )
 
+# Библиотека для диалогов с польщователем
+add_library(dialogs STATIC
+    textinputdialog.h textinputdialog.cpp
+)
+
+target_link_libraries(dialogs PUBLIC
+    Qt6::Widgets
+)
+
+target_include_directories(dialogs PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/ui/
+)
