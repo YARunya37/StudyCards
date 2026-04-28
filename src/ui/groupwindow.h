@@ -12,6 +12,8 @@ public:
 
 
 private:
+    QWidget* content = nullptr;
+
     // Группа с которой мы работаем
     Group* group;
 

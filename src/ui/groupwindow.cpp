@@ -28,6 +28,7 @@ void GroupWindow::setupUI()
 
     // Создаём виджет, в котором будет находиться весь контент
     QWidget* content = new QWidget(this);
+    content = new QWidget(this);
     verticalLayout->addWidget(content);
 
     QHBoxLayout* contentLayout = new QHBoxLayout(content);
