@@ -16,7 +16,7 @@ public:
     // Метод для удаления всех билетов в группе
     void Clear();
 public slots:
-    void CreateCard(const QString& card_name);
+    bool CreateCard(const QString& card_name);
     void DeleteCard(const QString& card_name);
     void RenameCard(const QString& old_name, const QString& new_name);
 private:

@@ -27,13 +27,15 @@ void Group::Clear()
     }
 }
 
-void Group::CreateCard(const QString &card_name)
+bool Group::CreateCard(const QString &card_name)
 {
     if(AddItem(card_name)){
         cards.insert(card_name, new StudyCardWidget(nullptr, group_path + "/" + card_name, card_name));
+        return true;
     }
     else{
         qInfo() << "Ошибка при создании группы";
+        return false;
     }
 }
 
