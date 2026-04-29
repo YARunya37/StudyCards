@@ -27,6 +27,11 @@ void Group::Clear()
     }
 }
 
+QStringList Group::GetAllCards() const
+{
+    return cards.keys();
+}
+
 bool Group::CreateCard(const QString &card_name)
 {
     if(AddItem(card_name)){
