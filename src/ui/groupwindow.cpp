@@ -40,6 +40,7 @@ void GroupWindow::add_new_card()
             }
             active_card = new StudyCardWidget(this, QCoreApplication::applicationDirPath() + "resources/usergroups/" + group->Name(), group_name);
             content->layout()->addWidget(active_card);
+            active_card->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         }
     }
 
