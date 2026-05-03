@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>830</width>
-    <height>405</height>
+    <width>1259</width>
+    <height>735</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -63,7 +63,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QTextEdit" name="sourceTextWidget">
+       <widget class="ScaledTextEdit" name="sourceTextWidget" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -79,7 +79,7 @@
         <property name="styleSheet">
          <string notr="true"/>
         </property>
-        <property name="html">
+        <property name="html" stdset="0">
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -129,8 +129,8 @@ li.checked::marker { content: &quot;\2612&quot;; }
            <number>0</number>
           </property>
           <item>
-           <widget class="QTextEdit" name="textEdit">
-            <property name="html">
+           <widget class="ScaledTextEdit" name="textEdit" native="true">
+            <property name="html" stdset="0">
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -160,8 +160,8 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>830</width>
-     <height>22</height>
+     <width>1259</width>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -225,6 +225,13 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ScaledTextEdit</class>
+   <extends>QWidget</extends>
+   <header>scaledtextedit.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>sourceTextWidget</tabstop>
  </tabstops>
