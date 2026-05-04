@@ -10,7 +10,7 @@ class StudyCardWidget : public QWidget, public NamedFileItem
     Q_OBJECT
 public:
     explicit StudyCardWidget(QWidget *parent, const QString& path_to_card, const QString& card_name);
-
+    ~StudyCardWidget();
 signals:
     void header_changed(const QString& new_header);
 private slots:
@@ -20,13 +20,16 @@ private:
     QTextEdit* header;
     QTextEdit* body;
     // Для управления файлами связанными с текстом билетов
-    FileManager fmn;
+    FileManager* fmn;
     // Метод для восстановления текста билетов. true если текст был восстановлен
     bool RestoreText();
     // Метод, который собирает интерфейс виджета
     void SetUpUI();
     // Метод для выставления высоты header
     void DrawHeader();
+
+    // Путь к билету
+    QString localPathToCard;
 };
 
 #endif // STUDYCARD_H

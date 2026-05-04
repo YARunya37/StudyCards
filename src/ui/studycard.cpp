@@ -5,16 +5,17 @@
 #include <QTimer>
 StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_card, const QString& card_name)
     : QWidget{parent},
-    fmn(this, local_path_to_card),
+    fmn{new FileManager(this, local_path_to_card)},
     NamedFileItem{card_name}
 {
+    localPathToCard = local_path_to_card;
     SetUpUI();
     // Если есть файлы, то восстанавливаем текст
-    if(!fmn.get_existing_files().isEmpty()){
+    if(!fmn->get_existing_files().isEmpty()){
         RestoreText();
     }
     else{
-        fmn.create_files(QStringList() << "header" << "body");
+        fmn->create_files(QStringList() << "header" << "body");
         save_to_files();
     }
     // Для сохранения изменений
@@ -32,22 +33,34 @@ StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_c
     });
     connect(saveTimer, &QTimer::timeout, this, &StudyCardWidget::save_to_files);
 
+
+    // Для изменения имени билета и сохранения управления над ним(самое простое и неэффективное решение по причине сроков)
+    connect(this, &StudyCardWidget::header_changed, this, [this](const QString& new_name){
+        delete fmn;
+        fmn = new FileManager(this, localPathToCard + "/" + new_name);
+    });
+}
+
+StudyCardWidget::~StudyCardWidget()
+{
+    delete fmn;
+    fmn = nullptr;
 }
 
 
 void StudyCardWidget::save_to_files()
 {
-    QStringList files = fmn.get_existing_files();
+    QStringList files = fmn->get_existing_files();
     if(files.length() < 2){
-        fmn.create_files(QStringList() << "header" << "body");
+        fmn->create_files(QStringList() << "header" << "body");
     }
     else{
         foreach(auto file, files){
             if(file == "header"){
-                fmn.write_to_file(file, header->toHtml());
+                fmn->write_to_file(file, header->toHtml());
             }
             else{
-                fmn.write_to_file(file, body->toHtml());
+                fmn->write_to_file(file, body->toHtml());
             }
         }
     }
@@ -56,22 +69,22 @@ void StudyCardWidget::save_to_files()
 
 bool StudyCardWidget::RestoreText()
 {
-    QStringList files = fmn.get_existing_files();
+    QStringList files = fmn->get_existing_files();
     // Если файлы в директории есть, то восстанавливаем
     if(!files.isEmpty()){
         foreach (auto file, files) {
             if(file == "header"){
-                header->setHtml(fmn.get_file_content(file));
+                header->setHtml(fmn->get_file_content(file));
                 DrawHeader();
             }else{
-                body->setHtml(fmn.get_file_content(file));
+                body->setHtml(fmn->get_file_content(file));
             }
         }
 
         return true;
     }
     else{
-        fmn.create_files(QStringList() << "header" << "body");
+        fmn->create_files(QStringList() << "header" << "body");
         return false;
     }
 }
