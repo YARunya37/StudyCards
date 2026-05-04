@@ -13,9 +13,29 @@ GroupWindow::GroupWindow(Group* group, QWidget *parent)
 {
     setupUI();
 
+    // НАСТРОЙКА СПИСКА БИЛЕТОВ
     connect(cardList, &QListWidget::itemDoubleClicked, this, [this](const QListWidgetItem* item){
         setCard(item->text());
     });
+
+    // Подгружаем все созданные билеты
+    foreach (auto card_name, group->GetAllCards()) {
+        cardList->addItem(card_name);
+
+        // Подключаем изменение заголовка
+        QListWidgetItem* item = cardList->findItems(card_name, Qt::MatchExactly).value(0);
+        connect(group->GetCard(card_name), &StudyCardWidget::header_changed,
+                this,
+                [group, item](const QString& new_name){
+                    if(new_name != ""){
+                        group->RenameCard(item->text(), new_name);
+                        item->setText(new_name);
+                    }
+                }
+        );
+    }
+
+
 }
 
 void GroupWindow::add_new_card()
@@ -106,11 +126,6 @@ void GroupWindow::setupUI()
         "   color: white;"
         "}"
     );
-
-    // Подгружаем все созданные билеты
-    foreach (auto card, group->GetAllCards()) {
-        cardList->addItem(card);
-    }
 
     contentLayout->addWidget(cardList);
 
