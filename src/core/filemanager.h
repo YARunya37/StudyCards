@@ -44,9 +44,9 @@ public slots:
 private:
     // Массив файлов в проекте <имя файла(ключ), путь к нему(значение)>
     // Внутри проекта все файлы имеют путь /resources/userfiles/
-    static QMap<QString, QString> localFiles;
+    QMap<QString, QString> localFiles;
     // Массив, хранящий файлы с информацией о папках в проекте <имя файла, сам файл>
-    static QMap<QString,QFile*> localFolders;
+    QMap<QString,QFile*> localFolders;
     // Путь к директориии с файлами, добавленными пользователем
     QString localfilesPath;
     // Возвращает имя файла С РАСШИРЕНИЕМ(.docx .md ...) по его пути

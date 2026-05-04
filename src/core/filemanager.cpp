@@ -2,8 +2,6 @@
 #include <QCoreApplication>
 #include <QDir>
 
-QMap<QString, QString> FileManager::localFiles;
-QMap<QString, QFile*> FileManager::localFolders;
 
 FileManager::FileManager(QObject* parent, QString path_to_dir)
     : QObject(parent)
