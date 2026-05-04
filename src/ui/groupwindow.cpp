@@ -21,39 +21,44 @@ void GroupWindow::add_new_card()
     // Запускаем диалог. Если пользователь принимает имя, то отправляем его на создание
     if (dialog.exec() == QDialog::Accepted)
     {
-        QString group_name = dialog.getText();
+        QString card_name = dialog.getText();
         // Если не удалось создать группу выводим сообщение об ошибку
-        if(!group->CreateCard(group_name)){
+        if(!group->CreateCard(card_name)){
             QMessageBox::warning(
                 qobject_cast<QWidget*>(this->parent()),                          // parent
                 "Ошибка создания группы",                // заголовок
-                "Группа с именем \"" + group_name + "\" уже существует.\n"
+                "Группа с именем \"" + card_name + "\" уже существует.\n"
                                                     "Пожалуйста, выберите другое имя.",     // текст
                 QMessageBox::Ok                          // кнопки
                 );
         }
         else{
-            // Иначе отключаем предыдущий виджет и создаём текущий
-            if(active_card){
-                content->layout()->removeWidget(active_card);
-            }
-            active_card = group->GetCard(group_name);
-            content->layout()->addWidget(active_card);
-            active_card->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+            try{
+                // Иначе устанавливаем новый билет активным
+                setCard(card_name);
 
-            cardList->addItem(group_name);
+                cardList->addItem(card_name);
 
-            // Подключаем возможность менять имя билета
-            QListWidgetItem* new_item = cardList->findItems(group_name, Qt::MatchExactly).value(0);
-            connect(active_card, &StudyCardWidget::header_changed,
-                    this,
-                    [this, new_item](const QString& new_name){
-                        if(new_name != ""){
-                        group->RenameCard(new_item->text(), new_name);
-                        new_item->setText(new_name);
+                // Подключаем возможность менять имя билета
+                QListWidgetItem* new_item = cardList->findItems(card_name, Qt::MatchExactly).value(0);
+                connect(active_card, &StudyCardWidget::header_changed,
+                        this,
+                        [this, new_item](const QString& new_name){
+                            if(new_name != ""){
+                                group->RenameCard(new_item->text(), new_name);
+                                new_item->setText(new_name);
+                            }
                         }
-                    }
-            );
+                        );
+            }catch(const std::invalid_argument& e){
+                QMessageBox::warning(
+                    qobject_cast<QWidget*>(this->parent()),                          // parent
+                    "Ошибка создания группы",                // заголовок
+                    e.what(),     // текст
+                    QMessageBox::Ok                          // кнопки
+                    );
+            }
+
         }
     }
 
@@ -108,6 +113,21 @@ void GroupWindow::setupUI()
 
 
     this->setCentralWidget(centralWidget);
+}
+
+void GroupWindow::setCard(const QString& card_name)
+{
+    // Убираем предыдущий билет
+    if(active_card){
+        content->layout()->removeWidget(active_card);
+    }
+    // Выбираем отображемый билет и устанавливаем его
+    auto new_card = group->GetCard(card_name);
+    if(!new_card)
+        throw std::invalid_argument("Card is unavaliable!");
+    active_card = new_card;
+    content->layout()->addWidget(active_card);
+    active_card->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
 QFrame* GroupWindow::create_button_panel()
