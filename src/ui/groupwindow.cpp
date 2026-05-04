@@ -12,6 +12,10 @@ GroupWindow::GroupWindow(Group* group, QWidget *parent)
     : QMainWindow{parent}, group{group}
 {
     setupUI();
+
+    connect(cardList, &QListWidget::itemDoubleClicked, this, [this](const QListWidgetItem* item){
+        setCard(item->text());
+    });
 }
 
 void GroupWindow::add_new_card()
@@ -58,7 +62,6 @@ void GroupWindow::add_new_card()
                     QMessageBox::Ok                          // кнопки
                     );
             }
-
         }
     }
 
@@ -120,6 +123,7 @@ void GroupWindow::setCard(const QString& card_name)
     // Убираем предыдущий билет
     if(active_card){
         content->layout()->removeWidget(active_card);
+        active_card = nullptr;
     }
     // Выбираем отображемый билет и устанавливаем его
     auto new_card = group->GetCard(card_name);
