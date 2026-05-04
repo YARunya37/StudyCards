@@ -5,7 +5,6 @@
 #include <QFrame>
 #include <QCoreApplication>
 // #include <QSplitter>
-#include <QListWidget>
 #include "textinputdialog.h"
 #include <QMessageBox>
 
@@ -38,9 +37,11 @@ void GroupWindow::add_new_card()
             if(active_card){
                 content->layout()->removeWidget(active_card);
             }
-            active_card = new StudyCardWidget(this, QCoreApplication::applicationDirPath() + "resources/usergroups/" + group->Name(), group_name);
+            active_card = group->GetCard(group_name);
             content->layout()->addWidget(active_card);
             active_card->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+            cardList->addItem(group_name);
         }
     }
 
@@ -70,7 +71,7 @@ void GroupWindow::setupUI()
     contentLayout->setSpacing(0);
 
     // Левая панель - список элементов
-    QListWidget* cardList = new QListWidget();
+    cardList = new QListWidget();
     cardList->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
     cardList->setStyleSheet(
         "QListWidget {"
@@ -85,6 +86,11 @@ void GroupWindow::setupUI()
         "   color: white;"
         "}"
     );
+
+    // Подгружаем все созданные билеты
+    foreach (auto card, group->GetAllCards()) {
+        cardList->addItem(card);
+    }
 
     contentLayout->addWidget(cardList);
 

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "group.h"
+#include <QListWidget>
 
 class GroupWindow : public QMainWindow
 {
@@ -15,6 +16,7 @@ private slots:
 
 private:
     QWidget* content = nullptr;
+    QListWidget* cardList = nullptr;
 
     // Группа с которой мы работаем
     Group* group;
