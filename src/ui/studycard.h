@@ -12,7 +12,7 @@ public:
     explicit StudyCardWidget(QWidget *parent, const QString& path_to_card, const QString& card_name);
 
 signals:
-
+    void header_changed(const QString& new_header);
 private slots:
     void save_to_files();
 

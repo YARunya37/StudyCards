@@ -51,6 +51,7 @@ void StudyCardWidget::save_to_files()
             }
         }
     }
+    emit header_changed(header->toPlainText());
 }
 
 bool StudyCardWidget::RestoreText()

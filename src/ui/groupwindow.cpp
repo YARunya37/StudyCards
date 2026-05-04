@@ -42,6 +42,18 @@ void GroupWindow::add_new_card()
             active_card->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
             cardList->addItem(group_name);
+
+            // Подключаем возможность менять имя билета
+            QListWidgetItem* new_item = cardList->findItems(group_name, Qt::MatchExactly).value(0);
+            connect(active_card, &StudyCardWidget::header_changed,
+                    this,
+                    [this, new_item](const QString& new_name){
+                        if(new_name != ""){
+                        group->RenameCard(new_item->text(), new_name);
+                        new_item->setText(new_name);
+                        }
+                    }
+            );
         }
     }
 
