@@ -122,6 +122,7 @@ void GroupWindow::setCard(const QString& card_name)
 {
     // Убираем предыдущий билет
     if(active_card){
+        active_card->hide();
         content->layout()->removeWidget(active_card);
         active_card = nullptr;
     }
@@ -131,6 +132,7 @@ void GroupWindow::setCard(const QString& card_name)
         throw std::invalid_argument("Card is unavaliable!");
     active_card = new_card;
     content->layout()->addWidget(active_card);
+    active_card->show();
     active_card->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
