@@ -3,7 +3,7 @@
 
 Group::Group(const QString& name)
     : NamedFileItem(name),
-    group_path{QCoreApplication::applicationDirPath() + "/resources/usergroups/" + name},
+    group_path{"/resources/usergroups/" + name},
     DirItemsManager(QCoreApplication::applicationDirPath() + "/resources/usergroups/" + name)
 {
     foreach(auto item, RestoreItems()){
@@ -39,7 +39,7 @@ bool Group::CreateCard(const QString &card_name)
         return true;
     }
     else{
-        qInfo() << "Ошибка при создании группы";
+        qInfo() << "Ошибка при создании билета";
         return false;
     }
 }
@@ -57,7 +57,7 @@ void Group::DeleteCard(const QString &card_name)
         cards.remove(card_name);
     }
     else{
-        qInfo() << "Ошибка при удалении группы";
+        qInfo() << "Ошибка при удалении билета";
     }
 }
 
