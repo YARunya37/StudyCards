@@ -4,7 +4,7 @@
 #include <QLabel>
 #include <QFrame>
 #include <QCoreApplication>
-// #include <QSplitter>
+#include <QMenu>
 #include "textinputdialog.h"
 #include <QMessageBox>
 
@@ -17,6 +17,12 @@ GroupWindow::GroupWindow(Group* group, QWidget *parent)
     connect(cardList, &QListWidget::itemDoubleClicked, this, [this](const QListWidgetItem* item){
         setCard(item->text());
     });
+
+    // Настройка собственного меню
+    cardList->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(cardList, &QListWidget::customContextMenuRequested,
+            this, &GroupWindow::showContextMenu);
+
 
     // Подгружаем все созданные билеты
     foreach (auto card_name, group->GetAllCards()) {
@@ -34,7 +40,6 @@ GroupWindow::GroupWindow(Group* group, QWidget *parent)
                 }
         );
     }
-
 
 }
 
@@ -85,6 +90,45 @@ void GroupWindow::add_new_card()
         }
     }
 
+}
+
+void GroupWindow::showContextMenu(const QPoint &pos)
+{
+    QListWidgetItem *item = cardList->itemAt(pos);
+
+    if (!item)
+        return; // Клик был не на элементе
+
+    // Создаем меню
+    QMenu contextMenu(this);
+
+    QAction *deleteAction = contextMenu.addAction("Удалить");
+
+    // Показываем меню и получаем выбранное действие
+    QAction *selectedAction = contextMenu.exec(cardList->mapToGlobal(pos));
+
+    if (selectedAction == deleteAction)
+    {
+        deleteItem(item);
+    }
+}
+
+void GroupWindow::deleteItem(QListWidgetItem *item)
+{
+    // Создаём окно подтверждения
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("Подтверждение");
+    msgBox.setText("Удалить билет \"" + item->text() + "\"?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    //msgBox.setDefaultButton(QMessageBox::No);
+
+    // Переименовываем кнопки
+    msgBox.button(QMessageBox::Yes)->setText("Да");
+    msgBox.button(QMessageBox::No)->setText("Нет");
+
+    if (msgBox.exec() == QMessageBox::Yes && group->DeleteCard(item->text())) {
+        delete item;
+    }
 }
 
 void GroupWindow::setupUI()

@@ -14,6 +14,9 @@ public:
 private slots:
     void add_new_card();
 
+    void showContextMenu(const QPoint &pos);
+
+    void deleteItem(QListWidgetItem *item);
 private:
     QWidget* content = nullptr;
     QListWidget* cardList = nullptr;
