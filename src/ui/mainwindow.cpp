@@ -43,8 +43,8 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::createToolbar()
 {
     // Контейнер для toolbar + текст
-    textEditorContainer = new QWidget(this);
-    QVBoxLayout* containerLayout = new QVBoxLayout(textEditorContainer);
+    toolbarPanel = new QWidget(this);
+    QVBoxLayout* containerLayout = new QVBoxLayout(toolbarPanel);
     containerLayout->setContentsMargins(0, 0, 0, 0);
     containerLayout->setSpacing(5);
 
@@ -54,21 +54,39 @@ void MainWindow::createToolbar()
     toolbarLayout->setSpacing(5);
 
     // Кнопка Bold
-    btnBold = new QPushButton("B", this);
+    QPushButton* btnBold = new QPushButton("B", this);
     btnBold->setMaximumWidth(40);
     btnBold->setFont(QFont("Segoe UI", 9, QFont::Bold));
     btnBold->setToolTip("Жирный (Ctrl+B)");
     toolbarLayout->addWidget(btnBold);
 
+    connect(btnBold, &QPushButton::clicked, this, [this](){
+        if (sourceTextWidget) {
+            QFont font = sourceTextWidget->currentFont();
+            font.setBold(!font.bold());
+            sourceTextWidget->setCurrentFont(font);
+            sourceTextWidget->setFocus();
+        }
+    });
+
     // Кнопка Italic
-    btnItalic = new QPushButton("I", this);
+    QPushButton* btnItalic = new QPushButton("I", this);
     btnItalic->setMaximumWidth(40);
     btnItalic->setFont(QFont("Segoe UI", 9, QFont::Normal, true));
     btnItalic->setToolTip("Курсив (Ctrl+I)");
     toolbarLayout->addWidget(btnItalic);
 
+    connect(btnItalic, &QPushButton::clicked, this, [this](){
+        if (sourceTextWidget) {
+            QFont font = sourceTextWidget->currentFont();
+            font.setItalic(!font.italic());
+            sourceTextWidget->setCurrentFont(font);
+            sourceTextWidget->setFocus();
+        }
+    });
+
     // Кнопка Underline
-    btnUnderline = new QPushButton("U", this);
+    QPushButton* btnUnderline = new QPushButton("U", this);
     btnUnderline->setMaximumWidth(40);
     QFont underlineFont = btnUnderline->font();
     underlineFont.setUnderline(true);
@@ -76,8 +94,17 @@ void MainWindow::createToolbar()
     btnUnderline->setToolTip("Подчёркнутый (Ctrl+U)");
     toolbarLayout->addWidget(btnUnderline);
 
+    connect(btnUnderline, &QPushButton::clicked, this, [this](){
+        if (sourceTextWidget) {
+            QFont font = sourceTextWidget->currentFont();
+            font.setUnderline(!font.underline());
+            sourceTextWidget->setCurrentFont(font);
+            sourceTextWidget->setFocus();
+        }
+    });
+
     // Выпадающий список размера шрифта
-    comboFontSize = new QComboBox(this);
+    QComboBox* comboFontSize = new QComboBox(this);
     comboFontSize->setMaximumWidth(80);
     comboFontSize->addItems({"8", "9", "10", "11", "12", "14", "16", "18", "20", "24", "28", "32", "36"});
     comboFontSize->setCurrentText("12");
@@ -86,7 +113,7 @@ void MainWindow::createToolbar()
 
     // Подключение
     connect(comboFontSize, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this](int index){
+            this, [this, comboFontSize](int index){
         if (sourceTextWidget) {
             int size = comboFontSize->currentText().toInt();
             QFont font = sourceTextWidget->currentFont();
@@ -95,25 +122,9 @@ void MainWindow::createToolbar()
             sourceTextWidget->setFocus();
         }
     });
+
     // Распорка
     toolbarLayout->addStretch();
-
-    // Разделитель между группами кнопок
-    toolbarLayout->addSpacing(10);
-
-    // Добавляем toolbar в контейнер
-    containerLayout->addLayout(toolbarLayout);
-
-    // Текстовый редактор
-    sourceTextWidget = new ScaledTextEdit(this);
-    sourceTextWidget->setPlainText("Добавьте файл с помощью кнопки в панели");
-    sourceTextWidget->setWordWrapMode(QTextOption::WordWrap);  // Перенос слов
-    containerLayout->addWidget(sourceTextWidget);
-
-    // Горячие клавиши
-    new QShortcut(QKeySequence("Ctrl+B"), this, [this](){ toggleBold(); });
-    new QShortcut(QKeySequence("Ctrl+I"), this, [this](){ toggleItalic(); });
-    new QShortcut(QKeySequence("Ctrl+U"), this, [this](){ toggleUnderline(); });
 
     // Разделитель между группами кнопок
     toolbarLayout->addSpacing(10);
@@ -124,11 +135,25 @@ void MainWindow::createToolbar()
     btnAlignLeft->setToolTip("Выровнять по левому краю (Ctrl+L)");
     toolbarLayout->addWidget(btnAlignLeft);
 
+    connect(btnAlignLeft, &QPushButton::clicked, this, [this](){
+        if (sourceTextWidget) {
+            sourceTextWidget->setAlignment(Qt::AlignLeft);
+            sourceTextWidget->setFocus();
+        }
+    });
+
     // Кнопка: Выровнять по центру
-    QPushButton* btnAlignCenter = new QPushButton("—", this);
+    QPushButton* btnAlignCenter = new QPushButton("-", this);
     btnAlignCenter->setMaximumWidth(40);
     btnAlignCenter->setToolTip("Выровнять по центру (Ctrl+E)");
     toolbarLayout->addWidget(btnAlignCenter);
+
+    connect(btnAlignCenter, &QPushButton::clicked, this, [this](){
+        if (sourceTextWidget) {
+            sourceTextWidget->setAlignment(Qt::AlignCenter);
+            sourceTextWidget->setFocus();
+        }
+    });
 
     // Кнопка: Выровнять по правому краю
     QPushButton* btnAlignRight = new QPushButton("⮞", this);
@@ -136,46 +161,25 @@ void MainWindow::createToolbar()
     btnAlignRight->setToolTip("Выровнять по правому краю (Ctrl+R)");
     toolbarLayout->addWidget(btnAlignRight);
 
+    connect(btnAlignRight, &QPushButton::clicked, this, [this](){
+        if (sourceTextWidget) {
+            sourceTextWidget->setAlignment(Qt::AlignRight);
+            sourceTextWidget->setFocus();
+        }
+    });
+
     // Кнопка: По ширине
     QPushButton* btnAlignJustify = new QPushButton("☰", this);
     btnAlignJustify->setMaximumWidth(40);
     btnAlignJustify->setToolTip("По ширине (Ctrl+J)");
     toolbarLayout->addWidget(btnAlignJustify);
 
-    // Подключаем кнопки (после создания всех кнопок)
-    connect(btnBold, &QPushButton::clicked, this, &MainWindow::toggleBold);
-    connect(btnItalic, &QPushButton::clicked, this, &MainWindow::toggleItalic);
-    connect(btnUnderline, &QPushButton::clicked, this, &MainWindow::toggleUnderline);
-
-    // Добавь подключение кнопок выравнивания:
-    connect(btnAlignLeft, &QPushButton::clicked, this, &MainWindow::alignLeft);
-    connect(btnAlignCenter, &QPushButton::clicked, this, &MainWindow::alignCenter);
-    connect(btnAlignRight, &QPushButton::clicked, this, &MainWindow::alignRight);
-    connect(btnAlignJustify, &QPushButton::clicked, this, &MainWindow::alignJustify);
-
-    // Горячие клавиши выравнивания
-    new QShortcut(QKeySequence("Ctrl+L"), this, [this](){ alignLeft(); });
-    new QShortcut(QKeySequence("Ctrl+E"), this, [this](){ alignCenter(); });
-    new QShortcut(QKeySequence("Ctrl+R"), this, [this](){ alignRight(); });
-    new QShortcut(QKeySequence("Ctrl+J"), this, [this](){ alignJustify(); });
-
-    // Разделитель
-    toolbarLayout->addSpacing(10);
-
-    // Кнопка: Цвет текста
-    btnTextColor = new QPushButton("A", this);
-    btnTextColor->setMaximumWidth(40);
-    btnTextColor->setToolTip("Цвет текста");
-
-    // Добавляем цветную полоску под буквой (визуальный индикатор)
-    QPalette palette = btnTextColor->palette();
-    palette.setColor(QPalette::ButtonText, Qt::red);  // Начальный цвет
-    btnTextColor->setPalette(palette);
-
-    toolbarLayout->addWidget(btnTextColor);
-
-    // Подключаем кнопку
-    connect(btnTextColor, &QPushButton::clicked, this, &MainWindow::changeTextColor);
+    connect(btnAlignJustify, &QPushButton::clicked, this, [this](){
+        if (sourceTextWidget) {
+            sourceTextWidget->setAlignment(Qt::AlignJustify);
+            sourceTextWidget->setFocus();
+        }
+    });
 
     // Разделитель
     toolbarLayout->addSpacing(10);
@@ -186,27 +190,139 @@ void MainWindow::createToolbar()
     btnBulletList->setToolTip("Маркированный список");
     toolbarLayout->addWidget(btnBulletList);
 
+    connect(btnBulletList, &QPushButton::clicked, this, [this](){
+        if (sourceTextWidget) {
+            QTextCursor cursor = sourceTextWidget->textCursor();
+            cursor.beginEditBlock();
+            QTextListFormat listFormat;
+            listFormat.setStyle(QTextListFormat::ListDisc);
+            if (cursor.hasSelection()) {
+                cursor.createList(listFormat);
+            } else {
+                cursor.insertList(listFormat);
+            }
+            cursor.endEditBlock();
+            sourceTextWidget->setFocus();
+        }
+    });
+
     // Кнопка: Нумерованный список
     QPushButton* btnNumberedList = new QPushButton("1.", this);
     btnNumberedList->setMaximumWidth(40);
     btnNumberedList->setToolTip("Нумерованный список");
     toolbarLayout->addWidget(btnNumberedList);
 
-    // Подключение
-    connect(btnBulletList, &QPushButton::clicked, this, &MainWindow::insertBulletList);
-    connect(btnNumberedList, &QPushButton::clicked, this, &MainWindow::insertNumberedList);
+    connect(btnNumberedList, &QPushButton::clicked, this, [this](){
+        if (sourceTextWidget) {
+            QTextCursor cursor = sourceTextWidget->textCursor();
+            cursor.beginEditBlock();
+            QTextListFormat listFormat;
+            listFormat.setStyle(QTextListFormat::ListDecimal);
+            if (cursor.hasSelection()) {
+                cursor.createList(listFormat);
+            } else {
+                cursor.insertList(listFormat);
+            }
+            cursor.endEditBlock();
+            sourceTextWidget->setFocus();
+        }
+    });
+
+    // Разделитель
+    toolbarLayout->addSpacing(10);
+
+    // Кнопка: Цвет текста
+    QPushButton* btnTextColor = new QPushButton("A", this);
+    btnTextColor->setObjectName("btnTextColor");
+    btnTextColor->setMaximumWidth(40);
+    btnTextColor->setToolTip("Цвет текста");
+    toolbarLayout->addWidget(btnTextColor);
+
+    // Добавляем цветную полоску под буквой (визуальный индикатор)
+    QPalette palette = btnTextColor->palette();
+    palette.setColor(QPalette::ButtonText, Qt::red);  // Начальный цвет
+    btnTextColor->setPalette(palette);
+
+    // Подключаем кнопку
+    connect(btnTextColor, &QPushButton::clicked, this, &MainWindow::changeTextColor);
 
     // Разделитель
     toolbarLayout->addSpacing(10);
 
     // Кнопка: Цвет фона (выделение)
-    btnHighlightColor = new QPushButton("🖍️", this);
+    QPushButton* btnHighlightColor = new QPushButton("🖍️", this);
     btnHighlightColor->setMaximumWidth(40);
     btnHighlightColor->setToolTip("Цвет фона (выделение)");
     toolbarLayout->addWidget(btnHighlightColor);
 
     // Подключение
     connect(btnHighlightColor, &QPushButton::clicked, this, &MainWindow::changeHighlightColor);
+
+    // Добавляем toolbar в контейнер
+    containerLayout->addLayout(toolbarLayout);
+
+    // Текстовый редактор
+    sourceTextWidget = new ScaledTextEdit(this);
+    sourceTextWidget->setPlainText("Добавьте файл с помощью кнопки в панели");
+    sourceTextWidget->setWordWrapMode(QTextOption::WordWrap);  // Перенос слов
+    containerLayout->addWidget(sourceTextWidget);
+
+    // Горячие клавиши форматирования
+    new QShortcut(QKeySequence("Ctrl+B"), this, [this](){
+        if (sourceTextWidget) {
+            QFont font = sourceTextWidget->currentFont();
+            font.setBold(!font.bold());
+            sourceTextWidget->setCurrentFont(font);
+            sourceTextWidget->setFocus();
+        }
+    });
+
+    new QShortcut(QKeySequence("Ctrl+I"), this, [this](){
+        if (sourceTextWidget) {
+            QFont font = sourceTextWidget->currentFont();
+            font.setItalic(!font.italic());
+            sourceTextWidget->setCurrentFont(font);
+            sourceTextWidget->setFocus();
+        }
+    });
+
+    new QShortcut(QKeySequence("Ctrl+U"), this, [this](){
+        if (sourceTextWidget) {
+            QFont font = sourceTextWidget->currentFont();
+            font.setUnderline(!font.underline());
+            sourceTextWidget->setCurrentFont(font);
+            sourceTextWidget->setFocus();
+        }
+    });
+
+    // Горячие клавиши выравнивания
+    new QShortcut(QKeySequence("Ctrl+L"), this, [this](){
+        if (sourceTextWidget) {
+            sourceTextWidget->setAlignment(Qt::AlignLeft);
+            sourceTextWidget->setFocus();
+        }
+    });
+
+    new QShortcut(QKeySequence("Ctrl+E"), this, [this](){
+        if (sourceTextWidget) {
+            sourceTextWidget->setAlignment(Qt::AlignCenter);
+            sourceTextWidget->setFocus();
+        }
+    });
+
+    new QShortcut(QKeySequence("Ctrl+R"), this, [this](){
+        if (sourceTextWidget) {
+            sourceTextWidget->setAlignment(Qt::AlignRight);
+            sourceTextWidget->setFocus();
+        }
+    });
+
+    new QShortcut(QKeySequence("Ctrl+J"), this, [this](){
+        if (sourceTextWidget) {
+            sourceTextWidget->setAlignment(Qt::AlignJustify);
+            sourceTextWidget->setFocus();
+        }
+    });
 }
 
 MainWindow::~MainWindow()
@@ -223,7 +339,7 @@ void MainWindow::SetUpSPlitter()
     splitter->setChildrenCollapsible(false);
     // Добавляем разделители
     splitter->addWidget(ui->horizontalLayout->parentWidget()->findChild<FileTreeWidget*>());
-    splitter->addWidget(textEditorContainer);
+    splitter->addWidget(toolbarPanel);
 
     // Создаём контейнер для label + tabWidget
     QWidget* tabContainer = new QWidget(this);
@@ -258,82 +374,6 @@ void MainWindow::SetUpSPlitter()
     splitter->setHandleWidth(0);
 }
 
-void MainWindow::toggleBold()
-{
-    if (sourceTextWidget) {
-        // Оборачиваем в блок отмены
-        QTextCursor cursor = sourceTextWidget->textCursor();
-        cursor.beginEditBlock();
-        // Применяем форматирование
-        QFont font = sourceTextWidget->currentFont();
-        font.setBold(!font.bold());
-        sourceTextWidget->setCurrentFont(font);
-
-        cursor.endEditBlock();
-
-        sourceTextWidget->setFocus();
-    }
-}
-
-void MainWindow::toggleItalic()
-{
-    if (sourceTextWidget) {
-        QTextCursor cursor = sourceTextWidget->textCursor();
-        cursor.beginEditBlock();
-        QFont font = sourceTextWidget->currentFont();
-        font.setItalic(!font.italic());
-        sourceTextWidget->setCurrentFont(font);
-        cursor.endEditBlock();
-
-        sourceTextWidget->setFocus();
-    }
-}
-
-void MainWindow::toggleUnderline()
-{
-    if (sourceTextWidget) {
-        QTextCursor cursor = sourceTextWidget->textCursor();
-        cursor.beginEditBlock();
-        QFont font = sourceTextWidget->currentFont();
-        font.setUnderline(!font.underline());
-        sourceTextWidget->setCurrentFont(font);
-        cursor.endEditBlock();
-
-        sourceTextWidget->setFocus();
-    }
-}
-
-void MainWindow::alignLeft()
-{
-    if (sourceTextWidget) {
-        sourceTextWidget->setAlignment(Qt::AlignLeft);
-        sourceTextWidget->setFocus();
-    }
-}
-
-void MainWindow::alignCenter()
-{
-    if (sourceTextWidget) {
-        sourceTextWidget->setAlignment(Qt::AlignCenter);
-        sourceTextWidget->setFocus();
-    }
-}
-
-void MainWindow::alignRight()
-{
-    if (sourceTextWidget) {
-        sourceTextWidget->setAlignment(Qt::AlignRight);
-        sourceTextWidget->setFocus();
-    }
-}
-
-void MainWindow::alignJustify()
-{
-    if (sourceTextWidget) {
-        sourceTextWidget->setAlignment(Qt::AlignJustify);
-        sourceTextWidget->setFocus();
-    }
-}
 
 void MainWindow::changeTextColor()
 {
@@ -359,56 +399,16 @@ void MainWindow::changeTextColor()
             sourceTextWidget->setTextColor(selectedColor);
         }
 
+        cursor.endEditBlock();
+
         // Обновляем цвет кнопки (визуальный индикатор)
-        QPalette palette = btnTextColor->palette();
-        palette.setColor(QPalette::ButtonText, selectedColor);
-        btnTextColor->setPalette(palette);
-
-        sourceTextWidget->setFocus();
-    }
-}
-
-void MainWindow::insertBulletList()
-{
-    if (sourceTextWidget) {
-        QTextCursor cursor = sourceTextWidget->textCursor();
-
-        // ОДИН блок отмены
-        cursor.beginEditBlock();
-
-        QTextListFormat listFormat;
-        listFormat.setStyle(QTextListFormat::ListDisc);
-
-        // Если есть выделение — делаем его списком
-        if (cursor.hasSelection()) {
-            cursor.createList(listFormat);
-        } else {
-            // Иначе создаём новый список
-            cursor.insertList(listFormat);
+        QPushButton* btn = this->findChild<QPushButton*>("btnTextColor");
+        if (btn) {
+            QPalette palette = btn->palette();
+            palette.setColor(QPalette::ButtonText, selectedColor);
+            btn->setPalette(palette);
         }
 
-        cursor.endEditBlock();
-        sourceTextWidget->setFocus();
-    }
-}
-
-void MainWindow::insertNumberedList()
-{
-    if (sourceTextWidget) {
-        QTextCursor cursor = sourceTextWidget->textCursor();
-
-        cursor.beginEditBlock();
-
-        QTextListFormat listFormat;
-        listFormat.setStyle(QTextListFormat::ListDecimal);
-
-        if (cursor.hasSelection()) {
-            cursor.createList(listFormat);
-        } else {
-            cursor.insertList(listFormat);
-        }
-
-        cursor.endEditBlock();
         sourceTextWidget->setFocus();
     }
 }

@@ -24,36 +24,20 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
 public slots:
     void setTicketGroupName(const QString& name);
+
 private slots:
-    void toggleBold();
-    void toggleItalic();
-    void toggleUnderline();
-
-    void alignLeft();
-    void alignCenter();
-    void alignRight();
-    void alignJustify();
-
     void changeTextColor();
     void changeHighlightColor();
-
-    void insertBulletList();
-    void insertNumberedList();
 
 private:
     Ui::MainWindow *ui;
     ScaledTextEdit* sourceTextWidget;
-    QWidget* textEditorContainer;
-
-    QPushButton* btnBold;
-    QPushButton* btnItalic;
-    QPushButton* btnUnderline;
-    QPushButton* btnTextColor;
-    QPushButton* btnHighlightColor;
-    QComboBox* comboFontSize;
+    QWidget* toolbarPanel;
     QLabel* ticketGroupLabel;
+
     // Метод для создания разделителя между основными виджетами
     void SetUpSPlitter();
     void createToolbar();
