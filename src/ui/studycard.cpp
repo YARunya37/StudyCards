@@ -67,6 +67,14 @@ void StudyCardWidget::save_to_files()
     emit header_changed(header->toPlainText());
 }
 
+void StudyCardWidget::hideEvent(QHideEvent *event)
+{
+    QWidget::hideEvent(event);
+    // Сохраняем изменения
+    save_to_files();
+
+}
+
 bool StudyCardWidget::RestoreText()
 {
     QStringList files = fmn->get_existing_files();

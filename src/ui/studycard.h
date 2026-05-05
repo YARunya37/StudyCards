@@ -16,6 +16,10 @@ signals:
 private slots:
     void save_to_files();
 
+protected:
+    // Переопределён, чтобы при закрытии виджета всегда сохранялись изменения
+    void hideEvent(QHideEvent *event) override;
+
 private:
     QTextEdit* header;
     QTextEdit* body;
