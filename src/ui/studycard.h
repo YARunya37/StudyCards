@@ -33,7 +33,7 @@ private:
     void DrawHeader();
 
     // Путь к билету
-    QString localPathToCard;
+    QString localPathToGroup;
 };
 
 #endif // STUDYCARD_H

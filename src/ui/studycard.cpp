@@ -3,12 +3,12 @@
 #include <QFont>
 #include <QCoreApplication>
 #include <QTimer>
-StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_card, const QString& card_name)
+StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_group, const QString& card_name)
     : QWidget{parent},
-    fmn{new FileManager(this, local_path_to_card)},
+    fmn{new FileManager(this, local_path_to_group + "/" + card_name)},
     NamedFileItem{card_name}
 {
-    localPathToCard = local_path_to_card;
+    localPathToGroup = local_path_to_group;
     SetUpUI();
     // Если есть файлы, то восстанавливаем текст
     if(!fmn->get_existing_files().isEmpty()){
@@ -37,7 +37,8 @@ StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_c
     // Для изменения имени билета и сохранения управления над ним(самое простое и неэффективное решение по причине сроков)
     connect(this, &StudyCardWidget::header_changed, this, [this](const QString& new_name){
         delete fmn;
-        fmn = new FileManager(this, localPathToCard + "/" + new_name);
+        SetName(new_name);
+        fmn = new FileManager(this, localPathToGroup + "/" + name);
     });
 }
 

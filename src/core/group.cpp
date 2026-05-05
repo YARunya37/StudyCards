@@ -7,7 +7,7 @@ Group::Group(const QString& name)
     DirItemsManager(QCoreApplication::applicationDirPath() + "/resources/usergroups/" + name)
 {
     foreach(auto item, RestoreItems()){
-        auto card = new StudyCardWidget(nullptr, group_path + "/" + item, item);
+        auto card = new StudyCardWidget(nullptr, group_path, item);
         cards.insert(item, card);
     }
 }
@@ -35,7 +35,7 @@ QStringList Group::GetAllCards() const
 bool Group::CreateCard(const QString &card_name)
 {
     if(AddItem(card_name)){
-        cards.insert(card_name, new StudyCardWidget(nullptr, group_path + "/" + card_name, card_name));
+        cards.insert(card_name, new StudyCardWidget(nullptr, group_path, card_name));
         return true;
     }
     else{
