@@ -7,6 +7,7 @@
 #include <QMenu>
 #include "textinputdialog.h"
 #include <QMessageBox>
+#include <QShortcut>
 
 GroupWindow::GroupWindow(Group* group, QWidget *parent)
     : QMainWindow{parent}, group{group}
@@ -23,6 +24,9 @@ GroupWindow::GroupWindow(Group* group, QWidget *parent)
     connect(cardList, &QListWidget::customContextMenuRequested,
             this, &GroupWindow::showContextMenu);
 
+    // Создаем шорткат для клавиши Delete
+    QShortcut *deleteShortcut = new QShortcut(QKeySequence::Delete, cardList);
+    connect(deleteShortcut, &QShortcut::activated, this, &GroupWindow::deleteItem);
 
     // Подгружаем все созданные билеты
     foreach (auto card_name, group->GetAllCards()) {
@@ -109,12 +113,13 @@ void GroupWindow::showContextMenu(const QPoint &pos)
 
     if (selectedAction == deleteAction)
     {
-        deleteItem(item);
+        deleteItem();
     }
 }
 
-void GroupWindow::deleteItem(QListWidgetItem *item)
+void GroupWindow::deleteItem()
 {
+    QListWidgetItem *item = cardList->currentItem();
     // Создаём окно подтверждения
     QMessageBox msgBox(this);
     msgBox.setWindowTitle("Подтверждение");
