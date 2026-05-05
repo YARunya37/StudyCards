@@ -1,8 +1,21 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "core/FileLoader.h"
+
+#include <QWidget>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QCoreApplication>
+#include <QDir>
+#include <QFile>
+#include <QDebug>
+
 #include "filetreewidget.h"
 #include "groupsuicontroller.h"
 
+#include "scaledtextedit.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
