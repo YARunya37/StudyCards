@@ -44,20 +44,23 @@ bool Group::CreateCard(const QString &card_name)
     }
 }
 
-void Group::DeleteCard(const QString &card_name)
+bool Group::DeleteCard(const QString &card_name)
 {
     if(DeleteItem(card_name)){
         auto card = GetCard(card_name);
 
         // Проверка на nullptr
         if(!card)
-            return;
+            return false;
 
         delete card;
         cards.remove(card_name);
+
+        return true;
     }
     else{
         qInfo() << "Ошибка при удалении билета";
+        return false;
     }
 }
 
