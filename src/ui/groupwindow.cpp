@@ -60,7 +60,7 @@ void GroupWindow::add_new_card()
             QMessageBox::warning(
                 qobject_cast<QWidget*>(this->parent()),                          // parent
                 "Ошибка создания группы",                // заголовок
-                "Группа с именем \"" + card_name + "\" уже существует.\n"
+                "Билет с именем \"" + card_name + "\" уже существует.\n"
                                                     "Пожалуйста, выберите другое имя.",     // текст
                 QMessageBox::Ok                          // кнопки
                 );
@@ -113,7 +113,7 @@ void GroupWindow::showContextMenu(const QPoint &pos)
 
     if (selectedAction == deleteAction)
     {
-        deleteItem();
+        deleteItem( );
     }
 }
 
