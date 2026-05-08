@@ -3,6 +3,7 @@
 #include "groupwindow.h"
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QPushButton>
 GroupsUIController::GroupsUIController(QObject *parent)
     : QObject{parent},
     gm{new GroupManager(parent)}
@@ -68,15 +69,18 @@ void GroupsUIController::show_delete_group_window()
 
     if (ok && !selectedGroup.isEmpty())
     {
-        // Подтверждение
-        QMessageBox::StandardButton reply = QMessageBox::question(
-            qobject_cast<QWidget*>(this->parent()),
-            "Подтверждение",
-            QString("Удалить группу \"%1\"?").arg(selectedGroup),
-            QMessageBox::Yes | QMessageBox::No
-            );
+        // Создаём окно подтверждения
+        QMessageBox msgBox(qobject_cast<QWidget*>(this->parent()));
+        msgBox.setWindowTitle("Подтверждение");
+        msgBox.setText("Удалить группу \"" + selectedGroup + "\"?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        //msgBox.setDefaultButton(QMessageBox::No);
 
-        if (reply == QMessageBox::Yes)
+        // Переименовываем кнопки
+        msgBox.button(QMessageBox::Yes)->setText("Да");
+        msgBox.button(QMessageBox::No)->setText("Нет");
+
+        if (msgBox.exec() == QMessageBox::Yes)
         {
             gm->DeleteGroup(selectedGroup);
         }
