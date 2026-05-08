@@ -31,7 +31,16 @@ void GroupsUIController::show_creation_group_dialog()
                  "Пожалуйста, выберите другое имя.",     // текст
                 QMessageBox::Ok                          // кнопки
                 );
+        }else {
+            // Уведомление об успешном создании группы
+            QMessageBox::information(
+                qobject_cast<QWidget*>(this->parent()),                          // parent
+                "Успешно",                               // заголовок
+                "Группа \"" + group_name + "\" успешно создана.",  // текст
+                QMessageBox::Ok                          // кнопки
+                );
         }
+
     }
 }
 
