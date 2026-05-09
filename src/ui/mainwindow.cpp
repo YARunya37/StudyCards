@@ -13,6 +13,8 @@
 #include <QDebug>
 
 #include "filetreewidget.h"
+#include "groupsuicontroller.h"
+
 #include "scaledtextedit.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -25,8 +27,19 @@ MainWindow::MainWindow(QWidget *parent)
     // Создаём разделитель
     SetUpSPlitter();
 
+    // Создаём контроллер групп
+    GroupsUIController* controller = new GroupsUIController(this);
+
     // Подключаем реализацию функции добавления файла к кнопке
     connect(ui->add_file, &QAction::triggered, sourceTree, &FileTreeWidget::AddFiles);
+    // Подключаем реализацию создания группы к кнопке в панели
+    connect(ui->create_group, &QAction::triggered, controller, &GroupsUIController::show_creation_group_dialog);
+    // Кнопка удаления группы
+    connect(ui->delete_group, &QAction::triggered, controller, &GroupsUIController::show_delete_group_window);
+    // Кнопка выбора группы
+    connect(ui->select_group, &QAction::triggered, controller, &GroupsUIController::choose_active_group);
+    // Открытие группы в окне
+    connect(ui->open_group_in_window, &QAction::triggered, controller, &GroupsUIController::choose_group_to_open);
 }
 
 MainWindow::~MainWindow()
