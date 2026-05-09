@@ -9,6 +9,7 @@ add_library(main_ui_module STATIC
     mainwindow.ui
     scaledtextedit.h scaledtextedit.cpp
     filetreewidget.h filetreewidget.cpp
+    textformattingtoolbar.h textformattingtoolbar.cpp
 )
 
 # Подключаем Qt к модулю
