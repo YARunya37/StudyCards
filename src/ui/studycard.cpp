@@ -48,6 +48,16 @@ StudyCardWidget::~StudyCardWidget()
     fmn = nullptr;
 }
 
+QString StudyCardWidget::GetHeaderContent()
+{
+    return header->toHtml();
+}
+
+QString StudyCardWidget::GetBodyContent()
+{
+    return body->toHtml();
+}
+
 
 void StudyCardWidget::save_to_files()
 {

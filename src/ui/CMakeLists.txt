@@ -73,3 +73,19 @@ target_link_libraries(dialogs PUBLIC
 target_include_directories(dialogs PUBLIC
     ${CMAKE_SOURCE_DIR}/src/ui/
 )
+
+# Библиотека для карточек-вопросов
+add_library(questions STATIC
+    base_question.h base_question.cpp
+    SimpleQuestion.h SimpleQuestion.cpp
+
+)
+
+target_link_libraries(questions PRIVATE
+    Qt6::Widgets
+    study_cards
+)
+
+target_include_directories(questions PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/ui/
+)
