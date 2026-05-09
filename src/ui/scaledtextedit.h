@@ -12,9 +12,16 @@ class ScaledTextEdit : public QTextEdit
 public:
     explicit ScaledTextEdit(QWidget *parent = nullptr);
 
+    qreal getZoomFactor() const;
+    void setZoomFactor(qreal factor);
+    void resetZoom();
+
 protected:
     void wheelEvent(QWheelEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
-};
 
+private:
+    qreal zoomFactor;
+    void applyZoomToAllText();  // ← Новая функция
+};
 #endif // SCALEDTEXTEDIT_H
