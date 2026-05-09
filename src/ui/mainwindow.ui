@@ -143,17 +143,18 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
-     <string>Билеты</string>
+     <string>Группы билетов</string>
     </property>
-    <addaction name="action_3"/>
-    <addaction name="action_4"/>
-    <addaction name="action_7"/>
+    <addaction name="create_group"/>
+    <addaction name="select_group"/>
+    <addaction name="open_group_in_window"/>
+    <addaction name="delete_group"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
      <string>Тест</string>
     </property>
-    <addaction name="action_5"/>
+    <addaction name="action_2"/>
     <addaction name="action_6"/>
    </widget>
    <addaction name="menu"/>
@@ -170,19 +171,19 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <string>Добавить файл</string>
    </property>
   </action>
-  <action name="action_3">
+  <action name="create_group">
    <property name="text">
     <string>Создать группу</string>
    </property>
   </action>
-  <action name="action_4">
+  <action name="select_group">
    <property name="text">
-    <string>Открыть группу</string>
+    <string>Выбрать активную группу</string>
    </property>
   </action>
-  <action name="action_5">
+  <action name="action_2">
    <property name="text">
-    <string>Запустить с текущей колодой</string>
+    <string>Запустить с текущей группой</string>
    </property>
   </action>
   <action name="action_6">
@@ -190,23 +191,14 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <string>Посмотреть результаты</string>
    </property>
   </action>
-  <action name="action_7">
+  <action name="open_group_in_window">
    <property name="text">
     <string>Открыть группу в окне</string>
    </property>
   </action>
-  <action name="actionSave">
+  <action name="delete_group">
    <property name="text">
-    <string>Сохранить</string>
-   </property>
-   <property name="toolTip">
-    <string>Сохранить файл</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+S</string>
-   </property>
-   <property name="menuRole">
-    <enum>QAction::MenuRole::NoRole</enum>
+    <string>Удалить группу</string>
    </property>
   </action>
  </widget>
