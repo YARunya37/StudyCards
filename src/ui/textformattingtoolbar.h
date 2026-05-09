@@ -18,6 +18,7 @@ public:
 
     void setActiveEditor(QTextEdit* editor);
     QTextEdit* activeEditor() const { return m_currentEditor; }
+    QTextEdit* getCurrentEditor() const;
 
 private slots:
     void toggleBold();
@@ -35,6 +36,7 @@ private slots:
 
 private:
     QTextEdit* m_currentEditor;  // Текущий редактор
+    QTextEdit* m_lastActiveEditor;
 
     QPushButton* btnTextColor;
     QPushButton* btnHighlightColor;

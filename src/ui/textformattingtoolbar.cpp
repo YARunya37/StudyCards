@@ -1,5 +1,7 @@
 #include "textformattingtoolbar.h"
 
+#include <QApplication>
+#include <QFocusEvent>
 #include <QPushButton>
 #include <QComboBox>
 #include <QVBoxLayout>
@@ -14,13 +16,23 @@
 TextFormattingToolbar::TextFormattingToolbar(QWidget* parent)
     : QWidget(parent)
     , m_currentEditor(nullptr)
+    , m_lastActiveEditor(nullptr)
 {
     createToolbar();
+
+    // Отслеживаем смену фокуса:
+    connect(qApp, &QApplication::focusChanged, this, [this](QWidget* oldWidget, QWidget* now) {
+        Q_UNUSED(oldWidget);
+        if (QTextEdit* editor = qobject_cast<QTextEdit*>(now)) {
+            m_lastActiveEditor = editor;  // Запоминаем последний активный редактор
+        }
+    });
 }
 
 void TextFormattingToolbar::setActiveEditor(QTextEdit* editor)
 {
     m_currentEditor = editor;
+    m_lastActiveEditor = editor;
 }
 
 void TextFormattingToolbar::createToolbar()
@@ -144,74 +156,102 @@ void TextFormattingToolbar::createToolbar()
     new QShortcut(QKeySequence("Ctrl+J"), this, this, &TextFormattingToolbar::alignJustify);
 }
 
+QTextEdit* TextFormattingToolbar::getCurrentEditor() const
+{
+    // Сначала ищем в фокусе
+    QWidget* focused = QApplication::focusWidget();
+    if (QTextEdit* editor = qobject_cast<QTextEdit*>(focused)) {
+        return editor;  // Вернёт текущий виджет в фокусе
+    }
+
+    // Если фокус не на QTextEdit — используем последний активный
+    if (m_lastActiveEditor) {
+        return m_lastActiveEditor;  //Используем последний!
+    }
+
+    // Если совсем ничего — используем установленный
+    if (m_currentEditor) {
+        return m_currentEditor;
+    }
+    return nullptr;
+}
+
 // Реализация слотов
 void TextFormattingToolbar::toggleBold()
 {
-    if (!m_currentEditor) return;
+    QTextEdit* editor = getCurrentEditor();
+    if (!editor) return;
 
-    QFont font = m_currentEditor->currentFont();
+    QFont font = editor->currentFont();
     font.setBold(!font.bold());
-    m_currentEditor->setCurrentFont(font);
-    m_currentEditor->setFocus();
+    editor->setCurrentFont(font);
+    editor->setFocus();
 }
 
 void TextFormattingToolbar::toggleItalic()
 {
-    if (!m_currentEditor) return;
+    QTextEdit* editor = getCurrentEditor();
+    if (!editor) return;
 
-    QFont font = m_currentEditor->currentFont();
+    QFont font = editor->currentFont();
     font.setItalic(!font.italic());
-    m_currentEditor->setCurrentFont(font);
-    m_currentEditor->setFocus();
+    editor->setCurrentFont(font);
+    editor->setFocus();
 }
 
 void TextFormattingToolbar::toggleUnderline()
 {
-    if (!m_currentEditor) return;
+    QTextEdit* editor = getCurrentEditor();
+    if (!editor) return;
 
-    QFont font = m_currentEditor->currentFont();
+    QFont font = editor->currentFont();
     font.setUnderline(!font.underline());
-    m_currentEditor->setCurrentFont(font);
-    m_currentEditor->setFocus();
+    editor->setCurrentFont(font);
+    editor->setFocus();
 }
 
 void TextFormattingToolbar::alignLeft()
 {
-    if (!m_currentEditor) return;
-    m_currentEditor->setAlignment(Qt::AlignLeft);
-    m_currentEditor->setFocus();
+    QTextEdit* editor = getCurrentEditor();
+    if (!editor) return;
+    editor->setAlignment(Qt::AlignLeft);
+    editor->setFocus();
 }
 
 void TextFormattingToolbar::alignCenter()
 {
-    if (!m_currentEditor) return;
-    m_currentEditor->setAlignment(Qt::AlignCenter);
-    m_currentEditor->setFocus();
+    QTextEdit* editor = getCurrentEditor();
+    if (!editor) return;
+    editor->setAlignment(Qt::AlignCenter);
+    editor->setFocus();
 }
 
 void TextFormattingToolbar::alignRight()
 {
-    if (!m_currentEditor) return;
-    m_currentEditor->setAlignment(Qt::AlignRight);
-    m_currentEditor->setFocus();
+    QTextEdit* editor = getCurrentEditor();
+    if (!editor) return;
+    editor->setAlignment(Qt::AlignRight);
+    editor->setFocus();
 }
 
 void TextFormattingToolbar::alignJustify()
 {
-    if (!m_currentEditor) return;
-    m_currentEditor->setAlignment(Qt::AlignJustify);
-    m_currentEditor->setFocus();
+    QTextEdit* editor = getCurrentEditor();
+    if (!editor) return;
+    editor->setAlignment(Qt::AlignJustify);
+    editor->setFocus();
 }
 
 void TextFormattingToolbar::changeTextColor()
 {
-    if (!m_currentEditor) return;
+    QTextEdit* editor = getCurrentEditor();
+    if (!editor) return;
 
-    QColor initialColor = m_currentEditor->textColor();
+    QColor initialColor = editor->textColor();
     QColor selectedColor = QColorDialog::getColor(initialColor, this, "Выберите цвет текста");
 
     if (selectedColor.isValid()) {
-        QTextCursor cursor = m_currentEditor->textCursor();
+        QTextCursor cursor = editor->textCursor();
         cursor.beginEditBlock();
 
         if (cursor.hasSelection()) {
@@ -219,7 +259,7 @@ void TextFormattingToolbar::changeTextColor()
             format.setForeground(selectedColor);
             cursor.mergeCharFormat(format);
         } else {
-            m_currentEditor->setTextColor(selectedColor);
+            editor->setTextColor(selectedColor);
         }
 
         cursor.endEditBlock();
@@ -229,15 +269,16 @@ void TextFormattingToolbar::changeTextColor()
         palette.setColor(QPalette::ButtonText, selectedColor);
         btnTextColor->setPalette(palette);
 
-        m_currentEditor->setFocus();
+        editor->setFocus();
     }
 }
 
 void TextFormattingToolbar::changeHighlightColor()
 {
-    if (!m_currentEditor) return;
+    QTextEdit* editor = getCurrentEditor();
+    if (!editor) return;
 
-    QTextCursor cursor = m_currentEditor->textCursor();
+    QTextCursor cursor = editor->textCursor();
 
     if (!cursor.hasSelection()) {
         return;  // Нет выделения
@@ -255,15 +296,16 @@ void TextFormattingToolbar::changeHighlightColor()
 
         cursor.endEditBlock();
 
-        m_currentEditor->setFocus();
+        editor->setFocus();
     }
 }
 
 void TextFormattingToolbar::insertBulletList()
 {
-    if (!m_currentEditor) return;
+    QTextEdit* editor = getCurrentEditor();
+    if (!editor) return;
 
-    QTextCursor cursor = m_currentEditor->textCursor();
+    QTextCursor cursor = editor->textCursor();
     cursor.beginEditBlock();
 
     QTextListFormat listFormat;
@@ -276,14 +318,15 @@ void TextFormattingToolbar::insertBulletList()
     }
 
     cursor.endEditBlock();
-    m_currentEditor->setFocus();
+    editor->setFocus();
 }
 
 void TextFormattingToolbar::insertNumberedList()
 {
-    if (!m_currentEditor) return;
+    QTextEdit* editor = getCurrentEditor();
+    if (!editor) return;
 
-    QTextCursor cursor = m_currentEditor->textCursor();
+    QTextCursor cursor = editor->textCursor();
     cursor.beginEditBlock();
 
     QTextListFormat listFormat;
@@ -296,16 +339,17 @@ void TextFormattingToolbar::insertNumberedList()
     }
 
     cursor.endEditBlock();
-    m_currentEditor->setFocus();
+    editor->setFocus();
 }
 
 void TextFormattingToolbar::changeFontSize(int size)
 {
-    if (!m_currentEditor) return;
+    QTextEdit* editor = getCurrentEditor();
+    if (!editor) return;
 
     int fontSize = comboFontSize->currentText().toInt();
-    QFont font = m_currentEditor->currentFont();
+    QFont font = editor->currentFont();
     font.setPointSize(fontSize);
-    m_currentEditor->setCurrentFont(font);
-    m_currentEditor->setFocus();
+    editor->setCurrentFont(font);
+    editor->setFocus();
 }
