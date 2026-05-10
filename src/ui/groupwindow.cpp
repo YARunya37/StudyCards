@@ -149,7 +149,7 @@ void GroupWindow::setupUI()
 
     // Добавляем панель с кнопками
     verticalLayout->addWidget(create_button_panel());
-
+    verticalLayout->addWidget(new TextFormattingToolbar(this));
 
     // Создаём виджет, в котором будет находиться весь контент
     content = new QWidget(this);

@@ -71,6 +71,7 @@ target_link_libraries(groups_ui PUBLIC
     groups_managament
     dialogs
     test_window
+    text_formatting_toolbar
 )
 
 target_include_directories(groups_ui PUBLIC

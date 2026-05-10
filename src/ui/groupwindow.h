@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "group.h"
 #include <QListWidget>
+#include "textformattingtoolbar.h"
 class GroupWindow : public QMainWindow
 {
     Q_OBJECT
