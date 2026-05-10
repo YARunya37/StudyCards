@@ -53,6 +53,11 @@ void SimpleQuestion::setup_back()
     backLayout->addLayout(buttonsLayout);
 }
 
+Question *SimpleQuestion::Clone() const
+{
+    return new SimpleQuestion(refCard, nullptr);
+}
+
 void SimpleQuestion::ShowBack()
 {
     setCurrentIndex(1);

@@ -12,10 +12,10 @@ class SimpleQuestion : public Question
 public:
     SimpleQuestion(StudyCardWidget *referenceCard, QWidget *parent = nullptr);
 
+    Question* Clone() const override;
 private:
     void setup_face();
     void setup_back();
-
 private slots:
     void onShowAnswerClicked();
     void onCorrectClicked();

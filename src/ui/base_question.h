@@ -12,6 +12,8 @@ public:
 
     virtual ~Question() = default;
 
+    // Виртуальный метод для клонирования вопроса
+    virtual Question* Clone() const = 0;
 protected:
 
 signals:
@@ -20,6 +22,8 @@ signals:
 protected:
     // Метод для показа обратной стороны
     virtual void ShowBack();
+
+
 
     // Указатель на StudyCardWidget
     StudyCardWidget *refCard;
