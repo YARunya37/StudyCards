@@ -19,6 +19,7 @@ public:
     // Геттер текущего вопроса
     Question* GetCurrentQuestion() const;
 
+    int currQuestionCount() const;
 signals:
     void answerReceived(); // Сигнал о том, что ответ получен
     void testFinished();   // Сигнал о завершении теста

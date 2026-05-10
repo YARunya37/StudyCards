@@ -108,6 +108,11 @@ Question* TestDirector::GetCurrentQuestion() const
     return m_currentQuestion;
 }
 
+int TestDirector::currQuestionCount() const
+{
+    return m_questionQueue.count();
+}
+
 void TestDirector::clearQueue()
 {
     while (!m_questionQueue.isEmpty()) {
