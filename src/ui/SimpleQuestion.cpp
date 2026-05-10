@@ -58,11 +58,6 @@ Question *SimpleQuestion::Clone() const
     return new SimpleQuestion(refCard, nullptr);
 }
 
-void SimpleQuestion::ShowBack()
-{
-    setCurrentIndex(1);
-}
-
 void SimpleQuestion::onShowAnswerClicked()
 {
     ShowBack();
