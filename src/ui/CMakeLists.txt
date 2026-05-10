@@ -70,6 +70,7 @@ target_link_libraries(groups_ui PUBLIC
     Qt6::Widgets
     groups_managament
     dialogs
+    test_window
 )
 
 target_include_directories(groups_ui PUBLIC
@@ -88,4 +89,35 @@ target_link_libraries(dialogs PUBLIC
 
 target_include_directories(dialogs PUBLIC
     ${CMAKE_SOURCE_DIR}/src/ui/
+)
+
+# Библиотека для карточек-вопросов
+add_library(questions STATIC
+    base_question.h base_question.cpp
+    SimpleQuestion.h SimpleQuestion.cpp
+
+)
+
+target_link_libraries(questions PRIVATE
+    Qt6::Widgets
+    study_cards
+)
+
+target_include_directories(questions PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/ui/
+)
+
+# Библиотека окна теста
+add_library(test_window STATIC
+    testwindow.h testwindow.cpp
+)
+
+target_link_libraries(test_window PRIVATE
+    Qt6::Widgets
+    testing_sys_core
+)
+
+target_include_directories(test_window PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/ui/
+    ${CMAKE_SOURCE_DIR}/src/core/
 )

@@ -8,7 +8,7 @@
 #include "textinputdialog.h"
 #include <QMessageBox>
 #include <QShortcut>
-
+#include "testwindow.h"
 GroupWindow::GroupWindow(Group* group, QWidget *parent)
     : QMainWindow{parent}, group{group}
 {
@@ -261,6 +261,11 @@ QFrame* GroupWindow::create_button_panel()
 
     // Подключаем кнопки
     connect(addButton, &QPushButton::clicked, this, &GroupWindow::add_new_card);
+    connect(testButton, &QPushButton::clicked, this, [this](){
+        TestWindow* testWindow = new TestWindow(this->group, this);
+        testWindow->resize(600, 400);
+        testWindow->show();
+    });
 
     return panel;
 }

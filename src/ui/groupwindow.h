@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include "group.h"
 #include <QListWidget>
-
 class GroupWindow : public QMainWindow
 {
     Q_OBJECT
