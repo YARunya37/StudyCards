@@ -99,6 +99,8 @@ MainWindow::MainWindow(QWidget *parent)
             setTicketGroupName(new_active_group->Name());
         }
     });
+    // Подключаем при выборе активной группы включение временных билетов
+    connect(controller, &GroupsUIController::active_group_changed, cardsWidget, &TempCardsWidget::onActiveGroupChanged);
 }
 
 MainWindow::~MainWindow()

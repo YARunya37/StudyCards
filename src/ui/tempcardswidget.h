@@ -3,6 +3,7 @@
 
 #include <QTabWidget>
 #include <QWidget>
+#include "group.h"
 
 class TempCardsWidget : public QTabWidget
 {
@@ -10,9 +11,20 @@ class TempCardsWidget : public QTabWidget
 public:
     TempCardsWidget(QWidget* parent = nullptr);
 
+public slots:
+    void onActiveGroupChanged(Group* new_active_group);
+
 private:
     // UI при первом запуске
     void setupInitUI();
+
+    // Интерфейс временных билетов
+    void setupTempCardUI();
+
+    // Создаёт пустой билет
+    StudyCardWidget* createEmptyCard(QWidget* parent);
+
+    Group* curr_group;
 };
 
 #endif // TEMPCARDSWIDGET_H
