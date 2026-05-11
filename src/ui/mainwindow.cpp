@@ -68,8 +68,12 @@ MainWindow::MainWindow(QWidget *parent)
         "    font-weight: bold; "
         "}"
         );
+
+    // Создаём виджет для временных билетов
+    cardsWidget = new TempCardsWidget(this);
+
     tempGroupLayout->addWidget(groupLabel);
-    tempGroupLayout->addWidget(ui->tabWidget);
+    tempGroupLayout->addWidget(cardsWidget);
     // Сохраняем указатель для последующего изменения текста
     ticketGroupLabel = groupLabel;
 

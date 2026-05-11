@@ -3,7 +3,7 @@
 
 #include "scaledtextedit.h"
 #include "textformattingtoolbar.h"
-
+#include "tempcardswidget.h"
 #include <QMainWindow>
 #include <QSplitter>
 #include <QString>
@@ -32,7 +32,7 @@ private:
     QWidget* tempGroupContainer;
     QWidget* midContentContainer;
     QLabel* ticketGroupLabel;
-
+    TempCardsWidget* cardsWidget;
 
     // Метод для создания разделителя между основными виджетами
     void SetUpSPlitter();
