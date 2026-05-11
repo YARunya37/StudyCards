@@ -20,4 +20,3 @@ add_subdirectory(src)
 #     TARGETS StudyCards
 #     TS_FILES StudyCards_ru_RU.ts
 # )
-

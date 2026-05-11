@@ -100,7 +100,7 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="ScaledTextEdit" name="textEdit" native="true">
+           <widget class="QTextEdit" name="textEdit">
             <property name="html" stdset="0">
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -140,6 +140,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <string>Файл</string>
     </property>
     <addaction name="add_file"/>
+    <addaction name="action_save"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -201,14 +202,15 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <string>Удалить группу</string>
    </property>
   </action>
+  <action name="action_save">
+   <property name="text">
+    <string>Сохранить</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>ScaledTextEdit</class>
-   <extends>QWidget</extends>
-   <header>scaledtextedit.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -6,6 +6,8 @@
 #include <QMenu>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QFileIconProvider>
+#include <QFileInfo>
 FileTreeWidget::FileTreeWidget(QWidget* parent) :
     QTreeWidget(parent)
 {
@@ -17,7 +19,7 @@ FileTreeWidget::FileTreeWidget(QWidget* parent) :
 
     // Измененение item только по двойному щелчку
     setEditTriggers(NoEditTriggers);
-    connect(this, &QTreeWidget::itemDoubleClicked, this, &FileTreeWidget::renameItem);
+    connect(this, &QTreeWidget::itemDoubleClicked, this, &FileTreeWidget::onItemDoubleClicked);
 
     // Создание filemanager
     fmn = new FileManager(this, "/resources/userfiles/");
@@ -40,9 +42,19 @@ void FileTreeWidget::AddFiles()
     // Отображаем в дереве добавленные файлы
     auto added_files = fmn->add_files(files);
     if(!added_files.isEmpty()){
+        QFileIconProvider iconProvider;
         foreach(auto file, added_files){
             QTreeWidgetItem* new_item = new QTreeWidgetItem(this);
             new_item->setText(0, file);
+
+            QString filePath = fmn->getFilePath(file);
+            if (!filePath.isEmpty()) {
+                QFileInfo fileInfo(filePath);
+                new_item->setIcon(0, iconProvider.icon(fileInfo));
+            } else {
+                // Fallback - стандартная иконка
+                new_item->setIcon(0, iconProvider.icon(QFileIconProvider::File));
+            }
         }
     }
 }
@@ -91,6 +103,9 @@ void FileTreeWidget::restoreState()
         else{
             parent_folder = new QTreeWidgetItem(this);
             parent_folder->setText(0, folder);
+
+            QFileIconProvider iconProvider;
+            parent_folder->setIcon(0, iconProvider.icon(QFileIconProvider::Folder));
         }
 
         foreach (auto child, fmn->get_children(folder)) {
@@ -123,6 +138,15 @@ void FileTreeWidget::restoreState()
             else{
                 childItem = new QTreeWidgetItem(parent_folder);
                 childItem->setText(0, child);
+
+                QFileIconProvider iconProvider;
+                QString filePath = fmn->getFilePath(child);
+                if (!filePath.isEmpty()) {
+                    QFileInfo fileInfo(filePath);
+                    childItem->setIcon(0, iconProvider.icon(fileInfo));
+                } else {
+                    childItem->setIcon(0, iconProvider.icon(QFileIconProvider::File));
+                }
             }
             added_files.append(childItem->text(0));
         }
@@ -134,6 +158,15 @@ void FileTreeWidget::restoreState()
         if(!added_files.contains(file)){
             QTreeWidgetItem* new_item = new QTreeWidgetItem(this);
             new_item->setText(0, file);
+
+            QFileIconProvider iconProvider;
+            QString filePath = fmn->getFilePath(file);
+            if (!filePath.isEmpty()) {
+                QFileInfo fileInfo(filePath);
+                new_item->setIcon(0, iconProvider.icon(fileInfo));
+            } else {
+                new_item->setIcon(0, iconProvider.icon(QFileIconProvider::File));
+            }
         }
     }
 }
@@ -252,6 +285,9 @@ void FileTreeWidget::createFolder()
         // Деём возможность менять название папки
         folder->setFlags(folder->flags() | Qt::ItemIsEditable);
         addTopLevelItem(folder);
+
+        QFileIconProvider iconProvider;
+        folder->setIcon(0, iconProvider.icon(QFileIconProvider::Folder));
         // Предлагаем сразу изменить название папки
         bool isOk;
         QString new_name = QInputDialog::getText(
@@ -277,6 +313,9 @@ void FileTreeWidget::createFolder()
         folder->setFlags(folder->flags() | Qt::ItemIsEditable);
         addTopLevelItem(folder);
         // Предлагаем сразу изменить название папки
+
+        QFileIconProvider iconProvider;
+        folder->setIcon(0, iconProvider.icon(QFileIconProvider::Folder));
         bool isOk;
         QString new_name = QInputDialog::getText(
             this,
@@ -369,5 +408,15 @@ void FileTreeWidget::deleteChildren(QTreeWidgetItem *folder)
         else{
             delete currChild;
         }
+    }
+}
+
+void FileTreeWidget::onItemDoubleClicked(QTreeWidgetItem* item, int column)
+{
+    Q_UNUSED(column);
+
+    // Если это файл (не папка)
+    if (item && fmn->is_file(item->text(0))) {
+        emit fileDoubleClicked(item->text(0));
     }
 }

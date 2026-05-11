@@ -1,16 +1,15 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "scaledtextedit.h"
+#include <QTextEdit>
 #include "textformattingtoolbar.h"
 
 #include <QMainWindow>
 #include <QSplitter>
 #include <QString>
-#include <QStringList>
-#include <QFileDialog>
 
 class QLabel;
+class FileTreeWidget;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -29,7 +28,7 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
-    ScaledTextEdit* sourceTextWidget;
+    QTextEdit* sourceTextWidget;
     QWidget* toolbarPanel;
     QLabel* ticketGroupLabel;
     TextFormattingToolbar* textToolbar;

@@ -1,28 +1,20 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "core/FileLoader.h"
 
-#include <QWidget>
 #include <QVBoxLayout>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QCoreApplication>
-#include <QDir>
-#include <QFile>
-#include <QDebug>
 #include <QLabel>
 
 #include "filetreewidget.h"
-#include "groupsuicontroller.h"
-
-#include "scaledtextedit.h"
 #include "textformattingtoolbar.h"
+#include "documentmanager.h"
+#include "documentui.h"
+#include "groupsuicontroller.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-     ui->setupUi(this);
+    ui->setupUi(this);
 
     // Создаём FileTreeWidget
     FileTreeWidget* sourceTree = new FileTreeWidget(this);
@@ -33,6 +25,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Создаём разделитель
     SetUpSPlitter();
+
+    // Создаём менеджер документов:
+    DocumentManager* m_docManager = new DocumentManager(sourceTree->getFileManager(), this);
+
+    // Создаём DocumentUI и подключаемсохранение:
+    DocumentUI* docUI = new DocumentUI(this, sourceTree, sourceTextWidget, m_docManager, this);
+    docUI->connectMenuActions(ui->action_save);
 
     // Создаём контроллер групп
     GroupsUIController* controller = new GroupsUIController(this);
@@ -75,12 +74,19 @@ void MainWindow::SetUpSPlitter()
     containerLayout->addWidget(textToolbar);
 
     // Текстовый редактор
-    sourceTextWidget = new ScaledTextEdit(this);
+    sourceTextWidget = new QTextEdit(this);
     sourceTextWidget->setPlainText("Добавьте файл с помощью кнопки в панели");
     // Перенос слов
     sourceTextWidget->setLineWrapMode(QTextEdit::WidgetWidth);
     sourceTextWidget->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    sourceTextWidget->setTextInteractionFlags(Qt::TextEditorInteraction | Qt::LinksAccessibleByMouse);
     containerLayout->addWidget(sourceTextWidget);
+
+    // Настройка шрифта
+    QFont baseFont = sourceTextWidget->font();
+    baseFont.setPointSize(12);
+    sourceTextWidget->setFont(baseFont);
+    sourceTextWidget->document()->setDefaultFont(baseFont);
 
     // Подключаем редактор к toolbar
     textToolbar->setActiveEditor(sourceTextWidget);

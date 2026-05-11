@@ -327,3 +327,13 @@ QString FileManager::GetName(QString file)
 
     return name;
 }
+
+QString FileManager::getFilePath(const QString& fileName) const
+{
+    // Если файл есть в map — возвращаем путь
+    if (localFiles.contains(fileName)) {
+        return localFiles.value(fileName);
+    }
+    // Если нет — пустая строка
+    return "";
+}
