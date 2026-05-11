@@ -42,6 +42,19 @@ target_include_directories(main_ui_module PUBLIC
     ${CMAKE_SOURCE_DIR}/src/core
 )
 
+# Библиотека для управления временными билетами
+add_library(temp_cards STATIC
+)
+
+target_link_libraries(temp_cards PRIVATE
+    Qt6::Widgets
+    study_cards
+)
+
+target_include_directories(temp_cards PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/ui/
+)
+
 # Создаём библиотеку для билетов
 add_library(study_cards STATIC
     studycard.cpp
