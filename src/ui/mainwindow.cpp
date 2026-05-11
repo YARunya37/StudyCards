@@ -40,9 +40,11 @@ MainWindow::MainWindow(QWidget *parent)
     // Текстовый редактор
     ScaledTextEdit* sourceTextWidget = new ScaledTextEdit(this);
     sourceTextWidget->setPlainText("Добавьте файл с помощью кнопки в панели");
+    sourceTextWidget->setReadOnly(true);
     // Перенос слов
     sourceTextWidget->setLineWrapMode(QTextEdit::WidgetWidth);
     sourceTextWidget->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    sourceTextWidget->setAlignment(Qt::AlignCenter);
 
     containerLayout->addWidget(sourceTextWidget);
 
@@ -54,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
     tempGroupLayout->setSpacing(0);
 
     // Label для названия группы билетов
-    QLabel* groupLabel = new QLabel("Билеты по предмету", this);
+    QLabel* groupLabel = new QLabel("Группа не выбрана", this);
     groupLabel->setFont(QFont("Segoe UI", 12, QFont::Bold));
     groupLabel->setAlignment(Qt::AlignCenter);
     groupLabel->setStyleSheet(
@@ -70,7 +72,6 @@ MainWindow::MainWindow(QWidget *parent)
     tempGroupLayout->addWidget(ui->tabWidget);
     // Сохраняем указатель для последующего изменения текста
     ticketGroupLabel = groupLabel;
-
 
     // Создаём разделители
     SetUpSPlitter();
