@@ -12,6 +12,11 @@ GroupsUIController::GroupsUIController(QObject *parent)
     connect(gm, &GroupManager::active_group_changed, this, [this](Group* new_active_group){
         qInfo() << "Активная группа" << new_active_group->Name();
     });
+
+    // Перебрасываем сигнал об успешной смене группы
+    connect(gm, &GroupManager::active_group_changed, this, [this](Group* new_active_group){
+        emit active_group_changed(new_active_group);
+    });
 }
 
 void GroupsUIController::show_creation_group_dialog()

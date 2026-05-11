@@ -89,6 +89,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->select_group, &QAction::triggered, controller, &GroupsUIController::choose_active_group);
     // Открытие группы в окне
     connect(ui->open_group_in_window, &QAction::triggered, controller, &GroupsUIController::choose_group_to_open);
+    // Подключаем при смене активной группы изменение label с выбранной группой
+    connect(controller, &GroupsUIController::active_group_changed, this, [this](Group* new_active_group){
+        if(new_active_group){
+            setTicketGroupName(new_active_group->Name());
+        }
+    });
 }
 
 MainWindow::~MainWindow()
