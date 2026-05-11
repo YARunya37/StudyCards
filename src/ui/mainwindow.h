@@ -29,10 +29,10 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
-    ScaledTextEdit* sourceTextWidget;
-    QWidget* toolbarPanel;
+    QWidget* tempGroupContainer;
+    QWidget* midContentContainer;
     QLabel* ticketGroupLabel;
-    TextFormattingToolbar* textToolbar;
+
 
     // Метод для создания разделителя между основными виджетами
     void SetUpSPlitter();
