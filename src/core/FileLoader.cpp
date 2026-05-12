@@ -429,12 +429,12 @@ bool loadDocument(const QString& inputPath, QString& html, const QString& pandoc
 
     qInfo() << "FileLoader: HTML loaded," << html.size() << "bytes";
 
-    // 10. Сохраняем HTML файл в папку output
+    // 10. Сохраняем HTML файл в папку userfiles
     QString saveDir = outputDir;
 
         if (saveDir.isEmpty()) {
             // Если параметр пустой — используем путь по умолчанию
-            saveDir = QCoreApplication::applicationDirPath() + "/output";
+            saveDir = QCoreApplication::applicationDirPath() + "/resources/userfiles";
         }
 
         QDir().mkpath(saveDir);  // Создаём если нет

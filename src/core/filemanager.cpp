@@ -13,6 +13,7 @@ FileManager::FileManager(QObject* parent, QString path_to_dir)
     else{
         localfilesPath = QCoreApplication::applicationDirPath() + path_to_dir + "/";
     }
+    QDir().mkpath(localfilesPath);
     // Восстанавливаем на основе файлов map
     foreach (auto file, QDir(localfilesPath).entryList(QDir::Files)) {
         if(file.split(".")[1] != "txt"){
