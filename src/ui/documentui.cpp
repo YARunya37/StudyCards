@@ -9,26 +9,23 @@
 #include <QCloseEvent>
 
 #include "filetreewidget.h"
-#include "documentmanager.h"
+#include "filemanager.h"
 
 DocumentUI::DocumentUI(
     QMainWindow* mainWindow,
     FileTreeWidget* fileTree,
     QTextEdit* textEditor,
-    DocumentManager* docManager,
+    FileManager* fileManager,
     QObject* parent)
     : QObject(parent)
     , m_mainWindow(mainWindow)
     , m_fileTree(fileTree)
     , m_textEditor(textEditor)
-    , m_docManager(docManager)
-    , m_isLoading(false)
+    , m_fileManager(fileManager)
+    , m_isLoading(true)
 {
-    // Подключаем сигналы DocumentManager
-    connect(m_docManager, &DocumentManager::contentLoaded,
-            this, &DocumentUI::onContentLoaded);
-
-    connect(m_docManager, &DocumentManager::modificationChanged,
+    // Подключаем сигналы FileManager
+    connect(m_fileManager, &FileManager::modificationChanged,
             this, &DocumentUI::onModificationChanged);
 
     // Подключаем сигнал двойного клика
@@ -62,69 +59,120 @@ void DocumentUI::updateWindowTitle(const QString& fileName, bool isModified)
 
 bool DocumentUI::confirmSaveChanges()
 {
+    // Проверка: есть ли текущий файл?
+    QString currentFile = m_fileManager->currentFile();
+    if (currentFile.isEmpty()) {
+        // Нет открытого файла — просто возвращаем true (продолжаем)
+        return true;
+    }
+    // Проверка: есть ли изменения?
+    if (!m_fileManager->isModified()) {
+            return true;  // Нет изменений — продолжаем
+        }
+
     auto reply = QMessageBox::question(
-        m_mainWindow, "Сохранить?",
-        "Сохранить изменения?",
-        QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+            m_mainWindow, "Сохранить?",
+            "Сохранить изменения в \"" + currentFile + "\"?",
+            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 
     if (reply == QMessageBox::Save) {
-        return m_docManager->saveDocument();
+        QString html = m_textEditor->toHtml();
+        bool saved = m_fileManager->saveDocument(currentFile, html);
+
+        if (saved) {
+            m_fileManager->setModified(false);
+        }
+
+        return saved;
     }
-    return reply == QMessageBox::Discard;
+
+    if (reply == QMessageBox::Discard) {
+        m_fileManager->setModified(false);  // Сбрасываем флаг
+        return true;
+    }
+
+    return false;
 }
 
 void DocumentUI::onFileDoubleClicked(const QString& fileName)
 {
-    if (m_docManager->isModified()) {
-        if (!confirmSaveChanges()) return;
+    // Сначала проверяем текущий файл
+      if (!m_fileManager->currentFile().isEmpty() && m_fileManager->isModified()) {
+          if (!confirmSaveChanges()) {
+              return;  // Пользователь нажал Cancel
+          }
+      }
+
+    // Загружаем новый файл
+    QString content;
+    if (m_fileManager->loadDocument(fileName, content)) {
+        m_isLoading = true;
+
+        //Для переноса кода(чтобы не уходил за другой виджет)
+        QString css = R"(
+                <style>
+                    pre, pre.sourceCode, div.sourceCode {
+                        white-space: pre-wrap !important;
+                        word-wrap: break-word !important;
+                        word-break: break-all !important;
+                        overflow-x: auto !important;
+                        max-width: 100% !important;
+                    }
+                    code {
+                        white-space: pre-wrap !important;
+                        word-wrap: break-word !important;
+                    }
+                </style>
+                )";
+
+        // Вставляем CSS в начало content
+        if (content.contains("</head>", Qt::CaseInsensitive)) {
+            content.replace("</head>", css + "</head>", Qt::CaseInsensitive);
+        } else {
+            content = css + content;
+        }
+
+        m_textEditor->setHtml(content);
+        m_textEditor->setReadOnly(false);
+        m_isLoading = false;
+
+        m_fileManager->setCurrentFile(fileName);
+    } else {
+        QMessageBox::warning(m_mainWindow, "Ошибка",
+                             "Не удалось загрузить файл: " + fileName);
     }
-    m_docManager->loadDocument(fileName);
 }
 
 void DocumentUI::onTextChanged()
 {
+    // Игнорируем программные изменения
     if (m_isLoading) return;
-    // Извлекаем только содержимое body!
-    QString html = m_textEditor->toHtml();
-    html = extractBodyContent(html);
 
-    m_docManager->setContent(html);
-}
-
-QString DocumentUI::extractBodyContent(const QString& html)
-{
-    int bodyStart = html.indexOf("<body");
-    if (bodyStart == -1) return html;
-
-    bodyStart = html.indexOf(">", bodyStart) + 1;
-    int bodyEnd = html.indexOf("</body>", bodyStart);
-
-    if (bodyEnd == -1) return html;
-
-    return html.mid(bodyStart, bodyEnd - bodyStart);
-}
-
-void DocumentUI::onContentLoaded(const QString& content)
-{
-    // Игнорируем изменения
-    m_isLoading = true;
-
-    if (content.contains("<")) {
-        // Если это HTML
-        m_textEditor->setHtml(content);
-    } else {
-        m_textEditor->setPlainText(content);
-    }
-    // Разрешаем отслеживание
-    m_isLoading = false;
+    // Устанавливаем флаг modified
+    m_fileManager->setModified(true);
 }
 
 void DocumentUI::onModificationChanged(bool modified)
 {
-    updateWindowTitle(m_docManager->currentFileName(), modified);
+    updateWindowTitle(m_fileManager->currentFile(), modified);
 }
 
 void DocumentUI::onFileSave()
 {
-    m_docManager->saveDocument();
+    QString currentFile = m_fileManager->currentFile();
+    if (currentFile.isEmpty()) {
+        QMessageBox::warning(m_mainWindow, "Ошибка", "Нет открытого файла");
+        return;
+    }
+
+    // Получаем HTML из редактора
+    QString html = m_textEditor->toHtml();
+
+    // Используем FileManager.saveDocument()
+    if (m_fileManager->saveDocument(currentFile, html)) {
+        m_fileManager->setModified(false);
+        QMessageBox::information(m_mainWindow, "Успех", "Файл сохранён");
+    } else {
+        QMessageBox::warning(m_mainWindow, "Ошибка", "Не удалось сохранить файл");
+    }
 }

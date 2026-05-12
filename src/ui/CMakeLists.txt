@@ -97,7 +97,6 @@ add_library(document_ui STATIC
 
 target_link_libraries(document_ui PUBLIC
     Qt6::Widgets
-    document_manager
     file_manager
 )
 

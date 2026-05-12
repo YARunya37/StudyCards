@@ -1,9 +1,11 @@
 #ifndef FILEMANAGER_H
 #define FILEMANAGER_H
 
+#include "FileLoader.h"
 
 #include <QMap>
 #include <QFile>
+#include <QString>
 
 // Класс, отвечающий за все файлы, папки добавляемые в проект пользователем
 class FileManager : public QObject
@@ -41,8 +43,30 @@ public:
     QString getFilePath(const QString& fileName) const;
     // Метод для получения контента файла
     QString get_file_content(const QString& file_name);
+    // Устанавливает текущий файл, сбрасывает m_isModified
+    void setCurrentFile(const QString& fileName) { m_currentFile = fileName; m_isModified = false; }
+    // Устанавливает флаг изменения
+    void setModified(bool modified) { m_isModified = modified; }
+    // Проверяет были ли изменения
+    bool isModified() const { return m_isModified; }
+    // Возвращает имя текущего файла
+    QString currentFile() const { return m_currentFile; }
+    // Загружает документ: .html читает как есть, .docx/.md конвертирует через pandoc
+    bool loadDocument(const QString& fileName, QString& content);
+    // Извлекает содержимое <body> из HTML (статический метод)
+    static QString extractBodyContent(const QString& html);
+    // Сохраняет документ: если не .html — извлекает только <body>
+    bool saveDocument(const QString& fileName, const QString& content);
+
+signals:
+    void fileContentChanged(const QString& fileName, const QString& content); // Контент файла изменился
+    void fileSaved(const QString& fileName); // Файл сохранён
+    void modificationChanged(bool modified); // Изменился флаг modified
+    void currentFileChanged(const QString& fileName); // Сменился текущий файл
+
 public slots:
     // void OnFolderNameChanged();
+
 private:
     // Массив файлов в проекте <имя файла(ключ), путь к нему(значение)>
     // Внутри проекта все файлы имеют путь /resources/userfiles/
@@ -53,6 +77,11 @@ private:
     QString localfilesPath;
     // Возвращает имя файла С РАСШИРЕНИЕМ(.docx .md ...) по его пути
     QString GetName(QString filePath);
+    // Имя текущего открытого файла
+    QString m_currentFile;
+    // Флаг: были ли изменения в текущем файле
+    bool m_isModified;// Были ли изменения
+
 };
 
 #endif // FILEMANAGER_H

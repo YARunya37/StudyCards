@@ -37,8 +37,8 @@ target_link_libraries(file_manager PUBLIC
 
 # Библиотека для управления документами (сохранение/загрузка)
 add_library(document_manager STATIC
-    documentmanager.h
-    documentmanager.cpp
+
+
 )
 
 target_link_libraries(document_manager PUBLIC

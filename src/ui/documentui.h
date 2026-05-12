@@ -3,11 +3,11 @@
 
 #include <QObject>
 #include <QString>
+#include "filemanager.h"
 
 class QAction;
 class QTextEdit;
 class FileTreeWidget;
-class DocumentManager;
 class QMainWindow;
 
 class DocumentUI : public QObject
@@ -19,7 +19,7 @@ public:
         QMainWindow* mainWindow,
         FileTreeWidget* fileTree,
         QTextEdit* textEditor,
-        DocumentManager* docManager,
+        FileManager* fileManager,
         QObject* parent = nullptr);
 
     // Подключение действий меню
@@ -32,17 +32,16 @@ private slots:
     // Обработчики сигналов
     void onFileDoubleClicked(const QString& fileName);
     void onTextChanged();
-    void onContentLoaded(const QString& content);
     void onModificationChanged(bool modified);
 
 private:
     QMainWindow* m_mainWindow;
     FileTreeWidget* m_fileTree;
     QTextEdit* m_textEditor;
-    DocumentManager* m_docManager;
+    FileManager* m_fileManager;
+    // Флаг для игнорирования программных изменений
     bool m_isLoading;
 
-    QString extractBodyContent(const QString& html);
     bool confirmSaveChanges();
     // Обновление заголовка окна
     void updateWindowTitle(const QString& fileName, bool isModified);

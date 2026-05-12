@@ -6,7 +6,7 @@
 
 #include "filetreewidget.h"
 #include "textformattingtoolbar.h"
-#include "documentmanager.h"
+#include "filemanager.h"
 #include "documentui.h"
 #include "groupsuicontroller.h"
 
@@ -27,10 +27,11 @@ MainWindow::MainWindow(QWidget *parent)
     SetUpSPlitter();
 
     // Создаём менеджер документов:
-    DocumentManager* m_docManager = new DocumentManager(sourceTree->getFileManager(), this);
+    FileManager* fileManager = sourceTree->getFileManager();
 
     // Создаём DocumentUI и подключаемсохранение:
-    DocumentUI* docUI = new DocumentUI(this, sourceTree, sourceTextWidget, m_docManager, this);
+    DocumentUI* docUI = new DocumentUI(this, sourceTree, sourceTextWidget, fileManager, this);
+
     docUI->connectMenuActions(ui->action_save);
 
     // Создаём контроллер групп
@@ -76,6 +77,7 @@ void MainWindow::SetUpSPlitter()
     // Текстовый редактор
     sourceTextWidget = new QTextEdit(this);
     sourceTextWidget->setPlainText("Добавьте файл с помощью кнопки в панели");
+    sourceTextWidget->setReadOnly(true);
     // Перенос слов
     sourceTextWidget->setLineWrapMode(QTextEdit::WidgetWidth);
     sourceTextWidget->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
