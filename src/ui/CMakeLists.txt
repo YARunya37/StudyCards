@@ -105,6 +105,8 @@ target_link_libraries(document_ui PUBLIC
 target_include_directories(document_ui PUBLIC
     ${CMAKE_SOURCE_DIR}/src/ui
     ${CMAKE_SOURCE_DIR}/src/core
+)
+
 # Библиотека для карточек-вопросов
 add_library(questions STATIC
     base_question.h base_question.cpp

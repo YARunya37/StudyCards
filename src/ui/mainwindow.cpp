@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
     containerLayout->addWidget(textToolbar);
 
     // Текстовый редактор
-    ScaledTextEdit* sourceTextWidget = new ScaledTextEdit(this);
+    QTextEdit* sourceTextWidget = new QTextEdit(this);
     sourceTextWidget->setPlainText("Добавьте файл с помощью кнопки в панели");
     sourceTextWidget->setReadOnly(true);
     // Перенос слов
