@@ -13,6 +13,7 @@ FileManager::FileManager(QObject* parent, QString path_to_dir)
     else{
         localfilesPath = QCoreApplication::applicationDirPath() + path_to_dir + "/";
     }
+    QDir().mkpath(localfilesPath);
     // Восстанавливаем на основе файлов map
     foreach (auto file, QDir(localfilesPath).entryList(QDir::Files)) {
         if(file.split(".")[1] != "txt"){
@@ -33,19 +34,33 @@ QStringList FileManager::add_files(QStringList files)
     // Все указанные файлы конвертируем и добавляем в папку с файлами проекта
     foreach (auto filePath, files) {
         QString name = GetName(filePath).split(".")[0];
-
+        QString ext = QFileInfo(filePath).suffix().toLower();
         // Если файла с таким именем ещё нет, то добавляем его в дерево
         if(!localFiles.contains(name)){
+            QString destName = name + ".html";  // Сохраняем как HTML
             // Путь к директории с файлами(внутри проекта) + имя данного файла с расширением
-            QString dest = localfilesPath + GetName(filePath);
+            QString dest = localfilesPath + destName;
 
-            // ЗДЕСЬ ДОЛЖНА БЫТЬ КОНВЕРТАЦИЯ ФАЙЛОВ И ЗАПИСЬ ИХ В НУЖНУЮ ПАПКУ
-            if(QFile::copy(filePath, dest)){
-                // Добавляем в map локальный файл
-                localFiles.insert(name, dest);
-                added_files.append(name);
+            if (ext == "docx" || ext == "doc" || ext == "md" || ext == "markdown") {
+                QString htmlContent;
+                if (::loadDocument(filePath, htmlContent, getPandocPath())) {
+                    // Сохраняем HTML
+                    QFile outFile(dest);
+                    if (outFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                        QTextStream out(&outFile);
+                        out << htmlContent;
+                        outFile.close();
+                        localFiles.insert(name, dest);
+                        added_files.append(name);
+                    }
+                }
+            } else if (ext == "html") {
+                // Просто копируем HTML
+                if (QFile::copy(filePath, dest)) {
+                    localFiles.insert(name, dest);
+                    added_files.append(name);
+                }
             }
-            // СДЕЛАТЬ УВЕДОМЛЕНИЕ ЧТО ФАЙЛЫ УЖЕ ДОБАЛЕНЫ
         }
     }
     return added_files;
@@ -82,6 +97,8 @@ void FileManager::write_to_file(const QString& file_name, const QString& content
     else {
         qWarning() << "Cannot open file for writing:" << target.fileName();
     }
+    emit fileSaved(file_name);
+    emit modificationChanged(false);
 }
 
 void FileManager::add_folder(QString name){
@@ -326,4 +343,69 @@ QString FileManager::GetName(QString file)
     }
 
     return name;
+}
+
+QString FileManager::getFilePath(const QString& fileName) const
+{
+    // Если файл есть в map — возвращаем путь
+    if (localFiles.contains(fileName)) {
+        return localFiles.value(fileName);
+    }
+    // Если нет — пустая строка
+    return "";
+}
+
+bool FileManager::loadDocument(const QString& fileName, QString& content)
+{
+    if (!localFiles.contains(fileName)) {
+        return false;
+    }
+
+    QString filePath = localFiles.value(fileName);
+
+    // Если это уже HTML — читаем как есть
+    if (filePath.endsWith(".html", Qt::CaseInsensitive)) {
+        content = get_file_content(fileName);
+        return !content.isEmpty();
+    }
+
+    // Если это .docx/.md — конвертируем
+    QString ext = QFileInfo(filePath).suffix().toLower();
+    if (ext == "docx" || ext == "doc" || ext == "md" || ext == "markdown") {
+        return ::loadDocument(filePath, content, getPandocPath());
+    }
+
+    return false;
+}
+
+QString FileManager::extractBodyContent(const QString& html)
+{
+    int bodyStart = html.indexOf("<body");
+    if (bodyStart == -1) return html;
+
+    bodyStart = html.indexOf(">", bodyStart) + 1;
+    int bodyEnd = html.indexOf("</body>", bodyStart);
+
+    if (bodyEnd == -1) return html;
+
+    return html.mid(bodyStart, bodyEnd - bodyStart);
+}
+
+bool FileManager::saveDocument(const QString& fileName, const QString& content)
+{
+    if (!localFiles.contains(fileName)) {
+        return false;
+    }
+
+    QString filePath = localFiles.value(fileName);
+
+    // Если файл не HTML — извлекаем body
+    if (!filePath.endsWith(".html", Qt::CaseInsensitive)) {
+        QString bodyContent = extractBodyContent(content);
+        write_to_file(fileName, bodyContent);
+    } else {
+        write_to_file(fileName, content);
+    }
+
+    return true;
 }

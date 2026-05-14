@@ -35,6 +35,23 @@ target_link_libraries(file_manager PUBLIC
     Qt6::Core
 )
 
+# Библиотека для управления документами (сохранение/загрузка)
+add_library(document_manager STATIC
+
+
+)
+
+target_link_libraries(document_manager PUBLIC
+    Qt6::Core
+    Qt6::Gui
+    file_manager
+    core_module
+)
+
+target_include_directories(document_manager PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+
 add_library(groups_managament STATIC
     groupmanager.h
     groupmanager.cpp
@@ -57,7 +74,6 @@ add_library(file_items_managers STATIC
     ifileitemsmanager.h ifileitemsmanager.cpp
     diritemsmanager.h diritemsmanager.cpp
     namedfileitem.h namedfileitem.cpp
-
 )
 
 target_link_libraries(file_items_managers PUBLIC
