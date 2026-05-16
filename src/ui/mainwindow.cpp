@@ -61,8 +61,12 @@ MainWindow::MainWindow(QWidget *parent)
         "    font-weight: bold; "
         "}"
         );
+
+    // Создаём виджет для временных билетов
+    cardsWidget = new TempCardsWidget(this);
+
     tempGroupLayout->addWidget(groupLabel);
-    tempGroupLayout->addWidget(ui->tabWidget);
+    tempGroupLayout->addWidget(cardsWidget);
     // Сохраняем указатель для последующего изменения текста
     ticketGroupLabel = groupLabel;
 
@@ -96,6 +100,8 @@ MainWindow::MainWindow(QWidget *parent)
             setTicketGroupName(new_active_group->Name());
         }
     });
+    // Подключаем при выборе активной группы включение временных билетов
+    connect(controller, &GroupsUIController::active_group_changed, cardsWidget, &TempCardsWidget::onActiveGroupChanged);
 }
 
 MainWindow::~MainWindow()

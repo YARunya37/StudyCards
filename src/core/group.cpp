@@ -44,6 +44,20 @@ bool Group::CreateCard(const QString &card_name)
     }
 }
 
+bool Group::CreateCard(StudyCardWidget* card)
+{
+    if(AddItem(card->Name())){
+        StudyCardWidget* local_card = card;
+        card->setParent(nullptr);
+        cards.insert(local_card->Name(), local_card);
+        return true;
+    }
+    else{
+        qInfo() << "Ошибка при создании билета";
+        return false;
+    }
+}
+
 bool Group::DeleteCard(const QString &card_name)
 {
     if(DeleteItem(card_name)){

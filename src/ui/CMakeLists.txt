@@ -33,6 +33,7 @@ target_link_libraries(main_ui_module PUBLIC
     text_formatting_toolbar
     study_cards
     groups_ui
+    temp_cards
     document_ui
     document_manager
 )
@@ -40,6 +41,22 @@ target_link_libraries(main_ui_module PUBLIC
 # Для доступа к header-ам
 target_include_directories(main_ui_module PUBLIC
     ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+
+# Библиотека для управления временными билетами
+add_library(temp_cards STATIC
+    tempcardswidget.h tempcardswidget.cpp
+)
+
+target_link_libraries(temp_cards PRIVATE
+    Qt6::Widgets
+    study_cards
+    groups_managament
+)
+
+target_include_directories(temp_cards PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/ui/
     ${CMAKE_SOURCE_DIR}/src/core
 )
 
