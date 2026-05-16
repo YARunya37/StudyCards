@@ -19,6 +19,8 @@ private slots:
     void createEmptyPage();
     // Добавление в группу
     bool addToGroup();
+    // Отклонить и удалить билет
+    bool rejectCard();
 private:
     // UI при первом запуске
     void setupInitUI();
@@ -28,7 +30,8 @@ private:
 
     // Создаёт пустой билет
     StudyCardWidget* createEmptyCard(QWidget* parent);
-
+    // Удаляет текущую вкладку со всеми необходимыми сопутствующими действиями
+    void remove_curr_tab();
     Group* curr_group;
 };
 

@@ -47,7 +47,7 @@ void TempCardsWidget::createEmptyPage()
     buttons_layout->addStretch();
 
     // Подключение кнопок
-
+    connect(reject_button, &QPushButton::clicked, this, &TempCardsWidget::rejectCard);
     connect(add_button, &QPushButton::clicked, this, &TempCardsWidget::addToGroup);
     connect(create_button, &QPushButton::clicked, this, &TempCardsWidget::createEmptyPage);
 
@@ -60,17 +60,29 @@ void TempCardsWidget::createEmptyPage()
 bool TempCardsWidget::addToGroup()
 {
     auto card = this->currentWidget()->findChild<StudyCardWidget*>();
+    // Создаём в группе текущий билет
     if(card && curr_group->CreateCard(card)){
+        // Прячем билет, чтобы вызвать сохранение текста перед удалением
         card->hide();
-        if(this->count() == 1){
-            setupTempCardUI();
-        }
-        else{
-            removeTab(this->currentIndex());
-        }
+
+        // Удаляем вкладку
+        remove_curr_tab();
         return true;
     }
     return false;
+}
+
+bool TempCardsWidget::rejectCard()
+{
+    auto card = this->currentWidget()->findChild<StudyCardWidget*>();
+    // Удаляем вкладку с текущим билетом
+    if(card){
+        remove_curr_tab();
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 
 void TempCardsWidget::setupInitUI()
@@ -98,4 +110,16 @@ StudyCardWidget *TempCardsWidget::createEmptyCard(QWidget* parent)
 {
     StudyCardWidget* empty_card = new StudyCardWidget(parent, "/resources/usergroups/" + curr_group->Name(), "Вопрос " + QString::number(this->count()+1));
     return empty_card;
+}
+
+void TempCardsWidget::remove_curr_tab()
+{
+    // Если мы удаляем последнюю вкладку, то надо автоматически создать пустой начальный билет
+    if(this->count() == 1){
+        setupTempCardUI();
+    }
+    // Иначе можно просто удалить вкладку
+    else{
+        removeTab(this->currentIndex());
+    }
 }
