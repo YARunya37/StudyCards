@@ -48,13 +48,29 @@ void TempCardsWidget::createEmptyPage()
 
     // Подключение кнопок
 
-
+    connect(add_button, &QPushButton::clicked, this, &TempCardsWidget::addToGroup);
     connect(create_button, &QPushButton::clicked, this, &TempCardsWidget::createEmptyPage);
 
     // Добавляем горизонтальный layout в вертикальный
     page_layout->addLayout(buttons_layout);
 
     addTab(page_content, "Вопрос " + QString::number(this->count()+1));
+}
+
+bool TempCardsWidget::addToGroup()
+{
+    auto card = this->currentWidget()->findChild<StudyCardWidget*>();
+    if(card && curr_group->CreateCard(card)){
+        card->hide();
+        if(this->count() == 1){
+            setupTempCardUI();
+        }
+        else{
+            removeTab(this->currentIndex());
+        }
+        return true;
+    }
+    return false;
 }
 
 void TempCardsWidget::setupInitUI()
@@ -80,6 +96,6 @@ void TempCardsWidget::setupTempCardUI()
 
 StudyCardWidget *TempCardsWidget::createEmptyCard(QWidget* parent)
 {
-    StudyCardWidget* empty_card = new StudyCardWidget(parent, "resources/usergroups/" + curr_group->Name(), "Вопрос " + QString::number(this->count()+1));
+    StudyCardWidget* empty_card = new StudyCardWidget(parent, "/resources/usergroups/" + curr_group->Name(), "Вопрос " + QString::number(this->count()+1));
     return empty_card;
 }

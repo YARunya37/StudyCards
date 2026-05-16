@@ -17,7 +17,8 @@ public slots:
 private slots:
     // Создание пустой страницы
     void createEmptyPage();
-
+    // Добавление в группу
+    bool addToGroup();
 private:
     // UI при первом запуске
     void setupInitUI();
