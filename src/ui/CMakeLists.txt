@@ -22,7 +22,6 @@ add_library(main_ui_module STATIC
     mainwindow.h
     mainwindow.cpp
     mainwindow.ui
-    scaledtextedit.h scaledtextedit.cpp
     filetreewidget.h filetreewidget.cpp
 )
 
@@ -35,6 +34,8 @@ target_link_libraries(main_ui_module PUBLIC
     study_cards
     groups_ui
     temp_cards
+    document_ui
+    document_manager
 )
 
 # Для доступа к header-ам
@@ -79,8 +80,6 @@ target_include_directories(study_cards PUBLIC
 add_library(groups_ui STATIC
     groupsuicontroller.h groupsuicontroller.cpp
     groupwindow.h groupwindow.cpp
-
-
 )
 
 target_link_libraries(groups_ui PUBLIC
@@ -107,6 +106,22 @@ target_link_libraries(dialogs PUBLIC
 
 target_include_directories(dialogs PUBLIC
     ${CMAKE_SOURCE_DIR}/src/ui/
+)
+
+# Библиотека для работы с документами в UI
+add_library(document_ui STATIC
+    documentui.h
+    documentui.cpp
+)
+
+target_link_libraries(document_ui PUBLIC
+    Qt6::Widgets
+    file_manager
+)
+
+target_include_directories(document_ui PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/ui
+    ${CMAKE_SOURCE_DIR}/src/core
 )
 
 # Библиотека для карточек-вопросов

@@ -1,27 +1,20 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QWidget>
 #include <QVBoxLayout>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QCoreApplication>
-#include <QDir>
-#include <QFile>
-#include <QDebug>
 #include <QLabel>
 
 #include "filetreewidget.h"
-#include "groupsuicontroller.h"
-
-#include "scaledtextedit.h"
 #include "textformattingtoolbar.h"
+#include "filemanager.h"
+#include "documentui.h"
+#include "groupsuicontroller.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-     ui->setupUi(this);
+    ui->setupUi(this);
 
     // Создаём FileTreeWidget
     FileTreeWidget* sourceTree = new FileTreeWidget(this);
@@ -38,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
     containerLayout->addWidget(textToolbar);
 
     // Текстовый редактор
-    ScaledTextEdit* sourceTextWidget = new ScaledTextEdit(this);
+    QTextEdit* sourceTextWidget = new QTextEdit(this);
     sourceTextWidget->setPlainText("Добавьте файл с помощью кнопки в панели");
     sourceTextWidget->setReadOnly(true);
     // Перенос слов
@@ -79,6 +72,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Создаём разделители
     SetUpSPlitter();
+
+    // Создаём менеджер документов:
+    FileManager* fileManager = sourceTree->getFileManager();
+
+    // Создаём DocumentUI и подключаемсохранение:
+    DocumentUI* docUI = new DocumentUI(this, sourceTree, sourceTextWidget, fileManager, this);
+
+    docUI->connectMenuActions(ui->action_save);
 
     // Создаём контроллер групп
     GroupsUIController* controller = new GroupsUIController(this);

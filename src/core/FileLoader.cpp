@@ -126,33 +126,41 @@ QString findImageFile(const QString& imagePath, const QString& mdFilePath)
 {
     if (imagePath.isEmpty()) return "";
 
-        // Нормализуем путь и проверяем что он внутри vault
-        QString cleanImage = QDir::cleanPath(imagePath);
-        if (cleanImage.startsWith("..") || cleanImage.startsWith("/")) {
-            qWarning() << "Blocked path traversal attempt:" << imagePath;
-            return "";
-        }
+    // Нормализуем путь и проверяем что он внутри vault
+    QString cleanImage = QDir::cleanPath(imagePath);
+    if (cleanImage.startsWith("..") || cleanImage.startsWith("/")) {
+        qWarning() << "Blocked path traversal attempt:" << imagePath;
+        return "";
+    }
 
     qInfo() << "Searching for image:" << imagePath;
 
-    // 1. Абсолютный путь
+    QString mdFileDir = QFileInfo(mdFilePath).absolutePath();
+
+    // 1. Сначала ищем в той же папке что и MD файл
+    QString sameDirPath = QDir(mdFileDir).filePath(imagePath);
+    if (QFile::exists(sameDirPath)) {
+        qInfo() << "Found (same directory as MD):" << sameDirPath;
+        return sameDirPath;
+    }
+
+    // 2. Абсолютный путь
     if (QFile::exists(imagePath)) {
         qInfo() << "Found (absolute):" << imagePath;
         return imagePath;
     }
 
-    // 2. Находим корень Obsidian vault
+    // 3. Находим корень Obsidian vault
     QString vaultRoot = findObsidianVaultRoot(mdFilePath);
-    QString mdFileDir = QFileInfo(mdFilePath).absolutePath();
 
-    // 3. Ищем относительно папки MD файла
+    // 4. Ищем относительно папки MD файла (уже проверили выше, но оставим)
     QString relativePath = QDir(mdFileDir).filePath(imagePath);
     if (QFile::exists(relativePath)) {
         qInfo() << "Found (relative to MD):" << relativePath;
         return relativePath;
     }
 
-    // 4. Ищем в подпапках vault (относительно корня)
+    // 5. Ищем в подпапках vault
     QStringList searchDirs = {
         "_attachments",
         "assets",
@@ -171,7 +179,7 @@ QString findImageFile(const QString& imagePath, const QString& mdFilePath)
         }
     }
 
-    // 5. Ищем в подпапках относительно MD файла
+    // 6. Ищем в подпапках относительно MD файла
     for (const QString& subDir : searchDirs) {
         QString fullPath = QDir(mdFileDir).filePath(subDir + "/" + imagePath);
         if (QFile::exists(fullPath)) {
@@ -180,12 +188,13 @@ QString findImageFile(const QString& imagePath, const QString& mdFilePath)
         }
     }
 
-    // 6. Рекурсивный поиск по vault (медленно, но надёжно)
+    // 7. Рекурсивный поиск по vault (для "Pasted image")
     if (imagePath.contains("Pasted image", Qt::CaseInsensitive)) {
         qInfo() << "Recursive search in vault...";
         QString baseName = QFileInfo(imagePath).baseName();
 
-        QDirIterator it(vaultRoot,
+        // Сначала ищем в папке MD файла рекурсивно!
+        QDirIterator it(mdFileDir,
                        {"*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp"},
                        QDir::Files,
                        QDirIterator::Subdirectories);
@@ -193,7 +202,21 @@ QString findImageFile(const QString& imagePath, const QString& mdFilePath)
         while (it.hasNext()) {
             QString file = it.next();
             if (QFileInfo(file).baseName() == baseName) {
-                qInfo() << "Found similar:" << file;
+                qInfo() << "Found similar in MD folder:" << file;
+                return file;
+            }
+        }
+
+        // Потом ищем во всём vault
+        QDirIterator it2(vaultRoot,
+                       {"*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp"},
+                       QDir::Files,
+                       QDirIterator::Subdirectories);
+
+        while (it2.hasNext()) {
+            QString file = it2.next();
+            if (QFileInfo(file).baseName() == baseName) {
+                qInfo() << "Found similar in vault:" << file;
                 return file;
             }
         }
@@ -207,43 +230,15 @@ QString normalizeMarkdown(const QString& content)
 {
     QString result = content;
 
-    qInfo() << "=== normalizeMarkdown START ===";
-    qInfo() << "Original size:" << content.size() << "bytes";
-
-    // 1. Перед заголовками (##, ###, ####)
-    result.replace(QRegularExpression("([^\n])\n(#{1,6} )"), "\n\n\\2");
-
-    // 2. Перед списками (1., -, *)
-    result.replace(QRegularExpression("([^\n])\n(\\d+\\. |- |\\* )"), "\n\n\\2");
-
-    // 3. Перед изображениями ![]()
-    result.replace(QRegularExpression("([^\n])\n(!\\[.*?\\]\\(.*?\\))"), "\n\n\\2");
-
-    // 4. Перед таблицами (| ...)
-    result.replace(QRegularExpression("([^\n])\n(\\|.+)"), "\n\n\\2");
-
-    // 5. Перед кодом (```)
-    result.replace(QRegularExpression("([^\n])\n(```)"), "\n\n\\2");
-
-    // После кода (```)
-    result.replace(QRegularExpression("(```)\n([^\n])"), "\\1\n\n\\2");
-
-    // 6. Перед цитатами (>)
-    result.replace(QRegularExpression("([^\n])\n(>)"), "\n\n\\2");
-
-    // 7. После горизонтальных линий (---)
-    result.replace(QRegularExpression("(---)\n([^\n])"), "\\1\n\n\\2");
-
-    // Убираем множественные пустые строки (более 2 подряд)
+    // 1. Убираем множественные пустые строки
     result.replace(QRegularExpression("\n{3,}"), "\n\n");
 
-    qInfo() << "Normalized size:" << result.size() << "bytes";
-        qInfo() << "First 300 chars:";
-        qInfo() << result.left(300);
-        qInfo() << "=== normalizeMarkdown END ===";
+    // 2. Убираем пробелы в конце строк
+    QRegularExpression trailingSpaces("[ \\t]+$", QRegularExpression::MultilineOption);
+    result.replace(trailingSpaces, "");
+
     return result;
 }
-
 // Конвертация Obsidian-синтаксиса в стандартный Markdown
 QString convertObsidianToMarkdown(const QString& content,
                                    const QString& mdFilePath,
@@ -289,7 +284,7 @@ QString convertObsidianToMarkdown(const QString& content,
             if (QFile::copy(foundPath, destPath)) {
                 qInfo() << "Copied to:" << destPath;
 
-                // ← ← ← Создаём ПРАВИЛЬНЫЙ синтаксис с абсолютным путём!
+                // Создаём ПРАВИЛЬНЫЙ синтаксис с абсолютным путём!
                 if (altText.isEmpty()) {
                     replacement = QString("![](%1)").arg(destPath);
                 } else {
@@ -385,27 +380,27 @@ bool loadDocument(const QString& inputPath, QString& html, const QString& pandoc
     QProcess process;//Создаёт объект для запуска внешней программы
     process.setProgram(pandocPath);// Указываем какую программу запускать
     if (isMarkdown && !markdownContent.isEmpty()) {
-            process.setArguments({
-                "-f", "markdown+pipe_tables+grid_tables-yaml_metadata_block-smart",
-                "-t", "html",
-                "--embed-resources",
-                "--standalone",
-                "-o", tempHtml.fileName()
-            });
-            process.start();
-            process.write(markdownContent.toUtf8());  // Передаём конвертированный текст!
-            process.closeWriteChannel();
+        process.setArguments({
+            "-f", "markdown+pipe_tables+grid_tables-yaml_metadata_block-smart",
+            "-t", "html",
+            "--embed-resources",
+            "--standalone",
+            "-o", tempHtml.fileName()
+        });
+        process.start();
+        process.write(markdownContent.toUtf8());  // Передаём конвертированный текст!
+        process.closeWriteChannel();
         } else {
-            // ← ← ← DOCX: передаём путь к файлу
-            process.setArguments({
-                inputPath,
-                "-t", "html",
-                "--embed-resources",
-                "--standalone",
-                "-o", tempHtml.fileName()
-            });
-            process.start();
-        }
+        //DOCX: передаём путь к файлу
+        process.setArguments({
+            inputPath,
+            "-t", "html",
+            "--embed-resources",
+            "--standalone",
+            "-o", tempHtml.fileName()
+        });
+        process.start();
+    }
 
     // 7. Ждём завершения (30 секунд)
     if (!process.waitForFinished(30000)) {
@@ -434,12 +429,12 @@ bool loadDocument(const QString& inputPath, QString& html, const QString& pandoc
 
     qInfo() << "FileLoader: HTML loaded," << html.size() << "bytes";
 
-    // 10. Сохраняем HTML файл в папку output
+    // 10. Сохраняем HTML файл в папку userfiles
     QString saveDir = outputDir;
 
         if (saveDir.isEmpty()) {
             // Если параметр пустой — используем путь по умолчанию
-            saveDir = QCoreApplication::applicationDirPath() + "/output";
+            saveDir = QCoreApplication::applicationDirPath() + "/resources/userfiles";
         }
 
         QDir().mkpath(saveDir);  // Создаём если нет

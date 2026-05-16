@@ -11,6 +11,7 @@ class FileTreeWidget : public QTreeWidget
     Q_OBJECT
 public:
     FileTreeWidget(QWidget* parent = nullptr);
+    FileManager* getFileManager() const { return fmn; }
 public slots:
     // Вызывает диалоговое окно для добавления выбранных файлов в виджет файловой системы
     void AddFiles();
@@ -23,6 +24,8 @@ private slots:
     void deleteItem();
     // Переименовать папку, возвращает старое имя
     QString renameItem();
+
+    void onItemDoubleClicked(QTreeWidgetItem* item, int column);
 protected:
     // Переопределение метода перетягивания элементов
     void dropEvent(QDropEvent* event) override;
@@ -35,6 +38,9 @@ private:
     void restoreState();
     // Метод для удаления дочерних элементов(файлов и папок) папки
     void deleteChildren(QTreeWidgetItem* folder);
+
+signals:
+    void fileDoubleClicked(const QString& fileName);
 };
 
 #endif // FILETREEWIDGET_H

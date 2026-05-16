@@ -17,8 +17,10 @@ bool isSupportedFormat(const QString& filePath);
 // Проверка доступности pandoc
 bool isPandocAvailable(const QString& pandocPath);
 
+// Поиск корня Obsidian vault
 QString findObsidianVaultRoot(const QString& filePath);
 
+// Поиск файла изображения
 QString findImageFile(const QString& imagePath, const QString& mdFileDir);
 
 // Нормализация Markdown (добавление пустых строк)
