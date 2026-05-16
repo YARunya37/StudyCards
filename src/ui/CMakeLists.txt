@@ -34,7 +34,6 @@ target_link_libraries(main_ui_module PUBLIC
     study_cards
     groups_ui
     document_ui
-    document_manager
 )
 
 # Для доступа к header-ам
