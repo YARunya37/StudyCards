@@ -39,6 +39,58 @@ void TempCardsWidget::createEmptyPage()
     QPushButton* add_button = new QPushButton("Добавить в группу", page_content);
     QPushButton* create_button = new QPushButton("Создать", page_content);
 
+    // Кнопка "Отклонить" - светло-серая с красным текстом
+    reject_button->setStyleSheet(
+        "QPushButton {"
+        "    background-color: #f5f5f5;"
+        "    color: #424242;"
+        "    border: 1px solid #e0e0e0;"
+        "    padding: 6px 12px;"
+        "    border-radius: 4px;"
+        "    font-size: 13px;"
+        "}"
+        "QPushButton:hover {"
+        "    background-color: #ffebee;"
+        "    color: #b71c1c;"
+        "    border: 2px solid #ffcdd2;"
+        "}"
+        );
+
+    // Кнопка "Добавить в группу" - светло-серая с синим текстом
+    add_button->setStyleSheet(
+        "QPushButton {"
+        "    background-color: #f5f5f5;"
+        "    color: #424242;"
+        "    border: 1px solid #e0e0e0;"
+        "    padding: 6px 12px;"
+        "    border-radius: 4px;"
+        "    font-size: 13px;"
+        "}"
+        "QPushButton:hover {"
+        "    background-color: #e3f2fd;"
+        "    color: #0d47a1;"
+        "    border: 1px solid #bbdefb;"
+        "}"
+        );
+
+    // Кнопка "Создать" - светло-серая с зеленым текстом
+    create_button->setStyleSheet(
+        "QPushButton {"
+        "    background-color: #f5f5f5;"
+        "    color: #424242;"
+        "    border: 1px solid #e0e0e0;"
+        "    padding: 6px 12px;"
+        "    border-radius: 4px;"
+        "    font-size: 13px;"
+        "}"
+        "QPushButton:hover {"
+        "    background-color: #e8f5e9;"
+        "    color: #1b5e20;"
+        "    border: 2px solid #c8e6c9;"
+        "}"
+        );
+
+
     // Добавляем с растяжением
     buttons_layout->addStretch();
     buttons_layout->addWidget(reject_button);
