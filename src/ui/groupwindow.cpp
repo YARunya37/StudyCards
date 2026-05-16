@@ -125,13 +125,21 @@ void GroupWindow::deleteItem()
     msgBox.setWindowTitle("Подтверждение");
     msgBox.setText("Удалить билет \"" + item->text() + "\"?");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    //msgBox.setDefaultButton(QMessageBox::No);
+
 
     // Переименовываем кнопки
     msgBox.button(QMessageBox::Yes)->setText("Да");
     msgBox.button(QMessageBox::No)->setText("Нет");
 
+    bool isActiveCard = false;
+    if(group->GetCard(item->text()) == active_card){
+        isActiveCard = true;
+    }
     if (msgBox.exec() == QMessageBox::Yes && group->DeleteCard(item->text())) {
+        if(isActiveCard){
+            active_card = nullptr;
+        }
+
         delete item;
     }
 }
