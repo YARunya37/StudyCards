@@ -350,42 +350,6 @@ QString FileManager::getFilePath(const QString& fileName) const
     return "";
 }
 
-bool FileManager::loadDocument(const QString& fileName, QString& content)
-{
-    if (!localFiles.contains(fileName)) {
-        return false;
-    }
-
-    QString filePath = localFiles.value(fileName);
-
-    // Если это уже HTML — читаем как есть
-    if (filePath.endsWith(".html", Qt::CaseInsensitive)) {
-        content = get_file_content(fileName);
-        return !content.isEmpty();
-    }
-
-    // Если это .docx/.md — конвертируем
-    QString ext = QFileInfo(filePath).suffix().toLower();
-    if (ext == "docx" || ext == "doc" || ext == "md" || ext == "markdown") {
-        return ::loadDocument(filePath, content, getPandocPath());
-    }
-
-    return false;
-}
-
-QString FileManager::extractBodyContent(const QString& html)
-{
-    int bodyStart = html.indexOf("<body");
-    if (bodyStart == -1) return html;
-
-    bodyStart = html.indexOf(">", bodyStart) + 1;
-    int bodyEnd = html.indexOf("</body>", bodyStart);
-
-    if (bodyEnd == -1) return html;
-
-    return html.mid(bodyStart, bodyEnd - bodyStart);
-}
-
 bool FileManager::saveDocument(const QString& fileName, const QString& content)
 {
     if (!localFiles.contains(fileName)) {
@@ -431,15 +395,6 @@ QString FileManager::getFileExtension(const QString& fileName) const
     return "html";
 }
 
-QString FileManager::getFilePath(const QString& fileName) const
-{
-    // Если файл есть в map — возвращаем путь
-    if (localFiles.contains(fileName)) {
-        return localFiles.value(fileName);
-    }
-    // Если нет — пустая строка
-    return "";
-}
 
 bool FileManager::loadDocument(const QString& fileName, QString& content)
 {
@@ -477,21 +432,4 @@ QString FileManager::extractBodyContent(const QString& html)
     return html.mid(bodyStart, bodyEnd - bodyStart);
 }
 
-bool FileManager::saveDocument(const QString& fileName, const QString& content)
-{
-    if (!localFiles.contains(fileName)) {
-        return false;
-    }
 
-    QString filePath = localFiles.value(fileName);
-
-    // Если файл не HTML — извлекаем body
-    if (!filePath.endsWith(".html", Qt::CaseInsensitive)) {
-        QString bodyContent = extractBodyContent(content);
-        write_to_file(fileName, bodyContent);
-    } else {
-        write_to_file(fileName, content);
-    }
-
-    return true;
-}
