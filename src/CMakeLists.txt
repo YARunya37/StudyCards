@@ -8,7 +8,6 @@ qt_add_executable(StudyCards
     WIN32 MACOSX_BUNDLE
     main.cpp
     # core/Main.cpp
-    ${CMAKE_SOURCE_DIR}/resources/resources.qrc
 )
 
 target_link_libraries(StudyCards

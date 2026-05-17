@@ -33,8 +33,9 @@ target_link_libraries(main_ui_module PUBLIC
     text_formatting_toolbar
     study_cards
     groups_ui
-    document_ui
     temp_cards
+    document_ui
+    document_manager
 )
 
 # Для доступа к header-ам

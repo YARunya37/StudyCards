@@ -16,24 +16,14 @@ FileManager::FileManager(QObject* parent, QString path_to_dir)
 
     // Восстанавливаем на основе файлов map
     foreach (auto file, QDir(localfilesPath).entryList(QDir::Files)) {
-        QFileInfo fileInfo(file);
-        QString baseName = fileInfo.completeBaseName();
-        QString suffix = fileInfo.suffix();
-
-        // Пропускаем служебные .txt файлы (папки)
-        if (suffix == "txt") {
-            localFolders.insert(baseName, new QFile(localfilesPath + file));
-        } else {
-            // Парсим имя: "Grafy.docx" -> name="Grafy", ext="docx"
-            QStringList parts = baseName.split('.');
-            if (parts.size() >= 2) {
-                QString name = parts.first();
-                QString ext = parts.last().toLower();
-                if (ext == "docx" || ext == "doc" || ext == "md" || ext == "markdown" || ext == "html") {
-                    localFiles.insert(name, localfilesPath + file);
-                    localFileTypes.insert(name, ext);
-                }
-            }
+        if(file.split(".")[1] != "txt"){
+            // Если файл, то добавляем в map файлов
+            localFiles.insert(file.split(".")[0], localfilesPath + file);
+        }
+        else{
+            // Добавляем в map папок
+            localFolders.insert(file.split(".")[0], new QFile(localfilesPath + file));
+            // Отправляем в filetreewidget имя папки и всех его членов
         }
     }
 }
@@ -43,7 +33,7 @@ QStringList FileManager::add_files(QStringList files)
     QStringList added_files = QStringList();
     // Все указанные файлы конвертируем и добавляем в папку с файлами проекта
     foreach (auto filePath, files) {
-        QString name = QFileInfo(filePath).baseName();
+        QString name = GetName(filePath).split(".")[0];
         QString ext = QFileInfo(filePath).suffix().toLower();
         // Проверка: не занято ли имя
         if(isNameTaken(name)){
@@ -52,7 +42,7 @@ QStringList FileManager::add_files(QStringList files)
         }
         // Если файла с таким именем ещё нет, то добавляем его в дерево
         if(!localFiles.contains(name)){
-            QString destName = name + "." + ext + ".html";  // Сохраняем как HTML
+            QString destName = name + ".html";  // Сохраняем как HTML
             // Путь к директории с файлами(внутри проекта) + имя данного файла с расширением
             QString dest = localfilesPath + destName;
 
@@ -66,7 +56,6 @@ QStringList FileManager::add_files(QStringList files)
                         out << htmlContent;
                         outFile.close();
                         localFiles.insert(name, dest);
-                        localFileTypes.insert(name, ext);
                         added_files.append(name);
                     }
                 }
@@ -74,7 +63,6 @@ QStringList FileManager::add_files(QStringList files)
                 // Просто копируем HTML
                 if (QFile::copy(filePath, dest)) {
                     localFiles.insert(name, dest);
-                    localFileTypes.insert(name, ext);
                     added_files.append(name);
                 }
             }
@@ -381,6 +369,23 @@ QString FileManager::get_file_content(const QString &file_name)
     return QString("Ошибка чтения файла");
 }
 
+QString FileManager::GetName(QString file)
+{
+    QString name = "";
+    // Циклом справа налево записываем символы в строку
+    for (int i = file.length()-1; i >= 0; i--) {
+        if(file[i] != "/" && file[i] != "\\"){
+            name = file[i] + name;
+        }
+        else{
+            // Если мы дошли до / или \, то имя записано полностью
+            break;
+        }
+    }
+
+    return name;
+}
+
 QString FileManager::getFilePath(const QString& fileName) const
 {
     // Если файл есть в map — возвращаем путь
@@ -390,52 +395,6 @@ QString FileManager::getFilePath(const QString& fileName) const
     // Если нет — пустая строка
     return "";
 }
-
-bool FileManager::saveDocument(const QString& fileName, const QString& content)
-{
-    if (!localFiles.contains(fileName)) {
-        return false;
-    }
-
-    QString filePath = localFiles.value(fileName);
-
-    // Если файл не HTML — извлекаем body
-    if (!filePath.endsWith(".html", Qt::CaseInsensitive)) {
-        QString bodyContent = extractBodyContent(content);
-        write_to_file(fileName, bodyContent);
-    } else {
-        write_to_file(fileName, content);
-    }
-
-    return true;
-}
-
-QString FileManager::getFileExtension(const QString& fileName) const
-{
-    // 1. Сначала проверяем память (для новых файлов в сессии)
-    if (localFileTypes.contains(fileName)) {
-        return localFileTypes.value(fileName);
-    }
-
-    // 2. Если нет — пытаемся определить из имени файла
-    QString filePath = localFiles.value(fileName);
-    if (filePath.isEmpty()) return "html";
-
-    QFileInfo fileInfo(filePath);
-    QString baseName = fileInfo.completeBaseName(); // "Grafy.docx"
-
-    // Разбиваем по точкам
-    QStringList parts = baseName.split('.');
-    if (parts.size() > 1) {
-        QString ext = parts.last().toLower();
-        if (ext == "docx" || ext == "doc" || ext == "md" || ext == "markdown") {
-            return ext;
-        }
-    }
-
-    return "html";
-}
-
 
 bool FileManager::loadDocument(const QString& fileName, QString& content)
 {
@@ -477,4 +436,21 @@ bool FileManager::isNameTaken(const QString& name) const
 {
     return localFiles.contains(name) || localFolders.contains(name);
 }
+bool FileManager::saveDocument(const QString& fileName, const QString& content)
+{
+    if (!localFiles.contains(fileName)) {
+        return false;
+    }
 
+    QString filePath = localFiles.value(fileName);
+
+    // Если файл не HTML — извлекаем body
+    if (!filePath.endsWith(".html", Qt::CaseInsensitive)) {
+        QString bodyContent = extractBodyContent(content);
+        write_to_file(fileName, bodyContent);
+    } else {
+        write_to_file(fileName, content);
+    }
+
+    return true;
+}

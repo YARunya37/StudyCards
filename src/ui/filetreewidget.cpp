@@ -26,7 +26,6 @@ FileTreeWidget::FileTreeWidget(QWidget* parent) :
 
     // Восстанавливаем состояние на основе уже добавленных файлов
     restoreState();
-    setIconSize(QSize(19, 19));
 }
 
 void FileTreeWidget::AddFiles()
@@ -36,20 +35,26 @@ void FileTreeWidget::AddFiles()
         this,
         "Выбрать файлы",
         "",
-        "Текстовые документы (*.docx *.md)"
+        "Текстовые документы (*.docx *.md *.pdf)"
     );
+
 
     // Отображаем в дереве добавленные файлы
     auto added_files = fmn->add_files(files);
-
     if(!added_files.isEmpty()){
         QFileIconProvider iconProvider;
         foreach(auto file, added_files){
             QTreeWidgetItem* new_item = new QTreeWidgetItem(this);
             new_item->setText(0, file);
 
-            QIcon icon = getIconForFile(file);
-            new_item->setIcon(0, icon);
+            QString filePath = fmn->getFilePath(file);
+            if (!filePath.isEmpty()) {
+                QFileInfo fileInfo(filePath);
+                new_item->setIcon(0, iconProvider.icon(fileInfo));
+            } else {
+                // Fallback - стандартная иконка
+                new_item->setIcon(0, iconProvider.icon(QFileIconProvider::File));
+            }
         }
     }
 }
@@ -133,7 +138,8 @@ void FileTreeWidget::restoreState()
             parent_folder = new QTreeWidgetItem(this);
             parent_folder->setText(0, folder);
 
-            parent_folder->setIcon(0, style()->standardIcon(QStyle::SP_DirIcon));
+            QFileIconProvider iconProvider;
+            parent_folder->setIcon(0, iconProvider.icon(QFileIconProvider::Folder));
         }
 
         foreach (auto child, fmn->get_children(folder)) {
@@ -167,8 +173,14 @@ void FileTreeWidget::restoreState()
                 childItem = new QTreeWidgetItem(parent_folder);
                 childItem->setText(0, child);
 
-                QIcon icon = getIconForFile(child);
-                childItem->setIcon(0, icon);
+                QFileIconProvider iconProvider;
+                QString filePath = fmn->getFilePath(child);
+                if (!filePath.isEmpty()) {
+                    QFileInfo fileInfo(filePath);
+                    childItem->setIcon(0, iconProvider.icon(fileInfo));
+                } else {
+                    childItem->setIcon(0, iconProvider.icon(QFileIconProvider::File));
+                }
             }
             added_files.append(childItem->text(0));
         }
@@ -181,10 +193,14 @@ void FileTreeWidget::restoreState()
             QTreeWidgetItem* new_item = new QTreeWidgetItem(this);
             new_item->setText(0, file);
 
-            QIcon icon = getIconForFile(file);
-            new_item->setIcon(0, icon);
-
-            addTopLevelItem(new_item);
+            QFileIconProvider iconProvider;
+            QString filePath = fmn->getFilePath(file);
+            if (!filePath.isEmpty()) {
+                QFileInfo fileInfo(filePath);
+                new_item->setIcon(0, iconProvider.icon(fileInfo));
+            } else {
+                new_item->setIcon(0, iconProvider.icon(QFileIconProvider::File));
+            }
         }
     }
 }
@@ -456,18 +472,4 @@ void FileTreeWidget::onItemDoubleClicked(QTreeWidgetItem* item, int column)
     if (item && fmn->is_file(item->text(0))) {
         emit fileDoubleClicked(item->text(0));
     }
-}
-
-QIcon FileTreeWidget::getIconForFile(const QString& fileName) {
-    QString ext = fmn->getFileExtension(fileName);
-
-    if (ext == "docx" || ext == "doc") {
-        return QIcon(":/icons/file-docx.svg");
-    } else if (ext == "md" || ext == "markdown") {
-        return QIcon(":/icons/file-md.svg");
-    } else if (ext == "html") {
-        return QIcon(":/icons/file-unknown.svg");
-    }
-
-    return QIcon(":/icons/file-docx.svg");  // По умолчанию
 }

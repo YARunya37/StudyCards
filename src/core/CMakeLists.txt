@@ -33,7 +33,6 @@ add_library(file_manager STATIC
 
 target_link_libraries(file_manager PUBLIC
     Qt6::Core
-    core_module
 )
 
 # Библиотека для управления документами (сохранение/загрузка)

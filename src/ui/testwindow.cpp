@@ -174,7 +174,7 @@ void TestWindow::showFinishScreen()
     // Удаляем текущий виджет
     if (currentQuestionWidget) {
         contentLayout->removeWidget(currentQuestionWidget);
-        currentQuestionWidget->setParent(nullptr);
+        // currentQuestionWidget->setParent(nullptr);
         currentQuestionWidget = nullptr;
     }
     // Создаем финальный экран
