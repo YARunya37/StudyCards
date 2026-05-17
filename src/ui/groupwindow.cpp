@@ -147,7 +147,7 @@ void GroupWindow::deleteItem()
 void GroupWindow::setupUI()
 {
     setWindowTitle("Группа: " + group->Name());
-    setMinimumSize(800, 600);
+    setMinimumSize(1000, 800);
 
     // Создаём центральный виджет
     QWidget* centralWidget = new QWidget(this);
@@ -271,7 +271,7 @@ QFrame* GroupWindow::create_button_panel()
     connect(addButton, &QPushButton::clicked, this, &GroupWindow::add_new_card);
     connect(testButton, &QPushButton::clicked, this, [this](){
         TestWindow* testWindow = new TestWindow(this->group, this);
-        testWindow->resize(600, 400);
+        testWindow->resize(1000, 800);
         testWindow->show();
     });
 
