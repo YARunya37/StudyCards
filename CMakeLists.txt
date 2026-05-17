@@ -3,6 +3,7 @@ project(StudyCards LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTORCC ON)
 
 # Поиск Qt6
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
