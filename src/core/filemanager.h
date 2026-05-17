@@ -39,6 +39,8 @@ public:
     void remove_file(QString file_name);
     // Метод, который возващает true если существует файл с указанным именем
     bool is_file(QString item_name);
+    // Метод, который возващает true если существует папка с указанным именем
+    bool is_folder(QString item_name);
     // Метод для получения пути файла
     QString getFilePath(const QString& fileName) const;
     // Возвращает исходное расширение файла (docx, md, html)
@@ -59,6 +61,8 @@ public:
     static QString extractBodyContent(const QString& html);
     // Сохраняет документ: если не .html — извлекает только <body>
     bool saveDocument(const QString& fileName, const QString& content);
+    // Проверка, занято ли имя (файлом или папкой)
+    bool isNameTaken(const QString& name) const;
 
 signals:
     void fileContentChanged(const QString& fileName, const QString& content); // Контент файла изменился

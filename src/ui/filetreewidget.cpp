@@ -317,11 +317,19 @@ void FileTreeWidget::createFolder()
             &isOk
             );
         if(isOk && !new_name.trimmed().isEmpty()){
+            // Проверка есть ли папка или файл с таким же названием
+            if(fmn->isNameTaken(new_name)){
+                QMessageBox::warning(this, "Ошибка",
+                                     "Папка или файл с таким именем уже существует!");
+                delete folder;  // Отменяем создание
+                return;
+            }
             folder->setText(0, new_name);
+            // Добавляем файл в систему
+            fmn->add_folder(folder->text(0));
+            fmn->add_item_to_folder(folder->text(0), selected.value(0)->text(0));
         }
-        // Добавляем файл в систему
-        fmn->add_folder(folder->text(0));
-        fmn->add_item_to_folder(folder->text(0), selected.value(0)->text(0));
+
     }
     else{
         // Создаём item-папку в корне дерева
@@ -344,10 +352,21 @@ void FileTreeWidget::createFolder()
             &isOk
             );
         if(isOk && !new_name.trimmed().isEmpty()){
+            // Проверка на уникальность
+            if(fmn->isNameTaken(new_name)){
+                QMessageBox::warning(this, "Ошибка",
+                                     "Папка или файл с таким именем уже существует!");
+                delete folder;
+                return;
+            }
             folder->setText(0, new_name);
+            // Добавляем файл в систему
+            fmn->add_folder(folder->text(0));
         }
-        // Добавляем файл в систему
-        fmn->add_folder(folder->text(0));
+        else{
+            // Пользователь отменил - удаляем созданную папку
+            delete folder;
+        }
     }
 }
 

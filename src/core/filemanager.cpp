@@ -45,6 +45,11 @@ QStringList FileManager::add_files(QStringList files)
     foreach (auto filePath, files) {
         QString name = QFileInfo(filePath).baseName();
         QString ext = QFileInfo(filePath).suffix().toLower();
+        // Проверка: не занято ли имя
+        if(isNameTaken(name)){
+            qWarning() << "FileManager: Cannot add file - name already taken:" << name;
+            continue;  // Пропускаем этот файл
+        }
         // Если файла с таким именем ещё нет, то добавляем его в дерево
         if(!localFiles.contains(name)){
             QString destName = name + "." + ext + ".html";  // Сохраняем как HTML
@@ -114,6 +119,11 @@ void FileManager::write_to_file(const QString& file_name, const QString& content
 }
 
 void FileManager::add_folder(QString name){
+    // Проверка: не занято ли имя
+    if(isNameTaken(name)){
+        qWarning() << "FileManager: Cannot create folder - name already taken:" << name;
+        return;
+    }
     QFile* folder = new QFile(localfilesPath + name + ".txt");
     localFolders.insert(name, folder);
 }
@@ -189,14 +199,19 @@ void FileManager::remove_item_from_folder(const QString &item, const QString &fo
 
     // Если item в папке
     if(folder != ""){
+        if (!from_folder) {
+            qWarning() << "FileManager: Folder not found:" << folder;
+            return;
+        }
         // Перезаписываем старую папку
         if(from_folder->open(QIODevice::ReadOnly)){
             QTextStream read(from_folder);
+
             QStringList lines;
             QString line;
             while(!read.atEnd()){
-                line = read.readLine();
-                if(line != item){
+                line = read.readLine().trimmed();
+                if(line != item && !line.isEmpty()){
                     lines.append(line);
                 }
             }
@@ -212,6 +227,11 @@ void FileManager::remove_item_from_folder(const QString &item, const QString &fo
                 from_folder->close();
             }
         }
+        else {
+            qWarning() << "FileManager: Folder not found (may be already deleted):" << item;
+            // Просто удаляем из UI
+            return;  // Выходим без ошибки
+        }
     }
 
     // Определяем является файлом или нет
@@ -219,7 +239,7 @@ void FileManager::remove_item_from_folder(const QString &item, const QString &fo
         // Удаляем файл из системы
         remove_file(item);
     }
-    else{
+    else if(is_folder(item)){
         // Если это папка, то удаляем всех детей
         QFile* item_folder = localFolders.value(item);
 
@@ -228,18 +248,27 @@ void FileManager::remove_item_from_folder(const QString &item, const QString &fo
         {
             if(item_folder->open(QIODevice::ReadOnly)){
                 QTextStream read(item_folder);
+                QStringList children;
                 QString line;
+
                 while(!read.atEnd()){
-                    line = read.readLine();
+                    line = read.readLine().trimmed();
                     // Проверяем текущий элемент. Если файл, то просто удаляем его.
                     // Если это папка, то рекурсивно вызываем метод, чтобы удалить конкретно её в текущей папке
-                    if(is_file(line))
-                        remove_file(line);
-                    else
-                        remove_item_from_folder(line, item);
+                    if(!line.isEmpty()){
+                        children.append(line);
+                    }
                 }
                 item_folder->close();
+
+                foreach(const QString& child, children){
+                    if(is_file(child))
+                        remove_file(child);
+                    else
+                        remove_item_from_folder(child, item);
+                }
             }
+
             // Удаляем саму папку
             if(item_folder->remove()){
                 localFolders.remove(item);
@@ -247,8 +276,13 @@ void FileManager::remove_item_from_folder(const QString &item, const QString &fo
             }
         }
         else{
-            throw std::runtime_error("Folder wasn't found: " + item.toStdString());
+            qWarning() << "FileManager: Folder exists in map but pointer is null:" << item;
+            // Просто выходим, не крашим приложение
+            return;
         }
+    }
+    else {
+        qWarning() << "FileManager: Item not found:" << item;
     }
 }
 
@@ -256,6 +290,10 @@ void FileManager::rename_folder(const QString &old_name, const QString &new_name
 {
     QFile* renamed_folder = localFolders.value(old_name);
 
+    if (!renamed_folder) {
+        qWarning() << "FileManager: Cannot rename - folder not found:" << old_name;
+        return;  // Выходим без ошибки
+    }
     QStringList lines;
     // Сохраняем все записи о папке
     if(renamed_folder->open(QIODevice::ReadOnly)){
@@ -324,6 +362,9 @@ bool FileManager::is_file(QString item_name){
     return localFiles.contains(item_name);
 }
 
+bool FileManager::is_folder(QString item_name){
+    return localFolders.contains(item_name);
+}
 QString FileManager::get_file_content(const QString &file_name)
 {
     if(localFiles.contains(file_name)){
@@ -432,4 +473,8 @@ QString FileManager::extractBodyContent(const QString& html)
     return html.mid(bodyStart, bodyEnd - bodyStart);
 }
 
+bool FileManager::isNameTaken(const QString& name) const
+{
+    return localFiles.contains(name) || localFolders.contains(name);
+}
 
