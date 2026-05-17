@@ -61,7 +61,7 @@ void FileTreeWidget::setUpTree()
     // Визуальная часть
     setHeaderLabel("Материалы");
     setMinimumWidth(50);
-    setMaximumWidth(200);
+    setMaximumWidth(300);
     setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding));
     setColumnCount(1);
 

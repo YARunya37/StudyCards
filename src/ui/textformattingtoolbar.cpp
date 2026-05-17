@@ -78,7 +78,7 @@ void TextFormattingToolbar::createToolbar()
     comboFontSize = new QComboBox(this);
     comboFontSize->setFixedHeight(30);
     comboFontSize->addItems({"8", "9", "10", "11", "12", "14", "16", "18", "20", "24", "28", "32", "36"});
-    comboFontSize->setCurrentText("12");
+    comboFontSize->setCurrentText("14");
     comboFontSize->setToolTip("Размер шрифта");
     toolbarLayout->addWidget(comboFontSize);
     connect(comboFontSize, QOverload<int>::of(&QComboBox::currentIndexChanged),

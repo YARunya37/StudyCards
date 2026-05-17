@@ -37,6 +37,11 @@ MainWindow::MainWindow(QWidget *parent)
     QTextEdit* sourceTextWidget = new QTextEdit(this);
     sourceTextWidget->setPlainText("Добавьте файл с помощью кнопки в панели");
     sourceTextWidget->setReadOnly(true);
+    QFont defaultFont("Segoe UI", 14);
+    sourceTextWidget->setFont(defaultFont);
+    sourceTextWidget->document()->setDefaultStyleSheet(
+        "body { font-size: 14pt; font-family: 'Segoe UI', Arial, sans-serif; }"
+    );
     // Перенос слов
     sourceTextWidget->setLineWrapMode(QTextEdit::WidgetWidth);
     sourceTextWidget->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
