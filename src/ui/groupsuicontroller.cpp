@@ -22,7 +22,7 @@ GroupsUIController::GroupsUIController(QObject *parent)
 void GroupsUIController::show_creation_group_dialog()
 {
     // Насильно приводим QObject предаваемый через parent, т.к. это MainWindow(QWidget)
-    TextInputDialog dialog = TextInputDialog(qobject_cast<QWidget*>(this->parent()), "Введите название группы", "Название:");
+    TextInputDialog dialog = TextInputDialog(qobject_cast<QWidget*>(this->parent()), "Создание группы", "Введите название новой группы:");
 
     // Запускаем диалог. Если пользователь принимает имя, то отправляем его на создание
     if (dialog.exec() == QDialog::Accepted)
@@ -65,7 +65,7 @@ void GroupsUIController::show_delete_group_window()
     QString selectedGroup = QInputDialog::getItem(
         qobject_cast<QWidget*>(this->parent()),
         "Удаление группы",
-        "Выберите группу для удаления:",
+        "Выберите группу для удаления в выпадающем списке:",
         groups,
         0,          // Текущий индекс
         false,      // Редактируемый (false = нельзя вводить вручную)
@@ -77,7 +77,7 @@ void GroupsUIController::show_delete_group_window()
         // Создаём окно подтверждения
         QMessageBox msgBox(qobject_cast<QWidget*>(this->parent()));
         msgBox.setWindowTitle("Подтверждение");
-        msgBox.setText("Удалить группу \"" + selectedGroup + "\"?");
+        msgBox.setText("Вы уверенны, что хотите удалить группу \"" + selectedGroup + "\"?");
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         //msgBox.setDefaultButton(QMessageBox::No);
 
@@ -88,6 +88,8 @@ void GroupsUIController::show_delete_group_window()
         if (msgBox.exec() == QMessageBox::Yes)
         {
             gm->DeleteGroup(selectedGroup);
+            QMessageBox::information(qobject_cast<QWidget*>(this->parent()), "",
+                                     "Группа удалена");
         }
     }
 }
@@ -106,8 +108,8 @@ void GroupsUIController::choose_active_group()
     bool ok;
     QString selectedGroup = QInputDialog::getItem(
         qobject_cast<QWidget*>(this->parent()),
-        "Выбор активной группы",
-        "Выберите группу для удаления:",
+        "Выбор группы",
+        "Выберите группу, с которой будете работать:",
         groups,
         0,          // Текущий индекс
         false,      // Редактируемый (false = нельзя вводить вручную)
@@ -133,8 +135,8 @@ void GroupsUIController::choose_group_to_open()
     bool ok;
     QString selectedGroup = QInputDialog::getItem(
         qobject_cast<QWidget*>(this->parent()),
-        "Выбор активной группы",
-        "Выберите группу для удаления:",
+        "Открыть группу",
+        "Выберите группу, которая будет открыта в отдельном окне:",
         groups,
         0,          // Текущий индекс
         false,      // Редактируемый (false = нельзя вводить вручную)

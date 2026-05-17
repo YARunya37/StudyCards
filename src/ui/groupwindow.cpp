@@ -49,7 +49,7 @@ GroupWindow::GroupWindow(Group* group, QWidget *parent)
 
 void GroupWindow::add_new_card()
 {
-    TextInputDialog dialog = TextInputDialog(this, "Введите название билета", "Название:");
+    TextInputDialog dialog = TextInputDialog(this, "Создать билет", "Введите название билета:");
 
     // Запускаем диалог. Если пользователь принимает имя, то отправляем его на создание
     if (dialog.exec() == QDialog::Accepted)
@@ -123,7 +123,7 @@ void GroupWindow::deleteItem()
     // Создаём окно подтверждения
     QMessageBox msgBox(this);
     msgBox.setWindowTitle("Подтверждение");
-    msgBox.setText("Удалить билет \"" + item->text() + "\"?");
+    msgBox.setText("Вы уверены, что хотите удалить билет \"" + item->text() + "\"?");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 
 

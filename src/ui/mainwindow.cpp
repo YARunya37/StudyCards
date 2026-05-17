@@ -3,6 +3,7 @@
 
 #include <QVBoxLayout>
 #include <QLabel>
+#include <QMessageBox>
 
 #include "filetreewidget.h"
 #include "textformattingtoolbar.h"
@@ -150,5 +151,12 @@ void MainWindow::startTest()
         TestWindow* testWindow = new TestWindow(group, this);
         testWindow->resize(800, 600);
         testWindow->show();
+    }
+    else{
+        QMessageBox::information(qobject_cast<QWidget*>(this->parent()), "Группа не выбрана",
+                                 "Группа для начала тестирования не выбрана.\n"
+                                 "Вы также можете запустить тестирование в окне отдельной группы.\n"
+                                 "Для его открытия нажмите:\n"
+                                 "Группы билетов → Открыть группу в окне");
     }
 }

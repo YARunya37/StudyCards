@@ -4,6 +4,7 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <QMessageBox>
 TempCardsWidget::TempCardsWidget(QWidget* parent) :
     QTabWidget(parent)
 {
@@ -142,8 +143,22 @@ bool TempCardsWidget::addToGroup()
 
         // Удаляем вкладку
         remove_curr_tab();
+        QMessageBox::information(this,
+                                 "Билет добавлен",
+                                 QString("Билет успешно добавлен в группу \"%1\".\n\n"
+                                         "Вы можете посмотреть все билеты в окне конкретной группы.\n"
+                                         "Для его открытия нажмите:\n"
+                                         "Группы билетов → Открыть группу в окне")
+                                     .arg(curr_group->Name()));
+
         return true;
     }
+
+    QMessageBox::warning(this,
+                         "Ошибка",
+                         "Не удалось добавить билет в группу.\n"
+                         "Пожалуйста, попробуйте снова.");
+
     return false;
 }
 

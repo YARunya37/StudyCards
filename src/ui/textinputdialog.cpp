@@ -19,7 +19,7 @@ void TextInputDialog::setupUI()
     setWindowTitle(title);
 
     // Создание виджетов
-    QLabel *label = new QLabel("Название:", this);
+    QLabel *label = new QLabel(label_text, this);
     m_lineEdit = new QLineEdit(this);
     QPushButton* m_okButton = new QPushButton("OK", this);
     QPushButton* m_cancelButton = new QPushButton("Отмена", this);
