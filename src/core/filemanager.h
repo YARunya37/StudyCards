@@ -41,6 +41,8 @@ public:
     bool is_file(QString item_name);
     // Метод для получения пути файла
     QString getFilePath(const QString& fileName) const;
+    // Возвращает исходное расширение файла (docx, md, html)
+    QString getFileExtension(const QString& fileName) const;
     // Метод для получения контента файла
     QString get_file_content(const QString& file_name);
     // Устанавливает текущий файл, сбрасывает m_isModified
@@ -71,12 +73,12 @@ private:
     // Массив файлов в проекте <имя файла(ключ), путь к нему(значение)>
     // Внутри проекта все файлы имеют путь /resources/userfiles/
     QMap<QString, QString> localFiles;
+    // Хранит исходное расширение файла <имя, исходное_расширение>
+    QMap<QString, QString> localFileTypes;
     // Массив, хранящий файлы с информацией о папках в проекте <имя файла, сам файл>
     QMap<QString,QFile*> localFolders;
     // Путь к директориии с файлами, добавленными пользователем
     QString localfilesPath;
-    // Возвращает имя файла С РАСШИРЕНИЕМ(.docx .md ...) по его пути
-    QString GetName(QString filePath);
     // Имя текущего открытого файла
     QString m_currentFile;
     // Флаг: были ли изменения в текущем файле

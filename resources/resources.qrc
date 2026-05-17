@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="file-docx.svg">icons/file-docx.svg</file>
+        <file alias="file-md.svg">icons/file-md.svg</file>
+        <file alias="file-unknown.svg">icons/file-unknown.svg</file>
+    </qresource>
+</RCC>

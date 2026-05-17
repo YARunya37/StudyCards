@@ -38,6 +38,8 @@ private:
     void restoreState();
     // Метод для удаления дочерних элементов(файлов и папок) папки
     void deleteChildren(QTreeWidgetItem* folder);
+    // Метод для изображения иконок файлов и папок в дереве материалов
+    QIcon getIconForFile(const QString& filePath);
 
 signals:
     void fileDoubleClicked(const QString& fileName);
