@@ -156,8 +156,8 @@ void GroupWindow::setupUI()
     verticalLayout->setSpacing(0);
 
     // Добавляем панель с кнопками
-    verticalLayout->addWidget(create_button_panel());
     verticalLayout->addWidget(new TextFormattingToolbar(this));
+    verticalLayout->addWidget(create_button_panel());
 
     // Создаём виджет, в котором будет находиться весь контент
     content = new QWidget(this);
@@ -212,60 +212,66 @@ QFrame* GroupWindow::create_button_panel()
 {
     QFrame *panel = new QFrame();
     panel->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
-    panel->setFixedHeight(35); // Фиксированная высота панели
+    panel->setFixedHeight(40);
 
     panel->setStyleSheet(
         "QFrame {"
-        "   background-color: #e0e0e0;"  // Светло-серый фон панели
-        "   border: 1px solid #bdbdbd;"
+        "    background-color: #f5f5f5;"
+        "    border: none;"
+        "    border-bottom: 1px solid #d0d0d0;"
         "}"
         );
 
     QHBoxLayout *layout = new QHBoxLayout(panel);
-    layout->setContentsMargins(0, 2, 0, 2); // Отступы: left, top, right, bottom
-    layout->setSpacing(2); // Расстояние между кнопками
+    layout->setContentsMargins(4, 4, 4, 4);
+    layout->setSpacing(4);
 
-    // Кнопка добавления с плюсиком
+    // Кнопка добавления
     QPushButton *addButton = new QPushButton("+");
-    addButton->setFixedHeight(30);
-    addButton->setFixedWidth(30); // Квадратная кнопка
+    addButton->setFixedSize(32, 32);
     addButton->setStyleSheet(
         "QPushButton {"
-            "   font-size: 20px;"
-            "   font-weight: bold;"
-            "   background-color: #d0d0d0;"  // На оттенок темнее панели
-            "   border: 1px solid #bdbdbd;"
-            "   border-radius: 4px;"
+        "    font-size: 18px;"
+        "    font-weight: bold;"
+        "    background-color: white;"
+        "    color: #1a1a1a;"
+        "    border: 1px solid #d0d0d0;"
+        "    border-radius: 4px;"
         "}"
         "QPushButton:hover {"
-            "   background-color: #c0c0c0;"  // Ещё темнее при наведении
+        "    background-color: #f8f8f8;"
+        "    border: 1px solid #b0b0b0;"
         "}"
         "QPushButton:pressed {"
-            "   background-color: #b0b0b0;"
+        "    background-color: #f0f0f0;"
         "}"
-    );
+        );
 
-    // Кнопка запуска тестирования
+    // Кнопка тестирования
     QPushButton *testButton = new QPushButton("Запустить тестирование");
-    testButton->setFixedHeight(30);
-    testButton->setMinimumWidth(200); // Минимальная ширина
+    testButton->setFixedHeight(32);
+    testButton->setMinimumWidth(180);
     testButton->setStyleSheet(
         "QPushButton {"
-        "   background-color: #d0d0d0;"
-        "   border: 1px solid #bdbdbd;"
-        "   border-radius: 4px;"
+        "    background-color: white;"
+        "    color: #1a1a1a;"
+        "    border: 1px solid #d0d0d0;"
+        "    border-radius: 4px;"
+        "    padding: 6px 12px;"
+        "    font-size: 14px;"
         "}"
         "QPushButton:hover {"
-        "   background-color: #c0c0c0;"
+        "    background-color: #f8f8f8;"
+        "    border: 1px solid #b0b0b0;"
         "}"
         "QPushButton:pressed {"
-        "   background-color: #b0b0b0;"
+        "    background-color: #f0f0f0;"
         "}"
         );
 
     layout->addWidget(addButton);
     layout->addWidget(testButton);
-    layout->addStretch(); // Добавляет пространство справа
+    layout->addStretch();
 
     // Подключаем кнопки
     connect(addButton, &QPushButton::clicked, this, &GroupWindow::add_new_card);
