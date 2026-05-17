@@ -26,6 +26,9 @@ public:
 public slots:
     void setTicketGroupName(const QString& name);
 
+private slots:
+    void startTest();
+
 private:
     Ui::MainWindow *ui;
     QWidget* tempGroupContainer;

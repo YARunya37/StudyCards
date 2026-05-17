@@ -9,6 +9,7 @@
 #include "filemanager.h"
 #include "documentui.h"
 #include "groupsuicontroller.h"
+#include "testwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -102,6 +103,8 @@ MainWindow::MainWindow(QWidget *parent)
     });
     // Подключаем при выборе активной группы включение временных билетов
     connect(controller, &GroupsUIController::active_group_changed, cardsWidget, &TempCardsWidget::onActiveGroupChanged);
+    // Подключаем кнопку запуска теста
+    connect(ui->start_test, &QAction::triggered, this, &MainWindow::startTest);
 }
 
 MainWindow::~MainWindow()
@@ -133,5 +136,16 @@ void MainWindow::setTicketGroupName(const QString& name)
 {
     if (ticketGroupLabel) {
         ticketGroupLabel->setText(name);
+    }
+}
+
+void MainWindow::startTest()
+{
+    GroupManager gm;
+    Group* group = gm.GetGroup(ticketGroupLabel->text());
+    if(group){
+        TestWindow* testWindow = new TestWindow(group, this);
+        testWindow->resize(800, 600);
+        testWindow->show();
     }
 }

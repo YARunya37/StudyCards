@@ -26,9 +26,9 @@ public slots:
     bool SetActiveGroup(const QString& group_name);
 private:
     // Список всех групп по именам
-    QMap<QString, Group*> groups;
+    static QMap<QString, Group*> groups;
     // Активная группа
-    Group* active_group = nullptr;
+    static Group* active_group;
 };
 
 #endif // GROUPMANAGER_H

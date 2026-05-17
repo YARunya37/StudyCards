@@ -1,5 +1,9 @@
 #include "groupmanager.h"
 #include <QCoreApplication>
+
+QMap<QString, Group*> GroupManager::groups;
+Group* GroupManager::active_group = nullptr;
+
 GroupManager::GroupManager(QObject *parent)
     : QObject{parent},
     DirItemsManager(QCoreApplication::applicationDirPath() + "/resources/usergroups")

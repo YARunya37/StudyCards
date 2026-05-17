@@ -72,7 +72,7 @@
      <x>0</x>
      <y>0</y>
      <width>1259</width>
-     <height>17</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -95,8 +95,7 @@
     <property name="title">
      <string>Тест</string>
     </property>
-    <addaction name="action_2"/>
-    <addaction name="action_6"/>
+    <addaction name="start_test"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -122,14 +121,9 @@
     <string>Выбрать группу</string>
    </property>
   </action>
-  <action name="action_2">
+  <action name="start_test">
    <property name="text">
     <string>Запустить с текущей группой</string>
-   </property>
-  </action>
-  <action name="action_6">
-   <property name="text">
-    <string>Посмотреть результаты</string>
    </property>
   </action>
   <action name="open_group_in_window">
