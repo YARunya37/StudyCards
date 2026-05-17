@@ -37,14 +37,15 @@ void TextFormattingToolbar::setActiveEditor(QTextEdit* editor)
 
 void TextFormattingToolbar::createToolbar()
 {
+    setFixedHeight(36);
     // Вертикальный layout для всего виджета
     QVBoxLayout* containerLayout = new QVBoxLayout(this);
     containerLayout->setContentsMargins(0, 0, 0, 0);
-    containerLayout->setSpacing(5);
+    containerLayout->setSpacing(0);
 
     // Горизонтальный toolbar
     QHBoxLayout* toolbarLayout = new QHBoxLayout();
-    toolbarLayout->setContentsMargins(5, 5, 5, 0);
+    toolbarLayout->setContentsMargins(5, 5, 5, 5);
     toolbarLayout->setSpacing(5);
 
     // Кнопка Bold
@@ -75,7 +76,7 @@ void TextFormattingToolbar::createToolbar()
 
     // Combobox размера шрифта
     comboFontSize = new QComboBox(this);
-    comboFontSize->setMaximumWidth(80);
+    comboFontSize->setFixedHeight(30);
     comboFontSize->addItems({"8", "9", "10", "11", "12", "14", "16", "18", "20", "24", "28", "32", "36"});
     comboFontSize->setCurrentText("12");
     comboFontSize->setToolTip("Размер шрифта");
@@ -154,6 +155,99 @@ void TextFormattingToolbar::createToolbar()
     new QShortcut(QKeySequence("Ctrl+E"), this, this, &TextFormattingToolbar::alignCenter);
     new QShortcut(QKeySequence("Ctrl+R"), this, this, &TextFormattingToolbar::alignRight);
     new QShortcut(QKeySequence("Ctrl+J"), this, this, &TextFormattingToolbar::alignJustify);
+
+    // Стили
+    QString containerStyle = R"(
+        TextFormattingToolbar {
+            background-color: #d0d0d0;
+            border-radius: 4px;
+        }
+    )";
+    this->setStyleSheet(containerStyle);
+
+    // Стиль для кнопок форматирования
+    QString buttonStyle = R"(
+    QPushButton {
+        background-color: #ffffff;
+        border: 1px solid #d0d0d0;
+        border-radius: 3px;
+        padding: 0px;
+        color: #2c3e50;
+        font-size: 10pt;
+    }
+
+    QPushButton:hover {
+        background-color: #e8f4f8;
+        border: 1px solid #0078d4;
+    }
+
+    QPushButton:pressed {
+        background-color: #d0e8f4;
+        border: 1px solid #0078d4;
+    }
+
+    QPushButton:checked {
+        background-color: #0078d4;
+        border: 1px solid #0078d4;
+        color: white;
+    }
+)";
+
+    // Применяем стиль ко всем кнопкам
+    btnBold->setStyleSheet(buttonStyle);
+    btnItalic->setStyleSheet(buttonStyle);
+    btnUnderline->setStyleSheet(buttonStyle);
+    btnAlignLeft->setStyleSheet(buttonStyle);
+    btnAlignCenter->setStyleSheet(buttonStyle);
+    btnAlignRight->setStyleSheet(buttonStyle);
+    btnAlignJustify->setStyleSheet(buttonStyle);
+    btnBulletList->setStyleSheet(buttonStyle);
+    btnNumberedList->setStyleSheet(buttonStyle);
+    btnTextColor->setStyleSheet(buttonStyle);
+    btnHighlightColor->setStyleSheet(buttonStyle);
+    QString comboBoxStyle = R"(
+    QComboBox {
+        background-color: #ffffff;
+        border: 1px solid #d0d0d0;
+        border-radius: 3px;
+        padding: 0px 8px;
+        color: #2c3e50;
+    }
+
+    QComboBox:hover {
+        border: 1px solid #0078d4;
+        background-color: #f8f8f8;
+    }
+
+    QComboBox::drop-down {
+        border: none;
+        width: 18px;
+    }
+
+    QComboBox::down-arrow {
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 4px solid #2c3e50;
+    }
+)";
+
+    comboFontSize->setStyleSheet(comboBoxStyle);
+
+    const int BUTTON_SIZE = 30; // Ширина = Высота
+
+    btnBold->setFixedSize(BUTTON_SIZE, BUTTON_SIZE);
+    btnItalic->setFixedSize(BUTTON_SIZE, BUTTON_SIZE);
+    btnUnderline->setFixedSize(BUTTON_SIZE, BUTTON_SIZE);
+    btnAlignLeft->setFixedSize(BUTTON_SIZE, BUTTON_SIZE);
+    btnAlignCenter->setFixedSize(BUTTON_SIZE, BUTTON_SIZE);
+    btnAlignRight->setFixedSize(BUTTON_SIZE, BUTTON_SIZE);
+    btnAlignJustify->setFixedSize(BUTTON_SIZE, BUTTON_SIZE);
+    btnBulletList->setFixedSize(BUTTON_SIZE, BUTTON_SIZE);
+    btnNumberedList->setFixedSize(BUTTON_SIZE, BUTTON_SIZE);
+    btnTextColor->setFixedSize(BUTTON_SIZE, BUTTON_SIZE);
+    btnHighlightColor->setFixedSize(BUTTON_SIZE, BUTTON_SIZE);
 }
 
 QTextEdit* TextFormattingToolbar::getCurrentEditor() const

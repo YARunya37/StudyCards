@@ -65,6 +65,40 @@ void FileTreeWidget::setUpTree()
     setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding));
     setColumnCount(1);
 
+    setStyleSheet(R"(
+    QTreeWidget {
+        background-color: #ffffff;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        font-size: 10pt;
+        color: #2c3e50;
+        outline: none;
+    }
+
+    QTreeWidget::item {
+        padding: 5px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    QTreeWidget::item:hover {
+        background-color: #e8f4f8;
+    }
+
+    QTreeWidget::item:selected {
+        background-color: #0078d4;
+        color: white;
+    }
+
+    QHeaderView::section {
+        background-color: #f8f8f8;
+        border: none;
+        border-bottom: 2px solid #d0d0d0;
+        padding: 8px 12px;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+)");
+
     // Включаем возможность перемещать элементы внутри виджета
     this->setDragEnabled(true);
     setDragDropMode(QAbstractItemView::InternalMove);

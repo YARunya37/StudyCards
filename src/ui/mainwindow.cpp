@@ -53,16 +53,19 @@ MainWindow::MainWindow(QWidget *parent)
     QLabel* groupLabel = new QLabel("Группа не выбрана", this);
     groupLabel->setFont(QFont("Segoe UI", 12, QFont::Bold));
     groupLabel->setAlignment(Qt::AlignCenter);
+    groupLabel->setFixedHeight(42);
     groupLabel->setStyleSheet(
-        "QLabel { "
-        "    padding: 8px; "
-        "    background: #3b3b3b; "
-        "    color: #ffffff; "
-        "    border-radius: 4px; "
-        "    font-weight: bold; "
-        "}"
+        R"(
+    QLabel {
+        background-color: #ffffff;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        padding: 0px 12px;
+        font-size: 11pt;
+        font-weight: bold;
+        color: #2c3e50;
+    })"
         );
-
     // Создаём виджет для временных билетов
     cardsWidget = new TempCardsWidget(this);
 
