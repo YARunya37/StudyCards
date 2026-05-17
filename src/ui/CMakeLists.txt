@@ -34,11 +34,28 @@ target_link_libraries(main_ui_module PUBLIC
     study_cards
     groups_ui
     document_ui
+    temp_cards
 )
 
 # Для доступа к header-ам
 target_include_directories(main_ui_module PUBLIC
     ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+
+# Библиотека для управления временными билетами
+add_library(temp_cards STATIC
+    tempcardswidget.h tempcardswidget.cpp
+)
+
+target_link_libraries(temp_cards PRIVATE
+    Qt6::Widgets
+    study_cards
+    groups_managament
+)
+
+target_include_directories(temp_cards PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/ui/
     ${CMAKE_SOURCE_DIR}/src/core
 )
 
@@ -68,6 +85,8 @@ target_link_libraries(groups_ui PUBLIC
     Qt6::Widgets
     groups_managament
     dialogs
+    test_window
+    text_formatting_toolbar
 )
 
 target_include_directories(groups_ui PUBLIC
@@ -102,4 +121,35 @@ target_link_libraries(document_ui PUBLIC
 target_include_directories(document_ui PUBLIC
     ${CMAKE_SOURCE_DIR}/src/ui
     ${CMAKE_SOURCE_DIR}/src/core
+)
+
+# Библиотека для карточек-вопросов
+add_library(questions STATIC
+    base_question.h base_question.cpp
+    SimpleQuestion.h SimpleQuestion.cpp
+
+)
+
+target_link_libraries(questions PRIVATE
+    Qt6::Widgets
+    study_cards
+)
+
+target_include_directories(questions PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/ui/
+)
+
+# Библиотека окна теста
+add_library(test_window STATIC
+    testwindow.h testwindow.cpp
+)
+
+target_link_libraries(test_window PRIVATE
+    Qt6::Widgets
+    testing_sys_core
+)
+
+target_include_directories(test_window PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/ui/
+    ${CMAKE_SOURCE_DIR}/src/core/
 )

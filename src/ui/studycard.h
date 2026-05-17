@@ -5,12 +5,18 @@
 #include <QTextEdit>
 #include "filemanager.h"
 #include "namedfileitem.h"
+#include <QString>
 class StudyCardWidget : public QWidget, public NamedFileItem
 {
     Q_OBJECT
 public:
     explicit StudyCardWidget(QWidget *parent, const QString& path_to_card, const QString& card_name);
     ~StudyCardWidget();
+
+    // Методы для получения содержимого header и body. Возвращает html
+    QString GetHeaderContent();
+    // Методы для получения содержимого header и body. Возвращает html
+    QString GetBodyContent();
 signals:
     void header_changed(const QString& new_header);
 private slots:

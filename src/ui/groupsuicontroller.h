@@ -9,7 +9,8 @@ class GroupsUIController : public QObject
     Q_OBJECT
 public:
     explicit GroupsUIController(QObject *parent = nullptr);
-
+signals:
+    void active_group_changed(Group* new_active_group);
 public slots:
     void show_creation_group_dialog();
 

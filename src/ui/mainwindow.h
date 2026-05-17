@@ -3,7 +3,7 @@
 
 #include <QTextEdit>
 #include "textformattingtoolbar.h"
-
+#include "tempcardswidget.h"
 #include <QMainWindow>
 #include <QSplitter>
 #include <QString>
@@ -28,10 +28,10 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
-    QTextEdit* sourceTextWidget;
-    QWidget* toolbarPanel;
+    QWidget* tempGroupContainer;
+    QWidget* midContentContainer;
     QLabel* ticketGroupLabel;
-    TextFormattingToolbar* textToolbar;
+    TempCardsWidget* cardsWidget;
 
     // Метод для создания разделителя между основными виджетами
     void SetUpSPlitter();

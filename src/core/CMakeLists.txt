@@ -36,6 +36,23 @@ target_link_libraries(file_manager PUBLIC
     core_module
 )
 
+# Библиотека для управления документами (сохранение/загрузка)
+add_library(document_manager STATIC
+
+
+)
+
+target_link_libraries(document_manager PUBLIC
+    Qt6::Core
+    Qt6::Gui
+    file_manager
+    core_module
+)
+
+target_include_directories(document_manager PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+
 add_library(groups_managament STATIC
     groupmanager.h
     groupmanager.cpp
@@ -66,4 +83,21 @@ target_link_libraries(file_items_managers PUBLIC
 
 target_include_directories(groups_managament PUBLIC
     ${CMAKE_SOURCE_DIR}/src/core
+)
+
+# Библиотека для ядра системы тестирования
+add_library(testing_sys_core STATIC
+    testgenerator.h testgenerator.cpp
+    testdirector.h testdirector.cpp
+)
+
+target_link_libraries(testing_sys_core PRIVATE
+    Qt6::Core
+    groups_managament
+    questions
+)
+
+target_include_directories(testing_sys_core PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/src/ui/
 )
