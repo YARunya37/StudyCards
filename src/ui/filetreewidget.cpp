@@ -42,19 +42,12 @@ void FileTreeWidget::AddFiles()
     // Отображаем в дереве добавленные файлы
     auto added_files = fmn->add_files(files);
     if(!added_files.isEmpty()){
-        QFileIconProvider iconProvider;
         foreach(auto file, added_files){
             QTreeWidgetItem* new_item = new QTreeWidgetItem(this);
             new_item->setText(0, file);
+            new_item->setIcon(0, QIcon(":/icons/file-generic.svg"));
 
-            QString filePath = fmn->getFilePath(file);
-            if (!filePath.isEmpty()) {
-                QFileInfo fileInfo(filePath);
-                new_item->setIcon(0, iconProvider.icon(fileInfo));
-            } else {
-                // Fallback - стандартная иконка
-                new_item->setIcon(0, iconProvider.icon(QFileIconProvider::File));
-            }
+            addTopLevelItem(new_item);
         }
     }
 }
@@ -173,14 +166,7 @@ void FileTreeWidget::restoreState()
                 childItem = new QTreeWidgetItem(parent_folder);
                 childItem->setText(0, child);
 
-                QFileIconProvider iconProvider;
-                QString filePath = fmn->getFilePath(child);
-                if (!filePath.isEmpty()) {
-                    QFileInfo fileInfo(filePath);
-                    childItem->setIcon(0, iconProvider.icon(fileInfo));
-                } else {
-                    childItem->setIcon(0, iconProvider.icon(QFileIconProvider::File));
-                }
+                childItem->setIcon(0, QIcon(":/icons/file-generic.svg"));
             }
             added_files.append(childItem->text(0));
         }
@@ -197,9 +183,9 @@ void FileTreeWidget::restoreState()
             QString filePath = fmn->getFilePath(file);
             if (!filePath.isEmpty()) {
                 QFileInfo fileInfo(filePath);
-                new_item->setIcon(0, iconProvider.icon(fileInfo));
+                new_item->setIcon(0, QIcon(":/icons/file-generic.svg"));
             } else {
-                new_item->setIcon(0, iconProvider.icon(QFileIconProvider::File));
+                new_item->setIcon(0, QIcon(":/icons/file-generic.svg"));
             }
         }
     }
