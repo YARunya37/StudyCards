@@ -19,3 +19,8 @@ void Question::ShowBack()
 {
     setCurrentIndex(1);
 }
+
+void Question::ShowFace()
+{
+    setCurrentIndex(0);  // переключаем на face
+}
