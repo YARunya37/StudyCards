@@ -7,7 +7,6 @@ TestWindow::TestWindow(Group* refGroup, QWidget *parent)
 {
     // НАСТРАИВАЕМ TestDirector
     testDirector = new TestDirector(refGroup, this);
-
     connect(testDirector, &TestDirector::answerReceived,
             this, &TestWindow::onAnswerReceived);
     connect(testDirector, &TestDirector::testFinished,
@@ -15,15 +14,19 @@ TestWindow::TestWindow(Group* refGroup, QWidget *parent)
 
 
     // НАСТРАИВАЕМ ОКНО
-
     setWindowFlags(Qt::Window);  // Делаем отдельным окном
     setWindowTitle("Тест: " + refGroup->Name());
 
-    // Устанавливаем белый фон
-    QPalette palette = this->palette();
-    palette.setColor(QPalette::Window, Qt::white);
-    this->setPalette(palette);
-    this->setAutoFillBackground(true);
+    // ЯВНАЯ НАСТРОЙКА ВИДИМОСТИ ТЕКСТА
+    QPalette p;
+    p.setColor(QPalette::Window, QColor(245, 245, 245)); // Светлый фон окна
+    p.setColor(QPalette::WindowText, Qt::black);         // Чёрный текст для QLabel
+    p.setColor(QPalette::Text, Qt::black);               // Чёрный текст для редакторов
+    p.setColor(QPalette::Base, Qt::white);               // Белый фон для полей
+    p.setColor(QPalette::Button, QColor(240, 240, 240));
+    p.setColor(QPalette::ButtonText, Qt::black);         // Чёрный текст на кнопках
+    setPalette(p);
+    setAutoFillBackground(true);
 
     setupUI();
 
