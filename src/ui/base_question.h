@@ -22,9 +22,7 @@ signals:
 protected:
     // Метод для показа обратной стороны
     virtual void ShowBack();
-
-
-
+    virtual void ShowFace();
     // Указатель на StudyCardWidget
     StudyCardWidget *refCard;
 
