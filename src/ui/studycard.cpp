@@ -1,8 +1,11 @@
 #include "studycard.h"
+#include "richtextedit.h"
 #include <QVBoxLayout>
 #include <QFont>
 #include <QCoreApplication>
 #include <QTimer>
+#include <QFileInfo>
+
 StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_group, const QString& card_name)
     : QWidget{parent},
     fmn{new FileManager(this, local_path_to_group + "/" + card_name)},
@@ -116,25 +119,19 @@ void StudyCardWidget::SetUpUI()
     layout->setSpacing(0);
 
     // Добавляем в layout поля для названия и текста билета
-    this->header = new QTextEdit(this);
-    this->body = new QTextEdit(this);
+    this->header = new RichTextEdit(this);
+    this->body = new RichTextEdit(this);
 
     layout->addWidget(header);
     layout->addWidget(body);
 
     // Настройка header
-
     QFont header_font = header->font();
-
     header->setPlainText(Name());
-
     header_font.setPointSize(20);
     header_font.setBold(true);
-
     header->setFont(header_font);
-
     header->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-
     header->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     DrawHeader();
@@ -148,13 +145,9 @@ void StudyCardWidget::SetUpUI()
 
     // Настройка body
     QFont body_font = body->font();
-
     body->setPlainText("Текст Вашего билета");
-
     body_font.setPointSize(16);
-
     body->setFont(body_font);
-
     body->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 }
 

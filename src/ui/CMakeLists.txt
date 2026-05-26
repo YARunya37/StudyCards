@@ -3,26 +3,29 @@
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 
-# Библиотека 1: text_formatting_toolbar
-add_library(text_formatting_toolbar STATIC
+# Объединяем Toolbar и RichTextEdit, так как они работают вместе
+add_library(text_editor STATIC
     textformattingtoolbar.h
     textformattingtoolbar.cpp
+    richtextedit.h
+    richtextedit.cpp
 )
 
-target_link_libraries(text_formatting_toolbar
+target_link_libraries(text_editor
     PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets
 )
 
-target_include_directories(text_formatting_toolbar
+target_include_directories(text_editor
     PUBLIC ${CMAKE_SOURCE_DIR}/src/ui
 )
 
-# Библиотека 2: main_ui_module
+# Библиотека main_ui_module
 add_library(main_ui_module STATIC
     mainwindow.h
     mainwindow.cpp
     mainwindow.ui
-    filetreewidget.h filetreewidget.cpp
+    filetreewidget.h
+    filetreewidget.cpp
 )
 
 # Подключаем Qt к модулю
@@ -30,7 +33,7 @@ target_link_libraries(main_ui_module PUBLIC
     Qt6::Widgets
     core_module
     file_manager
-    text_formatting_toolbar
+    text_editor
     study_cards
     groups_ui
     temp_cards
@@ -68,6 +71,7 @@ add_library(study_cards STATIC
 target_link_libraries(study_cards PUBLIC
     Qt6::Widgets
     file_manager
+    # text_editor
 )
 
 target_include_directories(study_cards PUBLIC
@@ -87,7 +91,7 @@ target_link_libraries(groups_ui PUBLIC
     groups_managament
     dialogs
     test_window
-    text_formatting_toolbar
+    text_editor
 )
 
 target_include_directories(groups_ui PUBLIC

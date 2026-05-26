@@ -1,10 +1,12 @@
 #ifndef STUDYCARD_H
 #define STUDYCARD_H
 
-#include <QWidget>
-#include <QTextEdit>
 #include "filemanager.h"
 #include "namedfileitem.h"
+#include "richtextedit.h"
+
+#include <QWidget>
+#include <QTextEdit>
 #include <QString>
 class StudyCardWidget : public QWidget, public NamedFileItem
 {
@@ -15,10 +17,11 @@ public:
 
     // Методы для получения содержимого header и body. Возвращает html
     QString GetHeaderContent();
-    // Методы для получения содержимого header и body. Возвращает html
     QString GetBodyContent();
+
 signals:
     void header_changed(const QString& new_header);
+
 private slots:
     void save_to_files();
 
@@ -27,8 +30,8 @@ protected:
     void hideEvent(QHideEvent *event) override;
 
 private:
-    QTextEdit* header;
-    QTextEdit* body;
+    RichTextEdit* header;
+    RichTextEdit* body;
     // Для управления файлами связанными с текстом билетов
     FileManager* fmn;
     // Метод для восстановления текста билетов. true если текст был восстановлен
