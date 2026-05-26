@@ -107,3 +107,7 @@ Makefile
 
 # Игнорируем сгенерированные HTML
 output/*.html
+
+# Installers
+*_Setup.exe
+*.iss
