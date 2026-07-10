@@ -68,7 +68,7 @@ void GroupManager::DeleteGroup(const QString &group_name)
         // Если удаляем активную группу, то зануляем её
         if(active_group && group_name == active_group->Name()){
             active_group = nullptr;
-            emit active_group_changed(active_group);
+            emit active_group_changed(nullptr);
         }
 
         auto group = GetGroup(group_name);
