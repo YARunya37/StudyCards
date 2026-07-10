@@ -188,6 +188,7 @@ void TempCardsWidget::setupInitUI()
     hintFont.setPointSize(16);
     hint->setFont(hintFont);
 
+    // Удаляем все вкладки, которые были до этого
     while (count() > 0) {
         removeTab(0);
     }
