@@ -4,7 +4,7 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
-
+#include <QCloseEvent>
 #include "filetreewidget.h"
 #include "textformattingtoolbar.h"
 #include "filemanager.h"
@@ -89,9 +89,9 @@ MainWindow::MainWindow(QWidget *parent)
     FileManager* fileManager = sourceTree->getFileManager();
 
     // Создаём DocumentUI и подключаемсохранение:
-    DocumentUI* docUI = new DocumentUI(this, sourceTree, sourceTextWidget, fileManager, this);
+    m_documentUI = new DocumentUI(this, sourceTree, sourceTextWidget, fileManager, this);
 
-    docUI->connectMenuActions(ui->action_save);
+    m_documentUI->connectMenuActions(ui->action_save);
 
     // Создаём контроллер групп
     GroupsUIController* controller = new GroupsUIController(this);
@@ -166,4 +166,12 @@ void MainWindow::startTest()
                                  "Для его открытия нажмите:\n"
                                  "Группы билетов → Открыть группу в окне");
     }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (m_documentUI->CanClose())
+        event->accept();
+    else
+        event->ignore();
 }
