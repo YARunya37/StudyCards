@@ -188,6 +188,11 @@ void TempCardsWidget::setupInitUI()
     hintFont.setPointSize(16);
     hint->setFont(hintFont);
 
+    while (count() > 0) {
+        removeTab(0);
+    }
+
+
     addTab(hint, "");
 }
 
