@@ -22,6 +22,9 @@ signals:
 private slots:
     void save_to_files();
 
+public slots:
+    void UpdateFilePath(const QString& new_name);
+
 protected:
     // Переопределён, чтобы при закрытии виджета всегда сохранялись изменения
     void hideEvent(QHideEvent *event) override;

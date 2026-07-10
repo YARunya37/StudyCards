@@ -3,6 +3,9 @@
 #include <QFont>
 #include <QCoreApplication>
 #include <QTimer>
+#include <QFileInfo>
+#include <QRegularExpression>
+
 StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_group, const QString& card_name)
     : QWidget{parent},
     fmn{new FileManager(this, local_path_to_group + "/" + card_name)},
@@ -33,13 +36,6 @@ StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_g
     });
     connect(saveTimer, &QTimer::timeout, this, &StudyCardWidget::save_to_files);
 
-
-    // Для изменения имени билета и сохранения управления над ним(самое простое и неэффективное решение по причине сроков)
-    connect(this, &StudyCardWidget::header_changed, this, [this](const QString& new_name){
-        delete fmn;
-        SetName(new_name);
-        fmn = new FileManager(this, localPathToGroup + "/" + name);
-    });
 }
 
 StudyCardWidget::~StudyCardWidget()
@@ -62,20 +58,28 @@ QString StudyCardWidget::GetBodyContent()
 void StudyCardWidget::save_to_files()
 {
     QStringList files = fmn->get_existing_files();
+
+    // Если файлов нет или их меньше 2, создаём
     if(files.length() < 2){
         fmn->create_files(QStringList() << "header" << "body");
     }
-    else{
-        foreach(auto file, files){
-            if(file == "header"){
-                fmn->write_to_file(file, header->toHtml());
-            }
-            else{
-                fmn->write_to_file(file, body->toHtml());
-            }
-        }
-    }
-    emit header_changed(header->toPlainText());
+
+    // Всегда записываем header и body
+    fmn->write_to_file("header", header->toHtml());
+    fmn->write_to_file("body", body->toHtml());
+
+    // Получаем новое имя из заголовка
+    QString newName = header->toPlainText();
+
+    // ОЧИСТКА ИМЕНИ: Заменяем запрещенные символы на подчеркивание
+    // Windows не любит: \ / : * ? " < > |
+    newName.replace(QRegularExpression("[\\\\/:*?\"<>|]"), "_");
+
+    // Если пользователь стёр всё имя, даём дефолтное
+    if (newName.isEmpty()) newName = "Без названия";
+
+    // Отправляем сигнал с очищенным именем
+    emit header_changed(newName);
 }
 
 void StudyCardWidget::hideEvent(QHideEvent *event)
@@ -166,4 +170,12 @@ void StudyCardWidget::DrawHeader()
     int lines = header->document()->lineCount();
     int newHeight = qBound(50, lineHeight * lines + 10, 100);
     header->setFixedHeight(newHeight);
+}
+
+void StudyCardWidget::UpdateFilePath(const QString& new_name)
+{
+    SetName(new_name);
+    delete fmn;
+    // Создаем новый менеджер файлов для обновленной папки
+    fmn = new FileManager(this, localPathToGroup + "/" + name);
 }
