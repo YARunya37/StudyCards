@@ -17,6 +17,9 @@ void TempCardsWidget::onActiveGroupChanged(Group *new_active_group)
         curr_group = new_active_group;
         setupTempCardUI();
     }
+    else{
+        setupInitUI();
+    }
 }
 
 void TempCardsWidget::createEmptyPage()

@@ -110,6 +110,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(controller, &GroupsUIController::active_group_changed, this, [this](Group* new_active_group){
         if(new_active_group){
             setTicketGroupName(new_active_group->Name());
+        }else{
+            setTicketGroupName("Группа не выбрана");
         }
     });
     // Подключаем при выборе активной группы включение временных билетов
