@@ -45,6 +45,7 @@ void GroupsUIController::show_creation_group_dialog()
                 "Группа \"" + group_name + "\" успешно создана.",  // текст
                 QMessageBox::Ok                          // кнопки
                 );
+            gm->SetActiveGroup(group_name);
         }
 
     }
