@@ -35,13 +35,15 @@ GroupWindow::GroupWindow(Group* group, QWidget *parent)
         // Подключаем изменение заголовка
         QListWidgetItem* item = cardList->findItems(card_name, Qt::MatchExactly).value(0);
         connect(group->GetCard(card_name), &StudyCardWidget::header_changed,
-                this,
-                [group, item](const QString& new_name){
-                    if(new_name != ""){
-                        group->RenameCard(item->text(), new_name);
+            this,
+            [group, item](const QString& new_name){
+                // Обновляем только если имя реально изменилось и переименование прошло успешно
+                if(new_name != "" && new_name != item->text()){
+                    if (group->RenameCard(item->text(), new_name)) {
                         item->setText(new_name);
                     }
                 }
+            }
         );
     }
 
@@ -75,14 +77,15 @@ void GroupWindow::add_new_card()
                 // Подключаем возможность менять имя билета
                 QListWidgetItem* new_item = cardList->findItems(card_name, Qt::MatchExactly).value(0);
                 connect(active_card, &StudyCardWidget::header_changed,
-                        this,
-                        [this, new_item](const QString& new_name){
-                            if(new_name != ""){
-                                group->RenameCard(new_item->text(), new_name);
+                    this,
+                    [this, new_item](const QString& new_name){
+                        if(new_name != "" && new_name != new_item->text()){
+                            if (group->RenameCard(new_item->text(), new_name)) {
                                 new_item->setText(new_name);
                             }
                         }
-                        );
+                    }
+                );
             }catch(const std::invalid_argument& e){
                 QMessageBox::warning(
                     qobject_cast<QWidget*>(this->parent()),                          // parent
@@ -192,16 +195,18 @@ void GroupWindow::setupUI()
 
 void GroupWindow::setCard(const QString& card_name)
 {
-    // Убираем предыдущий билет
     if(active_card){
         active_card->hide();
         content->layout()->removeWidget(active_card);
         active_card = nullptr;
     }
-    // Выбираем отображемый билет и устанавливаем его
+
     auto new_card = group->GetCard(card_name);
-    if(!new_card)
-        throw std::invalid_argument("Card is unavaliable!");
+    if(!new_card){
+        qWarning() << "GroupWindow: Card not found:" << card_name;
+        return; // Просто выходим, а не крашим приложение
+    }
+
     active_card = new_card;
     content->layout()->addWidget(active_card);
     active_card->show();

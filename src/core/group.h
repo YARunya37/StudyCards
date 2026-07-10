@@ -22,7 +22,7 @@ public slots:
     bool CreateCard(const QString& card_name);
     bool CreateCard(StudyCardWidget* card);
     bool DeleteCard(const QString& card_name);
-    void RenameCard(const QString& old_name, const QString& new_name);
+    bool RenameCard(const QString &old_name, const QString &new_name);
 private:
     // Список билетов
     QMap<QString, StudyCardWidget*> cards;

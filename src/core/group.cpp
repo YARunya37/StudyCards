@@ -34,6 +34,10 @@ QStringList Group::GetAllCards() const
 
 bool Group::CreateCard(const QString &card_name)
 {
+    QString safeName = card_name;
+    safeName.replace(":", "ː");
+
+
     if(AddItem(card_name)){
         cards.insert(card_name, new StudyCardWidget(nullptr, group_path, card_name));
         return true;
@@ -78,21 +82,21 @@ bool Group::DeleteCard(const QString &card_name)
     }
 }
 
-void Group::RenameCard(const QString &old_name, const QString &new_name)
+bool Group::RenameCard(const QString &old_name, const QString &new_name)
 {
+    // Переименовываем папку на диске
     if(RenameItem(old_name, new_name)){
         auto card = GetCard(old_name);
+        if(!card) return false;
 
-        // Проверка на nullptr
-        if(!card)
-            return;
-
-        // Удаление группы
+        // Обновляем карту билетов
         cards.remove(old_name);
-
-        // Вставка с новым именем
         cards.insert(new_name, card);
-        // Установка нового имени группе
-        card->SetName(new_name);
+
+        // Обновляем путь внутри самой карточки (теперь это безопасно)
+        card->UpdateFilePath(new_name);
+
+        return true;
     }
+    return false;
 }
