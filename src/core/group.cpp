@@ -84,6 +84,10 @@ bool Group::DeleteCard(const QString &card_name)
 
 bool Group::RenameCard(const QString &old_name, const QString &new_name)
 {
+    if (old_name == new_name) {
+        return true; // Имя не изменилось, ничего не делаем
+    }
+
     // Переименовываем папку на диске
     if(RenameItem(old_name, new_name)){
         auto card = GetCard(old_name);
@@ -92,9 +96,7 @@ bool Group::RenameCard(const QString &old_name, const QString &new_name)
         // Обновляем карту билетов
         cards.remove(old_name);
         cards.insert(new_name, card);
-
-        // Обновляем путь внутри самой карточки (теперь это безопасно)
-        card->UpdateFilePath(new_name);
+        card->SetName(new_name);
 
         return true;
     }

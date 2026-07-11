@@ -68,32 +68,23 @@ void GroupWindow::add_new_card()
                 );
         }
         else{
-            try{
-                // Иначе устанавливаем новый билет активным
-                setCard(card_name);
+            // Иначе устанавливаем новый билет активным
+            setCard(card_name);
 
-                cardList->addItem(card_name);
+            cardList->addItem(card_name);
 
-                // Подключаем возможность менять имя билета
-                QListWidgetItem* new_item = cardList->findItems(card_name, Qt::MatchExactly).value(0);
-                connect(active_card, &StudyCardWidget::header_changed,
+            // Подключаем возможность менять имя билета
+            QListWidgetItem* new_item = cardList->findItems(card_name, Qt::MatchExactly).value(0);
+            connect(active_card, &StudyCardWidget::header_changed,
                     this,
                     [this, new_item](const QString& new_name){
-                        if(new_name != "" && new_name != new_item->text()){
-                            if (group->RenameCard(new_item->text(), new_name)) {
-                                new_item->setText(new_name);
-                            }
-                        }
+                if(new_name != "" && new_name != new_item->text()){
+                    if (group->RenameCard(new_item->text(), new_name)) {
+                        new_item->setText(new_name);
                     }
-                );
-            }catch(const std::invalid_argument& e){
-                QMessageBox::warning(
-                    qobject_cast<QWidget*>(this->parent()),                          // parent
-                    "Ошибка создания группы",                // заголовок
-                    e.what(),     // текст
-                    QMessageBox::Ok                          // кнопки
-                    );
+                }
             }
+            );
         }
     }
 
