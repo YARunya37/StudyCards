@@ -1,16 +1,16 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QMessageBox>
-
 #include "filetreewidget.h"
 #include "textformattingtoolbar.h"
 #include "filemanager.h"
 #include "documentui.h"
 #include "groupsuicontroller.h"
 #include "testwindow.h"
+#include "richtextedit.h"
+
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
     containerLayout->addWidget(textToolbar);
 
     // Текстовый редактор
-    QTextEdit* sourceTextWidget = new QTextEdit(this);
+    RichTextEdit* sourceTextWidget = new RichTextEdit(this);
     sourceTextWidget->setPlainText("Добавьте файл с помощью кнопки в панели");
     sourceTextWidget->setReadOnly(true);
     QFont defaultFont("Segoe UI", 14);
