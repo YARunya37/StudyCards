@@ -86,24 +86,22 @@ QStringList Group::GetAllCards() const
     return cards.keys();
 }
 
-bool Group::CreateCard(const QString &question_text)
+QString Group::CreateCard(const QString &question_text)
 {
-    // Генерируем уникальный ID вместо использования текста вопроса
     QString card_id = generateCardId();
 
     if(AddItem(card_id)){
-        // Создаём виджет с ID папки
         StudyCardWidget* card = new StudyCardWidget(nullptr, group_path, card_id);
         cards.insert(card_id, card);
 
-        // Устанавливаем текст вопроса (это запишет его в header.html)
+        // Устанавливаем текст вопроса (он сохранится в header.html)
         card->SetName(question_text);
 
-        return true;
+        return card_id; // Возвращаем ID
     }
     else{
         qInfo() << "Ошибка при создании билета";
-        return false;
+        return "";
     }
 }
 
@@ -141,21 +139,14 @@ bool Group::DeleteCard(const QString &card_name)
     }
 }
 
-void Group::RenameCard(const QString &old_name, const QString &new_name)
+void Group::RenameCard(const QString &card_id, const QString &new_question_text)
 {
-    if(RenameItem(old_name, new_name)){
-        auto card = GetCard(old_name);
+    auto card = GetCard(card_id);
+    if(!card)
+        return;
 
-        // Проверка на nullptr
-        if(!card)
-            return;
-
-        // Удаление группы
-        cards.remove(old_name);
-
-        // Вставка с новым именем
-        cards.insert(new_name, card);
-        // Установка нового имени группе
-        card->SetName(new_name);
-    }
+    // Просто обновляем текст вопроса
+    // Метод save_to_files() в StudyCardWidget сам сохранит это в header.html
+    // Папку мы НЕ переименовываем
+    card->SetName(new_question_text);
 }

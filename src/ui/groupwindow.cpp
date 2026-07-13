@@ -29,19 +29,24 @@ GroupWindow::GroupWindow(Group* group, QWidget *parent)
     connect(deleteShortcut, &QShortcut::activated, this, &GroupWindow::deleteItem);
 
     // Подгружаем все созданные билеты
-    foreach (auto card_name, group->GetAllCards()) {
-        cardList->addItem(card_name);
+    foreach(auto card_id, group->GetAllCards()){ // card_id — это "C1", "C2"...
+        auto card = group->GetCard(card_id);
+        if(!card) continue;
 
-        // Подключаем изменение заголовка
-        QListWidgetItem* item = cardList->findItems(card_name, Qt::MatchExactly).value(0);
-        connect(group->GetCard(card_name), &StudyCardWidget::header_changed,
-                this,
-                [group, item](const QString& new_name){
-                    if(new_name != ""){
-                        group->RenameCard(item->text(), new_name);
-                        item->setText(new_name);
-                    }
+        // Добавляем элемент в список. Текст — это название вопроса (Name())
+        QListWidgetItem* item = new QListWidgetItem(card->Name());
+        item->setData(Qt::UserRole, card_id); // сохраняем ID в скрытое поле
+        cardList->addItem(item);
+
+        connect(card, &StudyCardWidget::header_changed,
+            this,
+            [group, item](const QString& new_name){
+                if(new_name != "" && new_name != item->text()){
+                    QString id = item->data(Qt::UserRole).toString(); // Достаём ID
+                    group->RenameCard(id, new_name);
+                    item->setText(new_name);
                 }
+            }
         );
     }
 
@@ -49,51 +54,39 @@ GroupWindow::GroupWindow(Group* group, QWidget *parent)
 
 void GroupWindow::add_new_card()
 {
-    TextInputDialog dialog = TextInputDialog(this, "Создать билет", "Введите название билета:");
+    TextInputDialog dialog(this, "Создать билет", "Введите текст вопроса:");
+    if (dialog.exec() == QDialog::Accepted) {
+        QString question_text = dialog.getText();
 
-    // Запускаем диалог. Если пользователь принимает имя, то отправляем его на создание
-    if (dialog.exec() == QDialog::Accepted)
-    {
-        QString card_name = dialog.getText();
-        // Если не удалось создать группу выводим сообщение об ошибку
-        if(!group->CreateCard(card_name)){
+        // CreateCard возвращает ID
+        QString card_id = group->CreateCard(question_text);
+
+        if(card_id.isEmpty()){
             QMessageBox::warning(
-                qobject_cast<QWidget*>(this->parent()),                          // parent
-                "Ошибка создания группы",                // заголовок
-                "Билет с именем \"" + card_name + "\" уже существует.\n"
-                                                    "Пожалуйста, выберите другое имя.",     // текст
-                QMessageBox::Ok                          // кнопки
-                );
-        }
-        else{
-            try{
-                // Иначе устанавливаем новый билет активным
-                setCard(card_name);
+                qobject_cast<QWidget*>(this->parent()),
+                "Ошибка создания билета",
+                "Не удалось создать билет."
+            );
+        } else {
+            setCard(card_id); // Передаём ID
 
-                cardList->addItem(card_name);
+            QListWidgetItem* new_item = new QListWidgetItem(question_text);
+            new_item->setData(Qt::UserRole, card_id); // Сохраняем ID
+            cardList->addItem(new_item);
+            cardList->setCurrentItem(new_item);
 
-                // Подключаем возможность менять имя билета
-                QListWidgetItem* new_item = cardList->findItems(card_name, Qt::MatchExactly).value(0);
-                connect(active_card, &StudyCardWidget::header_changed,
-                        this,
-                        [this, new_item](const QString& new_name){
-                            if(new_name != ""){
-                                group->RenameCard(new_item->text(), new_name);
-                                new_item->setText(new_name);
-                            }
-                        }
-                        );
-            }catch(const std::invalid_argument& e){
-                QMessageBox::warning(
-                    qobject_cast<QWidget*>(this->parent()),                          // parent
-                    "Ошибка создания группы",                // заголовок
-                    e.what(),     // текст
-                    QMessageBox::Ok                          // кнопки
-                    );
-            }
+            connect(active_card, &StudyCardWidget::header_changed,
+                this,
+                [this, new_item](const QString& new_name){
+                    if(new_name != "" && new_name != new_item->text()){
+                        QString id = new_item->data(Qt::UserRole).toString();
+                        group->RenameCard(id, new_name);
+                        new_item->setText(new_name);
+                    }
+                }
+            );
         }
     }
-
 }
 
 void GroupWindow::showContextMenu(const QPoint &pos)

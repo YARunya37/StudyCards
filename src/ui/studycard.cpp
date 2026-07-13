@@ -119,8 +119,6 @@ void StudyCardWidget::SetUpUI()
 
     // Настройка header
     QFont header_font = header->font();
-    // Текст будет восстановлен из header.html в RestoreText()
-    // Name() теперь содержит ID папки (C1, C2...), а не текст вопроса
     header->setPlainText("");
     header_font.setPointSize(20);
     header_font.setBold(true);
