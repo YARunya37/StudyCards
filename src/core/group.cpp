@@ -1,5 +1,7 @@
 #include "group.h"
 #include <QCoreApplication>
+#include <QDir>
+#include <QRegularExpression>
 
 Group::Group(const QString& name)
     : NamedFileItem(name),
@@ -10,6 +12,27 @@ Group::Group(const QString& name)
         auto card = new StudyCardWidget(nullptr, group_path, item);
         cards.insert(item, card);
     }
+}
+
+QString Group::generateCardId()
+{
+    // Сканируем существующие папки и находим максимальный ID
+    QDir dir(QCoreApplication::applicationDirPath() + group_path);
+    QStringList folders = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    int max_id = 0;
+    QRegularExpression re("^C(\\d+)$");
+
+    foreach (const QString& folder, folders) {
+        QRegularExpressionMatch match = re.match(folder);
+        if (match.hasMatch()) {
+            int id = match.captured(1).toInt();
+            if (id > max_id)
+                max_id = id;
+        }
+    }
+
+    return "C" + QString::number(max_id + 1);
 }
 
 StudyCardWidget* Group::GetCard(const QString &name) const

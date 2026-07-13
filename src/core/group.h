@@ -28,7 +28,8 @@ private:
     QMap<QString, StudyCardWidget*> cards;
     // Путь к группе
     const QString group_path;
-
+    // Генерация уникального ID для билета (C1, C2, C3...)
+    QString generateCardId();
 };
 
 #endif // GROUP_H
