@@ -8,6 +8,8 @@ Group::Group(const QString& name)
     group_path{"/resources/usergroups/" + name},
     DirItemsManager(QCoreApplication::applicationDirPath() + "/resources/usergroups/" + name)
 {
+    MigrateOldCards();
+
     foreach(auto item, RestoreItems()){
         auto card = new StudyCardWidget(nullptr, group_path, item);
         cards.insert(item, card);
@@ -33,6 +35,35 @@ QString Group::generateCardId()
     }
 
     return "C" + QString::number(max_id + 1);
+}
+
+void Group::MigrateOldCards()
+{
+    QDir dir(QCoreApplication::applicationDirPath() + group_path);
+    QStringList folders = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    QRegularExpression re("^C(\\d+)$");
+
+    foreach (const QString& folder, folders) {
+        // Если папка НЕ соответствует формату C1, C2...
+        if (!re.match(folder).hasMatch()) {
+            // Проверяем, есть ли header.html (значит это старый билет)
+            QString folder_path = dir.absolutePath() + "/" + folder;
+            QString header_path = folder_path + "/header.html";
+
+            if (QFile::exists(header_path)) {
+                // Генерируем новый ID для этой папки
+                QString new_id = generateCardId();
+
+                // Переименовываем папку
+                if (dir.rename(folder, new_id)) {
+                    qInfo() << "Миграция билета:" << folder << "->" << new_id;
+                } else {
+                    qWarning() << "Не удалось переименовать папку:" << folder;
+                }
+            }
+        }
+    }
 }
 
 StudyCardWidget* Group::GetCard(const QString &name) const

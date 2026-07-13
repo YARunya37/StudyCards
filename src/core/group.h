@@ -30,6 +30,8 @@ private:
     const QString group_path;
     // Генерация уникального ID для билета (C1, C2, C3...)
     QString generateCardId();
+    // Миграция старых билетов (где имя папки = тексту вопроса)
+    void MigrateOldCards();
 };
 
 #endif // GROUP_H
