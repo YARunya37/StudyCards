@@ -35,14 +35,6 @@ StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_g
         saveTimer->start(); // перезапускаем таймер
     });
     connect(saveTimer, &QTimer::timeout, this, &StudyCardWidget::save_to_files);
-
-
-    // Для изменения имени билета и сохранения управления над ним(самое простое и неэффективное решение по причине сроков)
-    connect(this, &StudyCardWidget::header_changed, this, [this](const QString& new_name){
-        delete fmn;
-        SetName(new_name);
-        fmn = new FileManager(this, localPathToGroup + "/" + name);
-    });
 }
 
 StudyCardWidget::~StudyCardWidget()
@@ -127,7 +119,9 @@ void StudyCardWidget::SetUpUI()
 
     // Настройка header
     QFont header_font = header->font();
-    header->setPlainText(Name());
+    // Текст будет восстановлен из header.html в RestoreText()
+    // Name() теперь содержит ID папки (C1, C2...), а не текст вопроса
+    header->setPlainText("");
     header_font.setPointSize(20);
     header_font.setBold(true);
     header->setFont(header_font);
