@@ -86,10 +86,19 @@ QStringList Group::GetAllCards() const
     return cards.keys();
 }
 
-bool Group::CreateCard(const QString &card_name)
+bool Group::CreateCard(const QString &question_text)
 {
-    if(AddItem(card_name)){
-        cards.insert(card_name, new StudyCardWidget(nullptr, group_path, card_name));
+    // Генерируем уникальный ID вместо использования текста вопроса
+    QString card_id = generateCardId();
+
+    if(AddItem(card_id)){
+        // Создаём виджет с ID папки
+        StudyCardWidget* card = new StudyCardWidget(nullptr, group_path, card_id);
+        cards.insert(card_id, card);
+
+        // Устанавливаем текст вопроса (это запишет его в header.html)
+        card->SetName(question_text);
+
         return true;
     }
     else{

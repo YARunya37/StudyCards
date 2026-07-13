@@ -19,7 +19,7 @@ public:
     // Метод для получения имён всех билетов
     QStringList GetAllCards() const;
 public slots:
-    bool CreateCard(const QString& card_name);
+    bool CreateCard(const QString& question_text);
     bool CreateCard(StudyCardWidget* card);
     bool DeleteCard(const QString& card_name);
     void RenameCard(const QString& old_name, const QString& new_name);
