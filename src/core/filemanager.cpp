@@ -1,4 +1,4 @@
-#include "filemanager.h"
+﻿#include "filemanager.h"
 #include <QCoreApplication>
 #include <QDir>
 
@@ -280,42 +280,21 @@ void FileManager::remove_item_from_folder(const QString &item, const QString &fo
     }
 }
 
-void FileManager::rename_folder(const QString &old_name, const QString &new_name)
+void FileManager::rename_folder(const QString& old_name, const QString& new_name)
 {
     QFile* renamed_folder = localFolders.value(old_name);
     if (!renamed_folder) {
         qWarning() << "FileManager: Cannot rename - folder not found:" << old_name;
-        return;  // Выходим без ошибки
+        return;
     }
 
-    QStringList lines;
-    // Сохраняем все записи о папке
-    if(renamed_folder->open(QIODevice::ReadOnly)){
-        QTextStream read(renamed_folder);
-        QString line;
-        while(!read.atEnd()){
-            line = read.readLine();
-            lines.append(line);
-        }
-        renamed_folder->close();
-    }
-
-    // Переименовываем файл на диске (вместо remove + create)
+    // Переименовываем файл на диске
     QString old_path = localfilesPath + old_name + ".txt";
     QString new_path = localfilesPath + new_name + ".txt";
 
-    // Проверяем, существует ли файл
-    if (!QFile::exists(old_path)) {
-        qWarning() << "FileManager: Source file does not exist:" << old_path;
-        // Создаём новый файл, если старого нет
-        QFile new_file(new_path);
-        if(new_file.open(QIODevice::WriteOnly)){
-            new_file.close();
-        }
-    } else if (!QFile::rename(old_path, new_path)) {
+    if (!QFile::rename(old_path, new_path)) {
         qWarning() << "FileManager: Failed to rename file from" << old_path << "to" << new_path;
-        qWarning() << "Error:" << renamed_folder->errorString();
-        return;  // <- Важно: выходим без обновления map
+        return;
     }
 
     // Обновляем map
@@ -324,11 +303,6 @@ void FileManager::rename_folder(const QString &old_name, const QString &new_name
 
     QFile* new_folder = new QFile(new_path);
     localFolders.insert(new_name, new_folder);
-
-    // Добавляем все сохранённые строки в папку
-    foreach(auto line, lines){
-        add_item_to_folder(line, new_name);
-    }
 }
 
 QStringList FileManager::get_existing_folders() const
