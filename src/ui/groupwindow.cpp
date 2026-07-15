@@ -16,7 +16,7 @@ GroupWindow::GroupWindow(Group* group, QWidget *parent)
 
     // НАСТРОЙКА СПИСКА БИЛЕТОВ
     connect(cardList, &QListWidget::itemDoubleClicked, this, [this](const QListWidgetItem* item){
-        setCard(item->text());
+        setCard(item->data(Qt::UserRole).toString());
     });
 
     // Настройка собственного меню
@@ -29,22 +29,27 @@ GroupWindow::GroupWindow(Group* group, QWidget *parent)
     connect(deleteShortcut, &QShortcut::activated, this, &GroupWindow::deleteItem);
 
     // Подгружаем все созданные билеты
-    foreach(auto card_id, group->GetAllCards()){ // card_id — это "C1", "C2"...
+    foreach(auto card_id, group->GetAllCards()){
         auto card = group->GetCard(card_id);
         if(!card) continue;
 
-        // Добавляем элемент в список. Текст — это название вопроса (Name())
-        QListWidgetItem* item = new QListWidgetItem(card->Name());
-        item->setData(Qt::UserRole, card_id); // сохраняем ID в скрытое поле
+        QString question_text = card->GetQuestionTextFromFile().simplified();
+        if (question_text.isEmpty() || question_text == "Ошибка чтения файла")
+            question_text = card->GetQuestionText().simplified();
+        if(question_text.isEmpty())
+            question_text = "Билет " + card_id;
+
+        QListWidgetItem* item = new QListWidgetItem(question_text);
+        item->setData(Qt::UserRole, card_id);   // сохраняем ID
         cardList->addItem(item);
 
         connect(card, &StudyCardWidget::header_changed,
             this,
-            [group, item](const QString& new_name){
-                if(new_name != "" && new_name != item->text()){
-                    QString id = item->data(Qt::UserRole).toString(); // Достаём ID
-                    group->RenameCard(id, new_name);
-                    item->setText(new_name);
+            [this, item, card_id](const QString& new_name) {
+                QString cleaned = new_name.simplified();
+                if (!cleaned.isEmpty() && cleaned != item->text()) {
+                    this->group->RenameCard(card_id, cleaned);
+                    item->setText(cleaned);
                 }
             }
         );
@@ -56,17 +61,16 @@ void GroupWindow::add_new_card()
 {
     TextInputDialog dialog(this, "Создать билет", "Введите текст вопроса:");
     if (dialog.exec() == QDialog::Accepted) {
-        QString question_text = dialog.getText();
-
+        QString question_text = dialog.getText().simplified();
+        if (question_text.isEmpty()) {
+            QMessageBox::warning(this, "Ошибка", "Текст вопроса не может быть пустым.");
+            return;
+        }
         // CreateCard возвращает ID
         QString card_id = group->CreateCard(question_text);
 
         if(card_id.isEmpty()){
-            QMessageBox::warning(
-                qobject_cast<QWidget*>(this->parent()),
-                "Ошибка создания билета",
-                "Не удалось создать билет."
-            );
+            QMessageBox::warning(this, "Ошибка создания билета", "Не удалось создать билет.");
         } else {
             setCard(card_id); // Передаём ID
 
@@ -77,11 +81,11 @@ void GroupWindow::add_new_card()
 
             connect(active_card, &StudyCardWidget::header_changed,
                 this,
-                [this, new_item](const QString& new_name){
-                    if(new_name != "" && new_name != new_item->text()){
-                        QString id = new_item->data(Qt::UserRole).toString();
-                        group->RenameCard(id, new_name);
-                        new_item->setText(new_name);
+                [this, new_item, card_id](const QString& new_name) {
+                    QString cleaned = new_name.simplified();
+                    if (!cleaned.isEmpty() && cleaned != new_item->text()) {
+                        this->group->RenameCard(card_id, cleaned);
+                        new_item->setText(cleaned);
                     }
                 }
             );
@@ -113,6 +117,10 @@ void GroupWindow::showContextMenu(const QPoint &pos)
 void GroupWindow::deleteItem()
 {
     QListWidgetItem *item = cardList->currentItem();
+    if(!item) return;
+    QString card_id = item->data(Qt::UserRole).toString();
+    if(card_id.isEmpty()) return;
+
     // Создаём окно подтверждения
     QMessageBox msgBox(this);
     msgBox.setWindowTitle("Подтверждение");
@@ -125,10 +133,10 @@ void GroupWindow::deleteItem()
     msgBox.button(QMessageBox::No)->setText("Нет");
 
     bool isActiveCard = false;
-    if(group->GetCard(item->text()) == active_card){
+    if(group->GetCard(card_id) == active_card){
         isActiveCard = true;
     }
-    if (msgBox.exec() == QMessageBox::Yes && group->DeleteCard(item->text())) {
+    if (msgBox.exec() == QMessageBox::Yes && group->DeleteCard(card_id)) {
         if(isActiveCard){
             active_card = nullptr;
         }
@@ -183,7 +191,7 @@ void GroupWindow::setupUI()
     this->setCentralWidget(centralWidget);
 }
 
-void GroupWindow::setCard(const QString& card_name)
+void GroupWindow::setCard(const QString& card_id)
 {
     // Убираем предыдущий билет
     if(active_card){
@@ -192,7 +200,7 @@ void GroupWindow::setCard(const QString& card_name)
         active_card = nullptr;
     }
     // Выбираем отображемый билет и устанавливаем его
-    auto new_card = group->GetCard(card_name);
+    auto new_card = group->GetCard(card_id);
     if(!new_card)
         throw std::invalid_argument("Card is unavaliable!");
     active_card = new_card;

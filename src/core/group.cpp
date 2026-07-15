@@ -145,6 +145,9 @@ bool Group::DeleteCard(const QString &card_name)
 
 void Group::RenameCard(const QString &card_id, const QString &new_question_text)
 {
+    if (new_question_text.simplified().isEmpty())
+        return;   // не переименовываем на пустой вопрос
+
     auto card = GetCard(card_id);
     if(!card)
         return;
