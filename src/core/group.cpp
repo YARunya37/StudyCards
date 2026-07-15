@@ -88,19 +88,23 @@ QStringList Group::GetAllCards() const
 
 QString Group::CreateCard(const QString &question_text)
 {
+    qInfo() << "CreateCard: вопрос =" << question_text;
+
     QString card_id = generateCardId();
+    qInfo() << "CreateCard: сгенерирован ID =" << card_id;
 
     if(AddItem(card_id)){
+        qInfo() << "CreateCard: папка создана успешно";
+
         StudyCardWidget* card = new StudyCardWidget(nullptr, group_path, card_id);
         cards.insert(card_id, card);
+        card->SetQuestionText(question_text);  // сохраняем вопрос в header.html
 
-        // Устанавливаем текст вопроса (он сохранится в header.html)
-        card->SetName(question_text);
-
-        return card_id; // Возвращаем ID
+        qInfo() << "CreateCard: билет успешно создан";
+        return card_id;
     }
     else{
-        qInfo() << "Ошибка при создании билета";
+        qWarning() << "CreateCard: ошибка при создании папки" << card_id;
         return "";
     }
 }
