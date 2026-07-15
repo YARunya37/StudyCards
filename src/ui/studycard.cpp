@@ -53,6 +53,26 @@ QString StudyCardWidget::GetBodyContent()
     return body->toHtml();
 }
 
+void StudyCardWidget::SetQuestionText(const QString& text)
+{
+    header->setHtml(text);
+    save_to_files();
+}
+
+QString StudyCardWidget::GetQuestionText() const
+{
+    return header->toPlainText();
+}
+
+QString StudyCardWidget::GetQuestionTextFromFile() const
+{
+    // Читаем напрямую из header.html
+    QString content = fmn->get_file_content("header");
+    // Конвертируем HTML в plain text
+    QTextDocument doc;
+    doc.setHtml(content);
+    return doc.toPlainText();
+}
 
 void StudyCardWidget::save_to_files()
 {
