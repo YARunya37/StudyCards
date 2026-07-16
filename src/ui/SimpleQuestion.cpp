@@ -76,16 +76,16 @@ void SimpleQuestion::setup_back()
                 "}"
             );
 
-    // КНОПКА "ПОКАЗАТЬ ВОПРОС" (ПЕРЕВОРОТ)
-    QPushButton* flipButton = new QPushButton("🔄 Показать вопрос", back);
+    // Кнопка "показать вопрос" (переворот)
+    QPushButton* flipButton = new QPushButton("Показать вопрос", back);
         flipButton->setStyleSheet(
             "QPushButton {"
             "    background-color: #2196F3;"
             "    color: white;"
             "    border: none;"
             "    border-radius: 4px;"
-            "    padding: 6px 12px;"
-            "    font-size: 11px;"
+            "    padding: 8px 12px;"
+            "    font-size: 14px;"
             "    font-weight: bold;"
             "    min-height: 30px;"
             "}"
@@ -159,18 +159,18 @@ void SimpleQuestion::setup_back()
     connect(correctButton, &QPushButton::clicked, this, &SimpleQuestion::onCorrectClicked);
     connect(incorrectButton, &QPushButton::clicked, this, &SimpleQuestion::onIncorrectClicked);
 
-    // Layout для кнопок Верно/Неверно
+    // Горизонтальный layout для кнопок "Верно"/"Неверно"
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
     buttonsLayout->addWidget(correctButton);
     buttonsLayout->addWidget(incorrectButton);
 
-    // Layout для кнопки "Показать вопрос" и пары Верно/Неверно
+    // Вертикальный layout: кнопка переворота + кнопки Верно/Неверно
     QVBoxLayout *bottomLayout = new QVBoxLayout();
     bottomLayout->addWidget(flipButton);
     bottomLayout->addLayout(buttonsLayout);
 
     // Добавляем в основной layout
-    backLayout->addWidget(answerText, 1);  // растягивается
+    backLayout->addWidget(answerText);  // растягивается
     backLayout->addLayout(bottomLayout);   // прижат к низу
 }
 
