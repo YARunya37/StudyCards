@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     this->showMaximized();
     setWindowTitle("StudyCards");
-    setWindowIcon(QIcon(":/icons/AppIcon.png"));
+    setWindowIcon(QIcon(":/icons/AppIcon.ico"));
     // Создаём FileTreeWidget
     FileTreeWidget* sourceTree = new FileTreeWidget(this);
     ui->horizontalLayout->addWidget(sourceTree);
