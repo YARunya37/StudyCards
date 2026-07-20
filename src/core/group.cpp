@@ -111,10 +111,12 @@ QString Group::CreateCard(const QString &question_text)
 
 bool Group::CreateCard(StudyCardWidget* card)
 {
-    if(AddItem(card->Name())){
+    QString card_id = generateCardId();
+    if(AddItem(card_id)){
+        card->SetName(card_id);
         StudyCardWidget* local_card = card;
         card->setParent(nullptr);
-        cards.insert(local_card->Name(), local_card);
+        cards.insert(card_id, local_card);
         return true;
     }
     else{
