@@ -8,7 +8,6 @@ qt_add_executable(StudyCards
     WIN32 MACOSX_BUNDLE
     main.cpp
     ${CMAKE_SOURCE_DIR}/resources/resources.qrc
-    ${CMAKE_SOURCE_DIR}/resources/resources.rc
     # core/Main.cpp
 )
 
