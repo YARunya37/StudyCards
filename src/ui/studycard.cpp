@@ -87,16 +87,10 @@ void StudyCardWidget::save_to_files()
     if(files.length() < 2){
         fmn->create_files(QStringList() << "header" << "body");
     }
-    else{
-        foreach(auto file, files){
-            if(file == "header"){
-                fmn->write_to_file(file, header->toHtml());
-            }
-            else{
-                fmn->write_to_file(file, body->toHtml());
-            }
-        }
-    }
+
+    fmn->write_to_file("header", header->toHtml());
+    fmn->write_to_file("body", body->toHtml());
+
     emit header_changed(header->toPlainText());
 }
 
