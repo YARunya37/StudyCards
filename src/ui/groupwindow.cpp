@@ -48,7 +48,6 @@ GroupWindow::GroupWindow(Group* group, QWidget *parent)
             [this, item, card_id](const QString& new_name) {
                 QString cleaned = new_name.simplified();
                 if (!cleaned.isEmpty() && cleaned != item->text()) {
-                    this->group->RenameCard(card_id, cleaned);
                     item->setText(cleaned);
                 }
             }
@@ -84,7 +83,6 @@ void GroupWindow::add_new_card()
                 [this, new_item, card_id](const QString& new_name) {
                     QString cleaned = new_name.simplified();
                     if (!cleaned.isEmpty() && cleaned != new_item->text()) {
-                        this->group->RenameCard(card_id, cleaned);
                         new_item->setText(cleaned);
                     }
                 }
