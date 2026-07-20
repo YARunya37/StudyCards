@@ -51,11 +51,50 @@ void SimpleQuestion::setup_back()
 {
     // Создаем layout для обратной стороны
     QVBoxLayout *backLayout = new QVBoxLayout(back);
+    backLayout->setContentsMargins(20, 20, 20, 20);  // добавьте отступы
+    backLayout->setSpacing(15);
 
     // Текст ответа
     answerText = new QTextEdit(back);
-    answerText->setHtml(refCard->GetBodyContent());
     answerText->setReadOnly(true);
+
+    // Оборачиваем HTML-контент в div с чёрным цветом и белым фоном
+        QString bodyContent = refCard->GetBodyContent();
+        bodyContent = QString(
+            "<div style='color: black; background-color: white; padding: 16px;'>"
+            "%1"
+            "</div>"
+        ).arg(bodyContent);
+        answerText->setHtml(bodyContent);
+
+        // Добавляем рамку через styleSheet
+            answerText->setStyleSheet(
+                "QTextEdit {"
+                "    border: 1px solid #E0E0E0;"
+                "    border-radius: 8px;"
+                "    background-color: white;"
+                "}"
+            );
+
+    // Кнопка "показать вопрос" (переворот)
+    QPushButton* flipButton = new QPushButton("Показать вопрос", back);
+        flipButton->setStyleSheet(
+            "QPushButton {"
+            "    background-color: #2196F3;"
+            "    color: white;"
+            "    border: none;"
+            "    border-radius: 4px;"
+            "    padding: 8px 12px;"
+            "    font-size: 14px;"
+            "    font-weight: bold;"
+            "    min-height: 30px;"
+            "}"
+            "QPushButton:hover { background-color: #1976D2; }"
+            "QPushButton:pressed { background-color: #0D47A1; }"
+        );
+    connect(flipButton, &QPushButton::clicked, this, [this](){
+        ShowFace();  // Показываем лицевую сторону (вопрос)
+    });
 
     // Кнопки верно/неверно
     correctButton = new QPushButton("Верно", back);
@@ -120,14 +159,19 @@ void SimpleQuestion::setup_back()
     connect(correctButton, &QPushButton::clicked, this, &SimpleQuestion::onCorrectClicked);
     connect(incorrectButton, &QPushButton::clicked, this, &SimpleQuestion::onIncorrectClicked);
 
-    // Layout для кнопок
+    // Горизонтальный layout для кнопок "Верно"/"Неверно"
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
     buttonsLayout->addWidget(correctButton);
     buttonsLayout->addWidget(incorrectButton);
 
+    // Вертикальный layout: кнопка переворота + кнопки Верно/Неверно
+    QVBoxLayout *bottomLayout = new QVBoxLayout();
+    bottomLayout->addWidget(flipButton);
+    bottomLayout->addLayout(buttonsLayout);
+
     // Добавляем в основной layout
-    backLayout->addWidget(answerText);
-    backLayout->addLayout(buttonsLayout);
+    backLayout->addWidget(answerText);  // растягивается
+    backLayout->addLayout(bottomLayout);   // прижат к низу
 }
 
 Question *SimpleQuestion::Clone() const
