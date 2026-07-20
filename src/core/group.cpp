@@ -115,7 +115,10 @@ bool Group::CreateCard(StudyCardWidget* card)
     if(AddItem(card_id)){
         card->SetName(card_id);
         StudyCardWidget* local_card = card;
+
+        // По сути прячем карточку(вызываем hideEvent с сохранением)
         card->setParent(nullptr);
+
         cards.insert(card_id, local_card);
         return true;
     }
