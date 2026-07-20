@@ -3,6 +3,7 @@
 
 #include <QTextEdit>
 #include "textformattingtoolbar.h"
+#include "documentui.h"
 #include "tempcardswidget.h"
 #include <QMainWindow>
 #include <QSplitter>
@@ -29,13 +30,15 @@ public slots:
 private slots:
     void startTest();
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
 private:
     Ui::MainWindow *ui;
     QWidget* tempGroupContainer;
     QWidget* midContentContainer;
     QLabel* ticketGroupLabel;
     TempCardsWidget* cardsWidget;
-
+    DocumentUI* m_documentUI;
     // Метод для создания разделителя между основными виджетами
     void SetUpSPlitter();
 };

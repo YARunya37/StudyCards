@@ -25,6 +25,9 @@ public:
     // Подключение действий меню
     void connectMenuActions(QAction* actionSave);
 
+    // Для проверки возможности закрытия окна
+    bool CanClose();
+
 private slots:
     // Обработчик действия "сохранение"
     void onFileSave();

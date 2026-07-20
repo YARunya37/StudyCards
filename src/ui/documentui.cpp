@@ -42,6 +42,11 @@ void DocumentUI::connectMenuActions(QAction* actionSave)
     connect(actionSave, &QAction::triggered, this, &DocumentUI::onFileSave);
 }
 
+bool DocumentUI::CanClose()
+{
+    return confirmSaveChanges();
+}
+
 void DocumentUI::updateWindowTitle(const QString& fileName, bool isModified)
 {
     QString title = "StudyCards";
