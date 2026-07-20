@@ -22,6 +22,8 @@ public:
     void SetQuestionText(const QString& text);
     QString GetQuestionText() const;
     QString GetQuestionTextFromFile() const;
+
+    void SetName(const QString& new_name) override;
 signals:
     void header_changed(const QString& new_header);
 

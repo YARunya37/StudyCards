@@ -74,6 +74,13 @@ QString StudyCardWidget::GetQuestionTextFromFile() const
     return doc.toPlainText();
 }
 
+void StudyCardWidget::SetName(const QString &new_name)
+{
+    NamedFileItem::SetName(new_name);
+    delete fmn;
+    fmn = new FileManager(this, localPathToGroup + "/" + new_name);
+}
+
 void StudyCardWidget::save_to_files()
 {
     QStringList files = fmn->get_existing_files();
