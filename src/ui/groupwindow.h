@@ -29,7 +29,7 @@ private:
 
     void setupUI();
 
-    void setCard(const QString& card_name);
+    void setCard(const QString& card_id);
     // Создаёт панель с кнопками. Возвращает созданную панель
     QFrame* create_button_panel();
 };

@@ -141,8 +141,6 @@ bool TempCardsWidget::addToGroup()
     auto card = this->currentWidget()->findChild<StudyCardWidget*>();
     // Создаём в группе текущий билет
     if(card && curr_group->CreateCard(card)){
-        // Прячем билет, чтобы вызвать сохранение текста перед удалением
-        card->hide();
 
         // Удаляем вкладку
         remove_curr_tab();

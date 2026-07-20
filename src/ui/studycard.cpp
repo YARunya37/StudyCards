@@ -21,7 +21,6 @@ StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_g
         fmn->create_files(QStringList() << "header" << "body");
         save_to_files();
     }
-    // Для сохранения изменений
 
     // Используем таймер, который по истечении вызовет сохранение текущего состояния виджетов
     QTimer *saveTimer = new QTimer(this);
@@ -35,14 +34,6 @@ StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_g
         saveTimer->start(); // перезапускаем таймер
     });
     connect(saveTimer, &QTimer::timeout, this, &StudyCardWidget::save_to_files);
-
-
-    // Для изменения имени билета и сохранения управления над ним(самое простое и неэффективное решение по причине сроков)
-    connect(this, &StudyCardWidget::header_changed, this, [this](const QString& new_name){
-        delete fmn;
-        SetName(new_name);
-        fmn = new FileManager(this, localPathToGroup + "/" + name);
-    });
 }
 
 StudyCardWidget::~StudyCardWidget()
@@ -61,6 +52,33 @@ QString StudyCardWidget::GetBodyContent()
     return body->toHtml();
 }
 
+void StudyCardWidget::SetQuestionText(const QString& text)
+{
+    header->setHtml(text);
+    save_to_files();
+}
+
+QString StudyCardWidget::GetQuestionText() const
+{
+    return header->toPlainText();
+}
+
+QString StudyCardWidget::GetQuestionTextFromFile() const
+{
+    // Читаем напрямую из header.html
+    QString content = fmn->get_file_content("header");
+    // Конвертируем HTML в plain text
+    QTextDocument doc;
+    doc.setHtml(content);
+    return doc.toPlainText();
+}
+
+void StudyCardWidget::SetName(const QString &new_name)
+{
+    NamedFileItem::SetName(new_name);
+    delete fmn;
+    fmn = new FileManager(this, localPathToGroup + "/" + new_name);
+}
 
 void StudyCardWidget::save_to_files()
 {
@@ -68,16 +86,10 @@ void StudyCardWidget::save_to_files()
     if(files.length() < 2){
         fmn->create_files(QStringList() << "header" << "body");
     }
-    else{
-        foreach(auto file, files){
-            if(file == "header"){
-                fmn->write_to_file(file, header->toHtml());
-            }
-            else{
-                fmn->write_to_file(file, body->toHtml());
-            }
-        }
-    }
+
+    fmn->write_to_file("header", header->toHtml());
+    fmn->write_to_file("body", body->toHtml());
+
     emit header_changed(header->toPlainText());
 }
 
@@ -127,7 +139,7 @@ void StudyCardWidget::SetUpUI()
 
     // Настройка header
     QFont header_font = header->font();
-    header->setPlainText(Name());
+    header->setPlainText(name);
     header_font.setPointSize(20);
     header_font.setBold(true);
     header->setFont(header_font);

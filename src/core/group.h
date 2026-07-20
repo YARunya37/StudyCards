@@ -19,16 +19,19 @@ public:
     // Метод для получения имён всех билетов
     QStringList GetAllCards() const;
 public slots:
-    bool CreateCard(const QString& card_name);
+    QString CreateCard(const QString &question_text);
     bool CreateCard(StudyCardWidget* card);
     bool DeleteCard(const QString& card_name);
-    void RenameCard(const QString& old_name, const QString& new_name);
+    void RenameCard(const QString &card_id, const QString &new_question_text);
 private:
     // Список билетов
     QMap<QString, StudyCardWidget*> cards;
     // Путь к группе
     const QString group_path;
-
+    // Генерация уникального ID для билета (C1, C2, C3...)
+    QString generateCardId();
+    // Миграция старых билетов (где имя папки = тексту вопроса)
+    void MigrateOldCards();
 };
 
 #endif // GROUP_H

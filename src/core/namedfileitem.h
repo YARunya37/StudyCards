@@ -9,7 +9,7 @@ public:
     NamedFileItem(const QString& name);
 
     QString Name() const;
-    void SetName(const QString& new_name);
+    virtual void SetName(const QString& new_name);
 protected:
     QString name;
 };
