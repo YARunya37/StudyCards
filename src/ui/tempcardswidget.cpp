@@ -17,6 +17,9 @@ void TempCardsWidget::onActiveGroupChanged(Group *new_active_group)
         curr_group = new_active_group;
         setupTempCardUI();
     }
+    else{
+        setupInitUI();
+    }
 }
 
 void TempCardsWidget::createEmptyPage()
@@ -184,6 +187,12 @@ void TempCardsWidget::setupInitUI()
     QFont hintFont = QFont();
     hintFont.setPointSize(16);
     hint->setFont(hintFont);
+
+    // Удаляем все вкладки, которые были до этого
+    while (count() > 0) {
+        removeTab(0);
+    }
+
 
     addTab(hint, "");
 }

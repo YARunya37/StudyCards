@@ -10,7 +10,11 @@ GroupsUIController::GroupsUIController(QObject *parent)
 {
     // Для тестов выбора активной группы
     connect(gm, &GroupManager::active_group_changed, this, [this](Group* new_active_group){
-        qInfo() << "Активная группа" << new_active_group->Name();
+        if(new_active_group)
+        {
+            qInfo() << "Активная группа" << new_active_group->Name();
+        }
+
     });
 
     // Перебрасываем сигнал об успешной смене группы
