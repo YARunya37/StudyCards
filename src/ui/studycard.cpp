@@ -21,7 +21,6 @@ StudyCardWidget::StudyCardWidget(QWidget *parent, const QString& local_path_to_g
         fmn->create_files(QStringList() << "header" << "body");
         save_to_files();
     }
-    // Для сохранения изменений
 
     // Используем таймер, который по истечении вызовет сохранение текущего состояния виджетов
     QTimer *saveTimer = new QTimer(this);
@@ -140,7 +139,7 @@ void StudyCardWidget::SetUpUI()
 
     // Настройка header
     QFont header_font = header->font();
-    header->setPlainText("");
+    header->setPlainText(name);
     header_font.setPointSize(20);
     header_font.setBold(true);
     header->setFont(header_font);
