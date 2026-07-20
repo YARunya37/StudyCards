@@ -1,16 +1,17 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QMessageBox>
-#include <QCloseEvent>
 #include "filetreewidget.h"
 #include "textformattingtoolbar.h"
 #include "filemanager.h"
 #include "documentui.h"
 #include "groupsuicontroller.h"
 #include "testwindow.h"
+#include "richtextedit.h"
+
+#include <QCloseEvent>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -35,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
     containerLayout->addWidget(textToolbar);
 
     // Текстовый редактор
-    QTextEdit* sourceTextWidget = new QTextEdit(this);
+    RichTextEdit* sourceTextWidget = new RichTextEdit(this);
     sourceTextWidget->setPlainText("Добавьте файл с помощью кнопки в панели");
     sourceTextWidget->setReadOnly(true);
     QFont defaultFont("Segoe UI", 14);
@@ -110,6 +111,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(controller, &GroupsUIController::active_group_changed, this, [this](Group* new_active_group){
         if(new_active_group){
             setTicketGroupName(new_active_group->Name());
+        }else{
+            setTicketGroupName("Группа не выбрана");
         }
     });
     // Подключаем при выборе активной группы включение временных билетов

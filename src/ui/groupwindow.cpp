@@ -44,7 +44,17 @@ GroupWindow::GroupWindow(Group* group, QWidget *parent)
                 }
         );
     }
-
+    // Автоматически выбираем первый билет
+    QStringList cards = group->GetAllCards();
+    if(!cards.isEmpty()){
+        QString firstCardName = cards.first();
+        cardList->setCurrentRow(0);
+        try {
+            setCard(firstCardName);
+        } catch (...) {
+            qWarning() << "Failed to load first card:" << firstCardName;
+        }
+    }
 }
 
 void GroupWindow::add_new_card()
