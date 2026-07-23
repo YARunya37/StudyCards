@@ -8,7 +8,7 @@ class DirItemsManager : public IFileItemsManager
 {
 public:
     DirItemsManager(const QString& path_to_working_dir);
-
+    QString GetLastError() const;
 protected:
     // Текущая рабочая директория
     QDir currDir;
@@ -22,6 +22,7 @@ protected:
     // Метод для восстановления уже существующих объектов
     QStringList RestoreItems() override;
 
+    QString lastError;
 private:
     bool IsValidItemName(const QString& name) const;
 };
