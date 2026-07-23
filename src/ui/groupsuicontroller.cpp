@@ -33,22 +33,24 @@ void GroupsUIController::show_creation_group_dialog()
     {
         QString group_name = dialog.getText();
         // Если не удалось создать группу выводим сообщение об ошибку
-        if(!gm->CreateGroup(group_name)){
+        if (!gm->CreateGroup(group_name))
+        {
             QMessageBox::warning(
-                qobject_cast<QWidget*>(this->parent()),                          // parent
-                "Ошибка создания группы",                // заголовок
-                "Группа с именем \"" + group_name + "\" уже существует.\n"
-                 "Пожалуйста, выберите другое имя.",     // текст
-                QMessageBox::Ok                          // кнопки
+                qobject_cast<QWidget*>(parent()),
+                "Ошибка создания группы",
+                gm->GetLastError(),
+                QMessageBox::Ok
                 );
-        }else {
-            // Уведомление об успешном создании группы
+        }
+        else
+        {
             QMessageBox::information(
-                qobject_cast<QWidget*>(this->parent()),                          // parent
-                "Успешно",                               // заголовок
-                "Группа \"" + group_name + "\" успешно создана.",  // текст
-                QMessageBox::Ok                          // кнопки
+                qobject_cast<QWidget*>(parent()),
+                "Успешно",
+                "Группа \"" + group_name + "\" успешно создана.",
+                QMessageBox::Ok
                 );
+
             gm->SetActiveGroup(group_name);
         }
 
@@ -92,9 +94,22 @@ void GroupsUIController::show_delete_group_window()
 
         if (msgBox.exec() == QMessageBox::Yes)
         {
-            gm->DeleteGroup(selectedGroup);
-            QMessageBox::information(qobject_cast<QWidget*>(this->parent()), "",
-                                     "Группа удалена");
+            if (gm->DeleteGroup(selectedGroup))
+            {
+                QMessageBox::information(
+                    qobject_cast<QWidget*>(parent()),
+                    "Успешно",
+                    "Группа удалена.",
+                    QMessageBox::Ok);
+            }
+            else
+            {
+                QMessageBox::warning(
+                    qobject_cast<QWidget*>(parent()),
+                    "Ошибка удаления группы",
+                    gm->GetLastError(),
+                    QMessageBox::Ok);
+            }
         }
     }
 }
