@@ -19,9 +19,9 @@ public:
 signals:
     void active_group_changed(Group* new_active_group);
 public slots:
-    void RenameGroup(const QString& old_name, const QString& new_name);
+    bool RenameGroup(const QString& old_name, const QString& new_name);
     bool CreateGroup(const QString& group_name);
-    void DeleteGroup(const QString& group_name);
+    bool DeleteGroup(const QString& group_name);
     // Метод для установки активной группы. Возвращает true, если всё успешно
     bool SetActiveGroup(const QString& group_name);
 private:
