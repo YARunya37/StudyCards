@@ -21,6 +21,9 @@ protected:
     bool RenameItem(const QString& old_name, const QString& new_name) override;
     // Метод для восстановления уже существующих объектов
     QStringList RestoreItems() override;
+
+private:
+    bool IsValidItemName(const QString& name) const;
 };
 
 #endif // DIRITEMSMANAGER_H

@@ -8,6 +8,11 @@ DirItemsManager::DirItemsManager(const QString& path_to_working_dir)
 
 bool DirItemsManager::AddItem(const QString &name)
 {
+    if (!IsValidItemName(name))
+    {
+        return false;
+    }
+
     // Если такой папки нет, то создаём с заданным именем
     if(!currDir.exists(name)){
         if(currDir.mkdir(name)){
@@ -33,6 +38,11 @@ bool DirItemsManager::DeleteItem(const QString &name)
 
 bool DirItemsManager::RenameItem(const QString &old_name, const QString &new_name)
 {
+    if (!IsValidItemName(new_name))
+    {
+        return false;
+    }
+
     if(currDir.rename(old_name, new_name)){
         return true;
     }
@@ -44,6 +54,28 @@ QStringList DirItemsManager::RestoreItems()
 {
     // Возвращаем все папки, кроме специальных, системных
     return currDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+}
+
+// Набор запрещенных символов
+namespace
+{
+    const QString ForbiddenCharacters = ".*\\/<>?:\"|";
+}
+
+bool DirItemsManager::IsValidItemName(const QString& name) const
+{
+    for (const QChar& character : name)
+    {
+        if (ForbiddenCharacters.contains(character))
+        {
+            qWarning() << "Недопустимое имя. Имя не должно содержать символы:"
+                       << ". * / \\ : < > ? \" |";
+
+            return false;
+        }
+    }
+
+    return true;
 }
 
 
