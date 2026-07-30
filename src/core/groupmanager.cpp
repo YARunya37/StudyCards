@@ -27,13 +27,13 @@ QStringList GroupManager::GetAvaliableGroups() const
     return groups.keys();
 }
 
-void GroupManager::RenameGroup(const QString &old_name, const QString &new_name)
+bool GroupManager::RenameGroup(const QString &old_name, const QString &new_name)
 {
     if(RenameItem(old_name, new_name)){
         auto group = GetGroup(old_name);
         // Проверка на nullptr
         if(!group)
-            return;
+            return false;
 
         // Удаление группы
         groups.remove(old_name);
@@ -47,6 +47,10 @@ void GroupManager::RenameGroup(const QString &old_name, const QString &new_name)
         if(active_group && old_name == active_group->Name()){
             emit active_group_changed(active_group);
         }
+        return true;
+    }
+    else{
+        return false;
     }
 }
 
@@ -62,7 +66,7 @@ bool GroupManager::CreateGroup(const QString &group_name)
     }
 }
 
-void GroupManager::DeleteGroup(const QString &group_name)
+bool GroupManager::DeleteGroup(const QString &group_name)
 {
     if(DeleteItem(group_name)){
         // Если удаляем активную группу, то зануляем её
@@ -74,13 +78,14 @@ void GroupManager::DeleteGroup(const QString &group_name)
         auto group = GetGroup(group_name);
         // Проверка на nullptr
         if(!group)
-            return;
+            return false;
 
         delete group;
         groups.remove(group_name);
+        return true;
     }
     else{
-        qInfo() << "Ошибка при удалении группы";
+        return false;
     }
 }
 
