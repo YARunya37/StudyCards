@@ -478,7 +478,7 @@ bool loadDocument(const QString& inputPath, QString& html, const QString& pandoc
     process.setProgram(pandocPath);// Указываем какую программу запускать
     if (isMarkdown && !markdownContent.isEmpty()) {
         process.setArguments({
-            "-f", "markdown+pipe_tables+grid_tables-yaml_metadata_block-smart",
+            "-f", "markdown+hard_line_breaks-yaml_metadata_block+smart",
             "-t", "html",
             "--embed-resources",
             "--standalone",
