@@ -237,8 +237,105 @@ QString normalizeMarkdown(const QString& content)
     QRegularExpression trailingSpaces("[ \\t]+$", QRegularExpression::MultilineOption);
     result.replace(trailingSpaces, "");
 
+    // 3. === YAML frontmatter: гарантируем пустую строку ПОСЛЕ закрывающего --- ===
+    // Паттерн: "---\n..." (где ... это не пустая строка и не конец файла)
+    // Но только для ПЕРВОГО вхождения (YAML frontmatter)
+    int firstDash = result.indexOf("\n---\n");
+    if (firstDash != -1) {
+        // Находим второй --- (закрывающий YAML)
+        int secondDash = result.indexOf("\n---\n", firstDash + 5);
+        if (secondDash != -1) {
+            // Добавляем пустую строку после закрывающего ---
+            QString before = result.left(secondDash + 5);
+            QString after = result.mid(secondDash + 5);
+            if (!after.startsWith("\n")) {
+                after = "\n" + after;
+            }
+            result = before + after;
+        }
+    }
+
+    // 4. === Горизонтальные линии: гарантируем пустые строки вокруг --- ===
+    // Ищем --- которые НЕ являются YAML frontmatter
+    // Паттерн: строка состоящая только из --- (возможно с пробелами)
+    QRegularExpression hrLine("^[ \\t]*---[ \\t]*$", QRegularExpression::MultilineOption);
+    QRegularExpressionMatchIterator hrIt = hrLine.globalMatch(result);
+
+    QList<QPair<int, int>> hrPositions;
+    while (hrIt.hasNext()) {
+        QRegularExpressionMatch match = hrIt.next();
+        hrPositions.append(qMakePair(match.capturedStart(), match.capturedLength()));
+    }
+
+    // Обрабатываем с конца к началу чтобы индексы не сдвигались
+    for (int i = hrPositions.size() - 1; i >= 0; --i) {
+        int pos = hrPositions[i].first;
+        int len = hrPositions[i].second;
+
+        // Проверяем что перед --- есть пустая строка
+        bool hasBefore = (pos >= 2 && result[pos-2] == '\n' && result[pos-1] == '\n');
+        // Проверяем что после --- есть пустая строка
+        bool hasAfter = (pos + len + 1 < result.length() && result[pos + len] == '\n' && result[pos + len + 1] == '\n');
+
+        if (!hasBefore || !hasAfter) {
+            QString before = result.left(pos);
+            QString hr = result.mid(pos, len);
+            QString after = result.mid(pos + len);
+
+            // Добавляем пустую строку перед если нужно
+            if (!hasBefore) {
+                if (before.endsWith("\n")) {
+                    before += "\n";
+                } else {
+                    before += "\n\n";
+                }
+            }
+            // Добавляем пустую строку после если нужно
+            if (!hasAfter) {
+                if (after.startsWith("\n")) {
+                    after = "\n" + after;
+                } else {
+                    after = "\n\n" + after;
+                }
+            }
+
+            result = before + hr + after;
+        }
+    }
+
+    // 5. === Пустая строка ПЕРЕД маркированным списком (-, *, •) ===
+    result.replace(QRegularExpression("([^\n])\n([ \\t]*[-*•][ \\t]+)"), "\\1\n\n\\2");
+
+    // 6. === Пустая строка ПЕРЕД нумерованным списком (1., 2., и т.д.) ===
+    result.replace(QRegularExpression("([^\n])\n([ \\t]*\\d+\\.[ \\t]+)"), "\\1\n\n\\2");
+
+    // 7. === Пустая строка ПОСЛЕ нумерованного списка ===
+    result.replace(QRegularExpression("(\n[ \\t]*\\d+\\.[^\n]*)(\n)([ \\t]*[^\\d\\n])"), "\\1\n\n\\3");
+
+    // 8. === Пустая строка ПОСЛЕ маркированного списка ===
+    result.replace(QRegularExpression("(\n[ \\t]*[-*•][^\n]*)(\n)([ \\t]*[^-*•\\d\\n])"), "\\1\n\n\\3");
+
+    // 9. === Исправляем заголовки в конце строки ===
+    result.replace(QRegularExpression("([^\n#])\\s+(#{1,6}\\s+\\S)"), "\\1\n\n\\2");
+
+    // 10. === Пустая строка перед строкой, начинающейся с заглавной буквы ===
+    result.replace(QRegularExpression("([.!?:])\n([А-ЯЁA-Z])"), "\\1\n\n\\2");
+
+    // 11. === Obsidian highlight ==текст== → <mark> ===
+    QRegularExpression highlight(R"(==\s*([^=]+?)\s*==)");
+    result.replace(highlight, "<mark style=\"background:#ffff00; color:#000; padding:1px 3px; border-radius:2px;\">\\1</mark>");
+
+    // 12. Убираем лишние пустые строки в начале и конце
+    result = result.trimmed();
+
+    // Отладочный вывод
+    qInfo() << "=== Normalized Markdown (first 500 chars) ===";
+    qInfo() << result.left(500);
+    qInfo() << "=============================================";
+
     return result;
 }
+
 // Конвертация Obsidian-синтаксиса в стандартный Markdown
 QString convertObsidianToMarkdown(const QString& content,
                                    const QString& mdFilePath,
