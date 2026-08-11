@@ -43,7 +43,7 @@ void RichTextEdit::insertFromMimeData(const QMimeData *source)
     QTextEdit::insertFromMimeData(source);
 }
 
-void RichTextEdit::insertImageToEditor(const QImage &image)
+void RichTextEdit::InsertImageToEditor(const QImage &image)
 {
     // Определяем максимальную ширину (но не уменьшаем маленькие изображения)
     int maxWidth = qMin(this->viewport()->width() - 40, 1200);  // Увеличили макс. ширину до 1200px

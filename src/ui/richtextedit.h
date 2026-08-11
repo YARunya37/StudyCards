@@ -16,7 +16,7 @@ protected:
 
 private:
     // Вспомогательный метод для вставки картинки
-    void insertImageToEditor(const QImage &image);
+    void InsertImageToEditor(const QImage &image);
 };
 
 #endif // RICHTEXTEDIT_H
