@@ -4,6 +4,8 @@
 #include <QUrl>
 #include <QTextCursor>
 #include <QVariant>
+#include <QDebug>
+
 namespace
 {
     // Ограничения вставки: не раздувать base64 и помещаться в окно
@@ -21,33 +23,48 @@ RichTextEdit::RichTextEdit(QWidget *parent) : QTextEdit(parent)
 
 void RichTextEdit::insertFromMimeData(const QMimeData *source)
 {
-    // Если в буфере есть картинка (Ctrl+V)
-    if (source->hasImage()) {
-        QImage image = qvariant_cast<QImage>(source->imageData());
-        insertImageToEditor(image);
+    // Картинка в буфере (Ctrl+V), в т.ч. из внешних программ (Photoshop и т.п.)
+    if (source->hasImage())
+    {
+        InsertImageToEditor(qvariant_cast<QImage>(source->imageData()));
         return;
     }
 
-    // Если перетаскиваем файл (Drag & Drop)
-    if (source->hasUrls()) {
-        QList<QUrl> urls = source->urls();
-        for (const QUrl &url : urls) {
-            QString localFile = url.toLocalFile();
-            if (!localFile.isEmpty()) {
-                QImage image(localFile);
-                if (!image.isNull()) {
-                    // Это картинка -> вставляем её
-                    insertImageToEditor(image);
-                } else {
-                    // Это не картинка (например, текст) -> стандартное поведение
-                    QTextEdit::insertFromMimeData(source);
-                }
-                return; // Обработали, выходим
+    if (source->hasUrls())
+    {
+        bool handledAnyFile = false;
+        const QList<QUrl> urls = source->urls();
+        for (const QUrl &url : urls)
+        {
+            const QString localFile = url.toLocalFile();
+            if (localFile.isEmpty())
+            {
+                continue;
+            }
+
+            handledAnyFile = true;
+            QImage image(localFile);
+            if (!image.isNull())
+            {
+                InsertImageToEditor(image);
+            }
+            else
+            {
+                // Файл-не-картинка иначе вставился бы в текст как путь file://;
+                // такие «ссылки» в конспекте бесполезны, поэтому пропускаем
+                qWarning() << "RichTextEdit: non-image file skipped:" << localFile;
             }
         }
+
+        // Ни одного локального файла (например, перетащили ссылку из браузера) —
+        // сохраняем прежнее стандартное поведение
+        if (!handledAnyFile)
+        {
+            QTextEdit::insertFromMimeData(source);
+        }
+        return;
     }
 
-    // Обычный текст
     QTextEdit::insertFromMimeData(source);
 }
 
