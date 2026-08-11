@@ -3,6 +3,9 @@
 
 #include <QTextEdit>
 #include <QMimeData>
+#include <QImage>
+#include <QTextCursor>
+#include <QTextImageFormat>
 
 class RichTextEdit : public QTextEdit
 {

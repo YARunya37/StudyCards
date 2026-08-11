@@ -4,6 +4,14 @@
 #include <QUrl>
 #include <QTextCursor>
 #include <QVariant>
+namespace
+{
+    // Ограничения вставки: не раздувать base64 и помещаться в окно
+    constexpr int MaxInsertWidth = 1200;
+    constexpr int MaxInsertHeight = 900;
+    constexpr int DefaultWidth = 800;
+
+}
 
 RichTextEdit::RichTextEdit(QWidget *parent) : QTextEdit(parent)
 {
@@ -45,39 +53,36 @@ void RichTextEdit::insertFromMimeData(const QMimeData *source)
 
 void RichTextEdit::InsertImageToEditor(const QImage &image)
 {
-    // Определяем максимальную ширину (но не уменьшаем маленькие изображения)
-    int maxWidth = qMin(this->viewport()->width() - 40, 1200);  // Увеличили макс. ширину до 1200px
-    if (maxWidth < 100) maxWidth = 800;
-
-    // Масштабируем только если изображение слишком большое
-    QImage processedImage = image;
-    if (image.width() > maxWidth) {
-        processedImage = image.scaled(
-            maxWidth,
-            900,  // Максимальная высота
-            Qt::KeepAspectRatio,
-            Qt::SmoothTransformation  // Качественное сглаживание
-        );
+    int maxWidth = qMin(this->viewport()->width() - 40, MaxInsertWidth);
+    if (maxWidth < 100)
+    {
+        maxWidth = DefaultWidth;
     }
 
-    // Сохраняем в PNG для максимального качества (без потерь)
+    QImage processedImage = image;
+    if (image.width() > maxWidth)
+    {
+        processedImage = image.scaled(maxWidth, MaxInsertHeight,
+                                      Qt::KeepAspectRatio,
+                                      Qt::SmoothTransformation);
+    }
+
     QByteArray byteArray;
     QBuffer buffer(&byteArray);
     buffer.open(QIODevice::WriteOnly);
     processedImage.save(&buffer, "PNG");
 
-    // Конвертируем в base64
-    QString base64Image = QString("data:image/png;base64,%1")
-        .arg(QString(byteArray.toBase64()));
+    QTextImageFormat imageFormat;
+    imageFormat.setName(QString("data:image/png;base64,%1").arg(QString(byteArray.toBase64())));
+    // Фиксируем размер в формате изображения, а не в style-атрибуте:
+    // тогда toHtml() записывает width/height, и после повторного открытия
+    // документа картинка сохраняет заданный размер
+    imageFormat.setWidth(processedImage.width());
+    imageFormat.setHeight(processedImage.height());
 
-    // Вычисляем размеры для отображения
-    int displayWidth = qMin(processedImage.width(), maxWidth);
+    textCursor().insertImage(imageFormat);
+}
 
-    // Вставляем с ограничениями по размеру
-    QTextCursor cursor = textCursor();
-    QString html = QString("<img src=\"%1\" style=\"max-width: %2px; width: %2px; height: auto;\" />")
-        .arg(base64Image)
-        .arg(displayWidth);
 
-    cursor.insertHtml(html);
+
 }
