@@ -1,83 +1,389 @@
 #include "richtextedit.h"
+
 #include <QBuffer>
-#include <QImage>
+#include <QMouseEvent>
+#include <QPaintEvent>
+#include <QPainter>
+#include <QTextBlock>
 #include <QUrl>
-#include <QTextCursor>
 #include <QVariant>
+#include <QDebug>
+
+namespace
+{
+    // Ограничения вставки: не раздувать base64 и помещаться в окно
+    constexpr int MaxInsertWidth = 1200;
+    constexpr int MaxInsertHeight = 900;
+    constexpr int DefaultWidth = 800;
+
+    constexpr int MinImageWidth = 40;
+    constexpr int HandleSize = 12;
+    constexpr int HandleMargin = 4;
+    // Зона клика больше видимой ручки — её реально можно ухватить
+    constexpr int HandleHitMargin = 10;
+}
 
 RichTextEdit::RichTextEdit(QWidget *parent) : QTextEdit(parent)
 {
-    // Устанавливаем стили для изображений
+    // Картинки не должны вылезать за видимую область редактора
     this->document()->setDefaultStyleSheet("img { max-width: 100%; height: auto; }");
+    // События движения мыши без кнопок — чтобы показывать ручку при наведении
+    viewport()->setMouseTracking(true);
 }
 
 void RichTextEdit::insertFromMimeData(const QMimeData *source)
 {
-    // Если в буфере есть картинка (Ctrl+V)
-    if (source->hasImage()) {
-        QImage image = qvariant_cast<QImage>(source->imageData());
-        insertImageToEditor(image);
+    // Картинка в буфере (Ctrl+V), в т.ч. из внешних программ (Photoshop и т.п.)
+    if (source->hasImage())
+    {
+        InsertImageToEditor(qvariant_cast<QImage>(source->imageData()));
         return;
     }
 
-    // Если перетаскиваем файл (Drag & Drop)
-    if (source->hasUrls()) {
-        QList<QUrl> urls = source->urls();
-        for (const QUrl &url : urls) {
-            QString localFile = url.toLocalFile();
-            if (!localFile.isEmpty()) {
-                QImage image(localFile);
-                if (!image.isNull()) {
-                    // Это картинка -> вставляем её
-                    insertImageToEditor(image);
-                } else {
-                    // Это не картинка (например, текст) -> стандартное поведение
-                    QTextEdit::insertFromMimeData(source);
-                }
-                return; // Обработали, выходим
+    if (source->hasUrls())
+    {
+        bool handledAnyFile = false;
+        const QList<QUrl> urls = source->urls();
+        for (const QUrl &url : urls)
+        {
+            const QString localFile = url.toLocalFile();
+            if (localFile.isEmpty())
+            {
+                continue;
+            }
+
+            handledAnyFile = true;
+            QImage image(localFile);
+            if (!image.isNull())
+            {
+                InsertImageToEditor(image);
+            }
+            else
+            {
+                // Файл-не-картинка иначе вставился бы в текст как путь file://;
+                // такие «ссылки» в конспекте бесполезны, поэтому пропускаем
+                qWarning() << "RichTextEdit: non-image file skipped:" << localFile;
             }
         }
+
+        // Ни одного локального файла (например, перетащили ссылку из браузера) —
+        // сохраняем прежнее стандартное поведение
+        if (!handledAnyFile)
+        {
+            QTextEdit::insertFromMimeData(source);
+        }
+        return;
     }
 
-    // Обычный текст
     QTextEdit::insertFromMimeData(source);
 }
 
-void RichTextEdit::insertImageToEditor(const QImage &image)
+void RichTextEdit::InsertImageToEditor(const QImage &image)
 {
-    // Определяем максимальную ширину (но не уменьшаем маленькие изображения)
-    int maxWidth = qMin(this->viewport()->width() - 40, 1200);  // Увеличили макс. ширину до 1200px
-    if (maxWidth < 100) maxWidth = 800;
-
-    // Масштабируем только если изображение слишком большое
-    QImage processedImage = image;
-    if (image.width() > maxWidth) {
-        processedImage = image.scaled(
-            maxWidth,
-            900,  // Максимальная высота
-            Qt::KeepAspectRatio,
-            Qt::SmoothTransformation  // Качественное сглаживание
-        );
+    int maxWidth = qMin(this->viewport()->width() - 40, MaxInsertWidth);
+    if (maxWidth < 100)
+    {
+        maxWidth = DefaultWidth;
     }
 
-    // Сохраняем в PNG для максимального качества (без потерь)
+    QImage processedImage = image;
+    if (image.width() > maxWidth)
+    {
+        processedImage = image.scaled(maxWidth, MaxInsertHeight,
+                                      Qt::KeepAspectRatio,
+                                      Qt::SmoothTransformation);
+    }
+
     QByteArray byteArray;
     QBuffer buffer(&byteArray);
     buffer.open(QIODevice::WriteOnly);
     processedImage.save(&buffer, "PNG");
 
-    // Конвертируем в base64
-    QString base64Image = QString("data:image/png;base64,%1")
-        .arg(QString(byteArray.toBase64()));
+    QTextImageFormat imageFormat;
+    imageFormat.setName(QString("data:image/png;base64,%1").arg(QString(byteArray.toBase64())));
+    // Фиксируем размер в формате изображения, а не в style-атрибуте:
+    // тогда toHtml() записывает width/height, и после повторного открытия
+    // документа картинка сохраняет заданный размер
+    imageFormat.setWidth(processedImage.width());
+    imageFormat.setHeight(processedImage.height());
 
-    // Вычисляем размеры для отображения
-    int displayWidth = qMin(processedImage.width(), maxWidth);
+    textCursor().insertImage(imageFormat);
+}
 
-    // Вставляем с ограничениями по размеру
-    QTextCursor cursor = textCursor();
-    QString html = QString("<img src=\"%1\" style=\"max-width: %2px; width: %2px; height: auto;\" />")
-        .arg(base64Image)
-        .arg(displayWidth);
+QTextCursor RichTextEdit::NormalizedImageCursor(const QTextCursor &cursor) const
+{
+    const QTextBlock block = cursor.block();
+    const QString text = block.text();
+    const int posInBlock = cursor.position() - block.position();
 
-    cursor.insertHtml(html);
+    // Нечёткий хит-тест ставит курсор либо НА объект, либо сразу ПОСЛЕ него —
+    // приводим к единой позиции: символ-объект изображения
+    int objectIndex = -1;
+    if (posInBlock < text.length() && text.at(posInBlock) == QChar::ObjectReplacementCharacter)
+    {
+        objectIndex = posInBlock;
+    }
+    else if (posInBlock > 0 && text.at(posInBlock - 1) == QChar::ObjectReplacementCharacter)
+    {
+        objectIndex = posInBlock - 1;
+    }
+    else
+    {
+        objectIndex = text.indexOf(QChar::ObjectReplacementCharacter);
+    }
+
+    if (objectIndex < 0)
+    {
+        return QTextCursor();
+    }
+
+    QTextCursor normalized = cursor;
+    normalized.clearSelection();
+    normalized.setPosition(block.position() + objectIndex);
+    return normalized;
+}
+
+QTextCursor RichTextEdit::ImageCursorAt(const QPoint &pos) const
+{
+    QTextCursor cursor = cursorForPosition(pos);
+    if (cursor.isNull() || !cursor.charFormat().isImageFormat())
+    {
+        return QTextCursor();
+    }
+
+    // cursorForPosition «дотягивается» до ближайшего символа, поэтому пустое
+    // место справа от картинки или ниже текста тоже падает в изображение.
+    // Доверяем хиту, только если точка реально внутри видимого прямоугольника.
+    const QRect imageRect = ImageViewportRect(cursor);
+    if (!imageRect.adjusted(-2, -2, 2, 2).contains(pos))
+    {
+        return QTextCursor();
+    }
+    return NormalizedImageCursor(cursor);
+}
+
+QTextCursor RichTextEdit::ResolveImageAt(const QPoint &pos) const
+{
+    const QTextCursor cursor = ImageCursorAt(pos);
+    if (!cursor.isNull())
+    {
+        return cursor;
+    }
+
+    // Гистерезис: у самых границ картинки хит-тест может мигать,
+    // поэтому пока курсор внутри последнего hover-прямоугольника —
+    // он всё ещё «над изображением»
+    if (!m_hoverCursor.isNull() && m_hoverRect.isValid() && m_hoverRect.contains(pos))
+    {
+        return m_hoverCursor;
+    }
+    return QTextCursor();
+}
+
+QRect RichTextEdit::ImageViewportRect(const QTextCursor &cursor) const
+{
+    if (cursor.isNull() || !cursor.charFormat().isImageFormat())
+    {
+        return QRect();
+    }
+
+    // Курсор мог встать до ИЛИ после объекта — cursorRect для «после» даёт
+    // правый край, и рамка уезжала на ширину картинки. Нормализуем.
+    const QTextCursor anchorCursor = NormalizedImageCursor(cursor);
+    if (anchorCursor.isNull())
+    {
+        return QRect();
+    }
+
+    // cursorRect — собственный маппинг координат Qt: уже в системе viewport,
+    // учитывает центрирование, отступы и скролл
+    const QRect anchor = cursorRect(anchorCursor);
+
+    const QTextImageFormat format = cursor.charFormat().toImageFormat();
+    int width = static_cast<int>(format.width());
+    if (width <= 0)
+    {
+        // Старые документы хранили размер только в style — берём исходный
+        width = DecodeImage(format).width();
+    }
+    return QRect(anchor.x(), anchor.y(), width, anchor.height());
+}
+
+QRect RichTextEdit::HandleRect(const QRect &imageRect) const
+{
+    return QRect(imageRect.right() - HandleSize - HandleMargin,
+                 imageRect.bottom() - HandleSize - HandleMargin,
+                 HandleSize,
+                 HandleSize);
+}
+
+QRect RichTextEdit::HandleHitRect(const QRect &imageRect) const
+{
+    return HandleRect(imageRect).adjusted(-HandleHitMargin, -HandleHitMargin,
+                                          HandleHitMargin, HandleHitMargin);
+}
+
+void RichTextEdit::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton && !isReadOnly())
+    {
+        const QTextCursor cursor = ResolveImageAt(event->pos());
+        if (!cursor.isNull() &&
+            HandleHitRect(ImageViewportRect(cursor)).contains(event->pos()))
+        {
+            StartResize(cursor, event->pos());
+            return;
+        }
+    }
+    QTextEdit::mousePressEvent(event);
+}
+
+void RichTextEdit::mouseMoveEvent(QMouseEvent *event)
+{
+    if (m_resizing)
+    {
+        UpdateResize(event->pos());
+        return;
+    }
+
+    const QTextCursor cursor = ResolveImageAt(event->pos());
+    if (!cursor.isNull() && !isReadOnly())
+    {
+        m_hoverRect = ImageViewportRect(cursor);
+        m_hoverCursor = cursor;
+        viewport()->setCursor(HandleHitRect(m_hoverRect).contains(event->pos())
+                                  ? Qt::SizeFDiagCursor
+                                  : Qt::IBeamCursor);
+    }
+    else
+    {
+        m_hoverRect = QRect();
+        m_hoverCursor = QTextCursor();
+        viewport()->setCursor(Qt::IBeamCursor);
+    }
+    viewport()->update();
+    QTextEdit::mouseMoveEvent(event);
+}
+
+void RichTextEdit::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (m_resizing)
+    {
+        FinishResize();
+        return;
+    }
+    QTextEdit::mouseReleaseEvent(event);
+}
+
+void RichTextEdit::leaveEvent(QEvent *event)
+{
+    m_hoverRect = QRect();
+    m_hoverCursor = QTextCursor();
+    viewport()->update();
+    QTextEdit::leaveEvent(event);
+}
+
+void RichTextEdit::StartResize(const QTextCursor &cursor, const QPoint &pos)
+{
+    m_imageCursor = cursor;
+    m_resizing = true;
+    m_dragStart = pos;
+
+    const QTextImageFormat format = cursor.charFormat().toImageFormat();
+    m_startWidth = static_cast<int>(format.width());
+    m_startHeight = static_cast<int>(format.height());
+    if (m_startWidth <= 0 || m_startHeight <= 0)
+    {
+        const QImage original = DecodeImage(format);
+        m_startWidth = original.width();
+        m_startHeight = original.height();
+    }
+    m_previewRect = ImageViewportRect(cursor);
+}
+
+void RichTextEdit::UpdateResize(const QPoint &pos)
+{
+    const int delta = pos.x() - m_dragStart.x();
+    const int newWidth = qBound(MinImageWidth, m_startWidth + delta, viewport()->width());
+
+    m_previewRect = ImageViewportRect(m_imageCursor);
+    m_previewRect.setWidth(newWidth);
+    m_previewRect.setHeight(ScaledHeight(newWidth));
+    viewport()->update();
+}
+
+void RichTextEdit::FinishResize()
+{
+    m_resizing = false;
+
+    if (!m_imageCursor.isNull() && m_previewRect.isValid())
+    {
+        QTextCursor cursor = m_imageCursor;
+        cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
+
+        // Защита от применения формата к соседу:
+        // в выделении должен быть именно символ-объект изображения
+        if (cursor.selectedText().contains(QChar::ObjectReplacementCharacter))
+        {
+            QTextImageFormat format = m_imageCursor.charFormat().toImageFormat();
+            format.setWidth(m_previewRect.width());
+            format.setHeight(m_previewRect.height());
+            cursor.mergeCharFormat(format);
+        }
+        else
+        {
+            qWarning() << "RichTextEdit: image object not selected, resize not applied";
+        }
+    }
+
+    m_imageCursor = QTextCursor();
+    m_previewRect = QRect();
+    viewport()->update();
+}
+
+int RichTextEdit::ScaledHeight(int newWidth) const
+{
+    if (m_startWidth <= 0)
+    {
+        return newWidth;
+    }
+    return qMax(1, qRound(static_cast<qreal>(newWidth) * m_startHeight / m_startWidth));
+}
+
+void RichTextEdit::paintEvent(QPaintEvent *event)
+{
+    QTextEdit::paintEvent(event);
+
+    QPainter painter(viewport());
+
+    if (m_resizing && m_previewRect.isValid())
+    {
+        // Тянем только рамку: размер в документе меняется один раз при отпускании,
+        // иначе каждый mouseMove пересчитывал бы layout всего документа
+        painter.setPen(QPen(QColor(0, 120, 215), 2));
+        painter.drawRect(m_previewRect);
+        painter.setBrush(QColor(0, 120, 215));
+        painter.drawRect(HandleRect(m_previewRect));
+        return;
+    }
+
+    if (!m_hoverRect.isValid() || isReadOnly())
+    {
+        return;
+    }
+    painter.setPen(QPen(QColor(0, 120, 215, 220), 2));
+    painter.drawRect(m_hoverRect);
+    painter.setBrush(QColor(0, 120, 215));
+    painter.drawRect(HandleRect(m_hoverRect));
+}
+
+QImage RichTextEdit::DecodeImage(const QTextImageFormat &format) const
+{
+    const QString name = format.name();
+    const int marker = name.indexOf("base64,");
+    if (marker < 0)
+    {
+        return QImage(name);
+    }
+    return QImage::fromData(QByteArray::fromBase64(name.mid(marker + 7).toLatin1()));
 }
