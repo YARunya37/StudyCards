@@ -16,6 +16,7 @@ namespace
     constexpr int MaxInsertHeight = 900;
     constexpr int DefaultWidth = 800;
 
+    constexpr int MinImageWidth = 40;
     constexpr int HandleSize = 12;
     constexpr int HandleMargin = 4;
     // Зона клика больше видимой ручки — её реально можно ухватить
@@ -222,6 +223,21 @@ QRect RichTextEdit::HandleHitRect(const QRect &imageRect) const
                                           HandleHitMargin, HandleHitMargin);
 }
 
+void RichTextEdit::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton && !isReadOnly())
+    {
+        const QTextCursor cursor = ResolveImageAt(event->pos());
+        if (!cursor.isNull() &&
+            HandleHitRect(ImageViewportRect(cursor)).contains(event->pos()))
+        {
+            StartResize(cursor, event->pos());
+            return;
+        }
+    }
+    QTextEdit::mousePressEvent(event);
+}
+
 void RichTextEdit::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_resizing)
@@ -249,6 +265,16 @@ void RichTextEdit::mouseMoveEvent(QMouseEvent *event)
     QTextEdit::mouseMoveEvent(event);
 }
 
+void RichTextEdit::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (m_resizing)
+    {
+        FinishResize();
+        return;
+    }
+    QTextEdit::mouseReleaseEvent(event);
+}
+
 void RichTextEdit::leaveEvent(QEvent *event)
 {
     m_hoverRect = QRect();
@@ -257,6 +283,72 @@ void RichTextEdit::leaveEvent(QEvent *event)
     QTextEdit::leaveEvent(event);
 }
 
+void RichTextEdit::StartResize(const QTextCursor &cursor, const QPoint &pos)
+{
+    m_imageCursor = cursor;
+    m_resizing = true;
+    m_dragStart = pos;
+
+    const QTextImageFormat format = cursor.charFormat().toImageFormat();
+    m_startWidth = static_cast<int>(format.width());
+    m_startHeight = static_cast<int>(format.height());
+    if (m_startWidth <= 0 || m_startHeight <= 0)
+    {
+        const QImage original = DecodeImage(format);
+        m_startWidth = original.width();
+        m_startHeight = original.height();
+    }
+    m_previewRect = ImageViewportRect(cursor);
+}
+
+void RichTextEdit::UpdateResize(const QPoint &pos)
+{
+    const int delta = pos.x() - m_dragStart.x();
+    const int newWidth = qBound(MinImageWidth, m_startWidth + delta, viewport()->width());
+
+    m_previewRect = ImageViewportRect(m_imageCursor);
+    m_previewRect.setWidth(newWidth);
+    m_previewRect.setHeight(ScaledHeight(newWidth));
+    viewport()->update();
+}
+
+void RichTextEdit::FinishResize()
+{
+    m_resizing = false;
+
+    if (!m_imageCursor.isNull() && m_previewRect.isValid())
+    {
+        QTextCursor cursor = m_imageCursor;
+        cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
+
+        // Защита от применения формата к соседу:
+        // в выделении должен быть именно символ-объект изображения
+        if (cursor.selectedText().contains(QChar::ObjectReplacementCharacter))
+        {
+            QTextImageFormat format = m_imageCursor.charFormat().toImageFormat();
+            format.setWidth(m_previewRect.width());
+            format.setHeight(m_previewRect.height());
+            cursor.mergeCharFormat(format);
+        }
+        else
+        {
+            qWarning() << "RichTextEdit: image object not selected, resize not applied";
+        }
+    }
+
+    m_imageCursor = QTextCursor();
+    m_previewRect = QRect();
+    viewport()->update();
+}
+
+int RichTextEdit::ScaledHeight(int newWidth) const
+{
+    if (m_startWidth <= 0)
+    {
+        return newWidth;
+    }
+    return qMax(1, qRound(static_cast<qreal>(newWidth) * m_startHeight / m_startWidth));
+}
 
 void RichTextEdit::paintEvent(QPaintEvent *event)
 {

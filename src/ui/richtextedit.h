@@ -23,12 +23,13 @@ public:
 protected:
     // Обработка вставки (Drag&Drop или Ctrl+V)
     void insertFromMimeData(const QMimeData *source) override;
+    void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
     void leaveEvent(QEvent *event) override;
 
 private:
-    // Вспомогательный метод для вставки картинки
     void InsertImageToEditor(const QImage &image);
 
     // Курсор, нормализованный строго на символ-объект изображения в блоке,
@@ -43,6 +44,12 @@ private:
     QRect ImageViewportRect(const QTextCursor &cursor) const;
     QRect HandleRect(const QRect &imageRect) const;
     QRect HandleHitRect(const QRect &imageRect) const;
+
+    void StartResize(const QTextCursor &cursor, const QPoint &pos);
+    void UpdateResize(const QPoint &pos);
+    void FinishResize();
+    int ScaledHeight(int newWidth) const;
+
     QImage DecodeImage(const QTextImageFormat &format) const;
 
     QTextCursor m_imageCursor;  // изображение, которое сейчас ресайзим
