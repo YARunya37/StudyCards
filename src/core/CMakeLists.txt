@@ -23,6 +23,7 @@ target_compile_features(core_module PRIVATE cxx_std_17)
 
 target_link_libraries(core_module PRIVATE
     Qt6::Core
+    Qt6::Gui
 )
 
 # Модуль управляющий файлами внутри проекта

@@ -24,8 +24,15 @@
 
 #include <QRegularExpression>
 #include <QDirIterator>
-//Храним стили которые добавим в HTML
 
+#include <QImageReader>
+
+// Дефолтный ограничитель ширины изображений без явного размера в Obsidian.
+// 700 — типичная ширина заметки в Obsidian: без суффикса картинка в приложении
+// выглядит так же, как там. Маленькие изображения не увеличиваем.
+static const int DefaultDisplayWidth = 700;
+
+//Храним стили которые добавим в HTML
 static const QString CSS_STYLES =
     "<style>"
     "table { border-collapse: collapse; width: 100%; border: 2px solid #888; }"
@@ -239,35 +246,37 @@ QString normalizeMarkdown(const QString& content)
 
     return result;
 }
+
 // Конвертация Obsidian-синтаксиса в стандартный Markdown
 QString convertObsidianToMarkdown(const QString& content,
-                                   const QString& mdFilePath,
-                                   const QString& tempDir)
+                                  const QString& mdFilePath,
+                                  const QString& tempDir)
 {
+    // Число после '|' в ![[img|N]] — ширина отображения в Obsidian
+    static const QRegularExpression WidthOnly("^\\d+$");
+
     QString result = content;
     QString vaultRoot = findObsidianVaultRoot(mdFilePath);
-
     qInfo() << "=== Converting Obsidian syntax ===";
     qInfo() << "MD file:" << mdFilePath;
     qInfo() << "Vault root:" << vaultRoot;
     qInfo() << "Temp dir:" << tempDir;
-
     QRegularExpression obsidianImage(R"(!\[\[([^\]\|]+)(?:\|([^\]]+))?\]\])");
     QRegularExpressionMatchIterator it = obsidianImage.globalMatch(result);
-
     QList<QPair<int, int>> imageReplacements;
     QList<QString> imageNewValues;
-
     while (it.hasNext()) {
         QRegularExpressionMatch match = it.next();
         QString imageName = match.captured(1).trimmed();
-        QString altText = match.captured(2).trimmed();
+        QString suffix = match.captured(2).trimmed();
+
+        // Числовой суффикс — авторская ширина, нечисловой — alt-текст
+        const bool isWidth = WidthOnly.match(suffix).hasMatch();
+        const QString altText = isWidth ? QString() : suffix;
 
         qInfo() << "Processing image:" << imageName;
-
         // Ищем файл
         QString foundPath = findImageFile(imageName, mdFilePath);
-
         QString replacement;
         if (foundPath.isEmpty()) {
             replacement = QString("*(Не найдено: %1)*").arg(imageName);
@@ -275,42 +284,55 @@ QString convertObsidianToMarkdown(const QString& content,
             // Копируем во временную папку
             QString destPath = QDir(tempDir).filePath(imageName);
             QFileInfo fileInfo(imageName);
-
             if (fileInfo.dir().path() != ".") {
                 QDir(tempDir).mkpath(fileInfo.dir().path());
                 destPath = QDir(tempDir).filePath(imageName);
             }
-
             if (QFile::copy(foundPath, destPath)) {
                 qInfo() << "Copied to:" << destPath;
 
-                // Создаём ПРАВИЛЬНЫЙ синтаксис с абсолютным путём!
-                if (altText.isEmpty()) {
-                    replacement = QString("![](%1)").arg(destPath);
+                // Ширина: явный суффикс из Obsidian либо дефолтный ограничитель
+                int displayWidth = 0;
+                if (isWidth) {
+                    displayWidth = suffix.toInt();
                 } else {
-                    replacement = QString("![%1](%2)").arg(altText, destPath);
+                    // size() читает только заголовок файла — дёшево
+                    const QSize natural = QImageReader(foundPath).size();
+                    if (natural.width() > 0) {
+                        displayWidth = qMin(natural.width(), DefaultDisplayWidth);
+                    }
                 }
+
+                // Raw HTML: pandoc пропускает тег как есть, --embed-resources
+                // вшивает файл, а пробелы в пути не рвут ссылку
+                replacement = QString("<img src=\"%1\"").arg(destPath);
+                if (!altText.isEmpty()) {
+                    QString escapedAlt = altText;
+                    escapedAlt.replace(QLatin1Char('"'), QLatin1String("&quot;"));
+                    replacement += QString(" alt=\"%1\"").arg(escapedAlt);
+                }
+                if (displayWidth > 0) {
+                    replacement += QString(" width=\"%1\"").arg(displayWidth);
+                }
+                replacement += " />";
             } else {
                 replacement = QString("*(Ошибка копирования)*");
             }
         }
-
         imageReplacements.append(qMakePair(match.capturedStart(), match.capturedLength()));
         imageNewValues.append(replacement);
     }
-
     // Применяем замены
     for (int i = imageReplacements.size() - 1; i >= 0; --i) {
         result.replace(imageReplacements[i].first, imageReplacements[i].second, imageNewValues[i]);
     }
-
     // Wiki-ссылки
     result.replace(QRegularExpression(R"(\[\[([^\]|]+)\|([^\]]+)\]\])"), R"([\2](\1.md))");
     result.replace(QRegularExpression(R"(\[\[([^\]]+)\]\])"), R"([\1](\1.md))");
-
     qInfo() << "=== Conversion complete ===";
     return result;
 }
+
 // Загрузка документа (основная функция)
 bool loadDocument(const QString& inputPath, QString& html, const QString& pandocPath, const QString& outputDir)
 {
