@@ -16,14 +16,13 @@ FileManager::FileManager(QObject* parent, QString path_to_dir)
 
     // Восстанавливаем на основе файлов map
     foreach (auto file, QDir(localfilesPath).entryList(QDir::Files)) {
-        if(file.split(".")[1] != "txt"){
-            // Если файл, то добавляем в map файлов
-            localFiles.insert(file.split(".")[0], localfilesPath + file);
+        if (file.endsWith(".txt", Qt::CaseInsensitive)) {
+            // Файл с информацией о папке: отрезаем только ".txt"
+            localFolders.insert(QFileInfo(file).completeBaseName(), new QFile(localfilesPath + file));
         }
         else{
-            // Добавляем в map папок
-            localFolders.insert(file.split(".")[0], new QFile(localfilesPath + file));
-            // Отправляем в filetreewidget имя папки и всех его членов
+            // Файл: отрезаем только последнее расширение (.html), точки в имени сохраняем
+            localFiles.insert(QFileInfo(file).completeBaseName(), localfilesPath + file);
         }
     }
 }
@@ -31,13 +30,22 @@ FileManager::FileManager(QObject* parent, QString path_to_dir)
 QStringList FileManager::add_files(QStringList files)
 {
     QStringList added_files = QStringList();
+    QStringList rejected_files = QStringList();  // Добавляем список отклонённых
+
     // Все указанные файлы конвертируем и добавляем в папку с файлами проекта
     foreach (auto filePath, files) {
-        QString name = GetName(filePath).split(".")[0];
+
+        // Обрезаем только последнее расширение, точки в имени сохраняем
+        QString name = QFileInfo(filePath).completeBaseName();
+        if (name.isEmpty()) {
+            name = QFileInfo(filePath).fileName();
+        }
         QString ext = QFileInfo(filePath).suffix().toLower();
+
         // Проверка: не занято ли имя
         if(isNameTaken(name)){
             qWarning() << "FileManager: Cannot add file - name already taken:" << name;
+            rejected_files.append(name);  // Добавляем в список отклонённых
             continue;  // Пропускаем этот файл
         }
         // Если файла с таким именем ещё нет, то добавляем его в дерево
@@ -67,6 +75,11 @@ QStringList FileManager::add_files(QStringList files)
                 }
             }
         }
+    }
+
+    // Сообщаем о файлах, которые не были добавлены
+    if (!rejected_files.isEmpty()) {
+        emit filesAddRejected(rejected_files);
     }
     return added_files;
 }

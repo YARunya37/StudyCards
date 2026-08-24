@@ -67,6 +67,7 @@ signals:
     void fileSaved(const QString& fileName); // Файл сохранён
     void modificationChanged(bool modified); // Изменился флаг modified
     void currentFileChanged(const QString& fileName); // Сменился текущий файл
+    void filesAddRejected(const QStringList& names); // файлы не добавлены из-за совпадения имён
 
 public slots:
     // void OnFolderNameChanged();
