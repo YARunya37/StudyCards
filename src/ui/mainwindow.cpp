@@ -89,6 +89,13 @@ MainWindow::MainWindow(QWidget *parent)
     // Создаём менеджер документов:
     FileManager* fileManager = sourceTree->getFileManager();
 
+    // Предупреждаем о файлах, которые не добавились из-за совпадения имён
+    connect(fileManager, &FileManager::filesAddRejected, this, [this](const QStringList& names){
+        QMessageBox::warning(this, "Файлы не добавлены",
+            QString("Файлы с такими именами уже есть в проекте и не были добавлены:\n%1")
+                .arg(names.join("\n")));
+    });
+
     // Создаём DocumentUI и подключаемсохранение:
     m_documentUI = new DocumentUI(this, sourceTree, sourceTextWidget, fileManager, this);
 
