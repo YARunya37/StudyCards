@@ -30,20 +30,22 @@ FileManager::FileManager(QObject* parent, QString path_to_dir)
 QStringList FileManager::add_files(QStringList files)
 {
     QStringList added_files = QStringList();
-    QStringList rejected_files = QStringList();
+    QStringList rejected_files = QStringList();  // Добавляем список отклонённых
 
     // Все указанные файлы конвертируем и добавляем в папку с файлами проекта
     foreach (auto filePath, files) {
+
         // Обрезаем только последнее расширение, точки в имени сохраняем
         QString name = QFileInfo(filePath).completeBaseName();
         if (name.isEmpty()) {
             name = QFileInfo(filePath).fileName();
         }
         QString ext = QFileInfo(filePath).suffix().toLower();
+
         // Проверка: не занято ли имя
         if(isNameTaken(name)){
             qWarning() << "FileManager: Cannot add file - name already taken:" << name;
-            rejected_files.append(name);
+            rejected_files.append(name);  // Добавляем в список отклонённых
             continue;  // Пропускаем этот файл
         }
         // Если файла с таким именем ещё нет, то добавляем его в дерево
@@ -74,6 +76,8 @@ QStringList FileManager::add_files(QStringList files)
             }
         }
     }
+
+    // Сообщаем о файлах, которые не были добавлены
     if (!rejected_files.isEmpty()) {
         emit filesAddRejected(rejected_files);
     }
