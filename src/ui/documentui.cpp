@@ -122,10 +122,14 @@ void DocumentUI::onFileDoubleClicked(const QString& fileName)
                         word-break: break-all !important;
                         overflow-x: auto !important;
                         max-width: 100% !important;
+                        background: #f5f5f5 !important;
+                        color: #333 !important;
                     }
                     code {
                         white-space: pre-wrap !important;
                         word-wrap: break-word !important;
+                        color: #333 !important;
+                        background: transparent !important;
                     }
                 </style>
                 )";
