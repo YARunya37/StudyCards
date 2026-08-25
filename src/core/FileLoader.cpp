@@ -32,8 +32,8 @@ static const QString CSS_STYLES =
     "th { padding: 6px; font-weight: bold; }"
     "td { border: 1px solid #888; padding: 6px; }"
     "img { max-width: 40em; width: 100%; height: auto; display: block; margin: 1em 0; }"
-    "pre { background: #1e1e1e; padding: 10px; overflow-x: auto; }"
-    "code { font-family: 'Courier New', monospace; }"
+    "pre { background: #f5f5f5; padding: 10px; overflow-x: auto; } "
+    "code { font-family: 'Courier New', monospace; color: #333; } "
     "a { color: #9b59b6; text-decoration: underline; }"
     "</style>";
 
